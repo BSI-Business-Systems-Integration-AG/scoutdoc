@@ -1,0 +1,102 @@
+h1. Overview
+
+h2. Goals
+
+The "Eclipse Scout":http://www.eclipse.org/scout project has started to create documentation on "Eclipsepedia/Scout":http://wiki.eclipse.org/Scout. This is a crowdsourcing platform: anybody can contribute and write what he wants on Eclipse Scout. Therefore there is a need to monitor the contributions and to be aware if they derive from a set of guidelines. Like every other project, Eclipse Scout want also to provide content as Eclipse help.
+
+This project prepares the infrastructure to achieve these two goals (monitoring and conversion). 
+
+
+h2. Data structure 
+
+The different tools need to store informations for the configuration of the tool and the definition of each task. 
+
+__TODO: provide example__
+
+
+h2. Fetch
+
+Download the eclipsepedia content in a local directory (pages, pages meta-information, images, templates, ...).
+
+__TODO: provide a small how to use the tool__
+ 
+Organization of the files on the disk.
+
+First level (MediaWiki namespace):
+* @Article@
+* @Image@
+* @Template@
+
+For each page:
+* @*.mediawiki@ File: source of the page (media wiki)
+* @*.meta.xml@ File: meta information provided by MediaWiki.
+
+Here an example:
+
+bc. 
+  wiki_src
+  |  
+  +---Article
+  |   \---Scout
+  |       \---Tutorial
+  |           +---3.7
+  |           |    HelloWorld.mediawiki
+  |           |    HelloWorld.meta.xml
+  |           |
+  |           \---3.8
+  |                HelloWorld.mediawiki
+  |                HelloWorld.meta.xml
+  +---Image
+  |    Newprojectdialog1.png
+  |    Newprojectdialog1.png.mediawiki
+  |    Newprojectdialog1.png.meta.xml
+  |    ...
+  |      
+  \---Template
+       ScoutLink.mediawiki
+       ScoutLink.meta.xml
+       ...
+
+
+h2. Converter
+
+Use WikiText to create the content.
+
+__TODO: provide a small how to use the tool__
+
+
+h2. Check
+
+Output format: checkstyle xml.
+
+Guidelines examples:
+* All pictures that appears in a Scout page should be in the “Scout Image” category
+* No link to a redirection page.
+* Old pages (e.g 3.7 tutorials) needs to contain a special template to mention that the content of the page is old, and that there is a newer version.
+
+The tool verify the content follow the guideline or not, an publish a list of warning as checkstyle xml output.
+
+__TODO: provide a small how to use the tool__ 
+
+
+h2. Git Mirror of the MediaWiki content
+
+Goal: replace the fetch tool with a mirror of the MediaWiki changes as a git repository. 
+
+Advantages:
+* Be able to restore any state.
+* Structured delta download of the changes.
+* Standard tool.
+* Integration with Hudson
+* ...
+
+Existing project: "mw-to-git":https://github.com/git/git/tree/master/contrib/mw-to-git - "documentation":https://github.com/Bibzball/Git-Mediawiki/wiki/User-manual
+
+
+h2. Hudson integration
+
+Usage of Hudson.
+* Checkout the last wiki state (delta since last run, ... ).
+* Execute the verification and display the check result.
+* Build the documentation.
+
