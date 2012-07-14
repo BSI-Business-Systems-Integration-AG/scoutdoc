@@ -39,7 +39,7 @@ h2. Fetch
 
 Download the eclipsepedia content in a local directory (pages, pages meta-information, images, templates, ...) for a specific task.
 
-Java main class: MainFetch
+Java main class: @MainFetch@
 * First parameter: the task properties file.
 * Second parameter (optional): the project properties file.
 
@@ -85,7 +85,9 @@ h2. Converter
 
 Use WikiText to create the content.
 
-__TODO: provide a small how to use the tool__
+Java main class: @MainConverter@
+* First parameter: the task properties file.
+* Second parameter (optional): the project properties file.
 
 
 h2. Check
@@ -96,6 +98,8 @@ Guidelines examples:
 * All pictures that appears in a Scout page should be in the “Scout Image” category
 * No link to a redirection page.
 * Old pages (e.g 3.7 tutorials) needs to contain a special template to mention that the content of the page is old, and that there is a newer version.
+* @<br clear="all" />@ is not supported by the converter tool: warning if used
+* @<code>xxx</CODE>@ is not supported by the converter tool: should be @<code>xxx</code>@.
 
 The tool verify the content follow the guideline or not, an publish a list of warning as checkstyle xml output.
 

@@ -16,14 +16,15 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class ProjectProperties {
+	private static final String PROP_FOLDER_WIKI_SOURCE = "folder.wiki.source";
+	private static final String PROP_FOLDER_WIKI_DIST = "folder.wiki.dist";
 	private static final String PROP_WIKI_API_URL = "wiki.api.url";
 	private static final String PROP_WIKI_INDEX_URL = "wiki.index.url";
 	private static final String PROP_WIKI_SERVER_URL = "wiki.server.url";
-	private static final String PROP_FOLDER_WIKI_SOURCE = "folder.wiki.source";
 	
-	private static String wikiSourceFolder = "wiki_source";
 	private static String fileSeparator = System.getProperty("file.separator");
-
+	private static String folderWikiSource = "wiki_source";
+	private static String folderWikiDist = "wiki_dist";
 	private static String wikiServerUrl = "http://wiki.eclipse.org";
 	private static String wikiIndexUrl = wikiServerUrl + "/index.php";
 	private static String wikiApiUrl = wikiServerUrl + "/api.php";
@@ -33,7 +34,7 @@ public class ProjectProperties {
 	    try {
 	        properties.load(new FileInputStream(filename));
 	        if(properties.containsKey(PROP_FOLDER_WIKI_SOURCE)) {
-	        	wikiSourceFolder = (String) properties.get(PROP_FOLDER_WIKI_SOURCE);	        	
+	        	folderWikiSource = (String) properties.get(PROP_FOLDER_WIKI_SOURCE);	        	
 	        }
 	        if (properties.containsKey(PROP_WIKI_SERVER_URL)) {
 	        	wikiServerUrl = (String) properties.get(PROP_WIKI_SERVER_URL);				
@@ -44,15 +45,22 @@ public class ProjectProperties {
 	        if (properties.containsKey(PROP_WIKI_API_URL)) {
 	        	wikiApiUrl = (String) properties.get(PROP_WIKI_API_URL);
 	        }
+	        if (properties.containsKey(PROP_FOLDER_WIKI_DIST)) {
+	        	folderWikiDist = (String) properties.get(PROP_FOLDER_WIKI_DIST);
+	        }
 	    } catch (IOException e) { 
 	    	e.printStackTrace();
 	    }
 	}
 	
-	public static String getWikiSourceFolder() {
-		return wikiSourceFolder;
+	public static String getWikiSourceFolder() { //TODO: rename getFolderWikiSource()
+		return folderWikiSource;
 	}
 
+	public static String getWikiDistFolder() {//TODO: rename getFolderWikiDist()
+		return folderWikiDist;
+	}
+	
 	public static String getFileSeparator() {
 		return fileSeparator;
 	}
