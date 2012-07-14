@@ -9,23 +9,46 @@ This project prepares the infrastructure to achieve these two goals (monitoring 
 
 h2. Data structure 
 
-The different tools need to store informations for the configuration of the tool and the definition of each task. 
+The different tools need to store informations for the configuration of the tool (project properties) and the definition of each task (task properties).
 
-__TODO: provide example__
+For the moment those files are just *.properties files.
 
+The project properties define some properties that are use by the different tools (MediaWiki url, local wiki sources directory, ...) 
+
+bc. 
+wiki.server.url=http://wiki.eclipse.org
+wiki.index.url=http://wiki.eclipse.org/index.php
+wiki.api.url=http://wiki.eclipse.org/api.php
+folder.wiki.source=../wiki_source
+
+See "ProjectProperties.java":../main/src/scoutdoc/main/ProjectProperties.java for all supported values. 
+
+The task project properties define some configuration specific to a task. Example:
+
+bc. 
+# Task for the "Mini CRM" tutorial
+# Fri Jul 13 20:06:33 CEST 2012
+output.folder=html/Tutorials/Minicrm
+output.toc.file=Tutorials_Minicrm_toc.xml
+output.title=Mini CRM Scout application
+input.pages.page01=Scout/Tutorial/3.8/Minicrm/Minicrm_Step-by-Step
+input.pages.page02=Scout/Tutorial/3.8/Minicrm/New_Eclipse_Scout_Project
+input.pages.page03=Scout/Tutorial/3.8/Minicrm/Get_example_database
 
 h2. Fetch
 
-Download the eclipsepedia content in a local directory (pages, pages meta-information, images, templates, ...).
+Download the eclipsepedia content in a local directory (pages, pages meta-information, images, templates, ...) for a specific task.
 
-__TODO: provide a small how to use the tool__
- 
-Organization of the files on the disk.
+Java main class: MainFetch
+* First parameter: the task properties file.
+* Second parameter (optional): the project properties file.
+
+Organization of the files on the disk:
 
 First level (MediaWiki namespace):
-* @Article@
-* @Image@
-* @Template@
+* Article
+* Image
+* Template
 
 For each page:
 * @*.mediawiki@ File: source of the page (media wiki)
