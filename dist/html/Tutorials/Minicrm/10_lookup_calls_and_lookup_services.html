@@ -1,0 +1,167 @@
+<?xml version='1.0' encoding='utf-8' ?><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/></head><body><table border="0" class="navigation" style="width: 100%;" summary="navigation"><tr><th align="center" colspan="3" rowspan="1" style="width: 100%;">Lookup Calls and Lookup Services</th></tr><tr><td align="left" colspan="1" rowspan="1" style="width: 20%"><a href="09_code_types.html" shape="rect" title="Code Types"><img alt="Previous" border="0" src="../../Images/prev.gif"></img></a></td><td align="center" colspan="1" rowspan="1" style="width: 60%"></td><td align="right" colspan="1" rowspan="1" style="width: 20%"></td></tr><tr><td align="left" colspan="1" rowspan="1" style="width: 20%">Code Types</td><td align="center" colspan="1" rowspan="1" style="width: 60%"></td><td align="right" colspan="1" rowspan="1" style="width: 20%"></td></tr></table><p><div class="messagebox " style="background-color: #def3fe; border: 1px solid #c5d7e0; color: black; padding: 5px; margin: 1ex 0; min-height: 35px; padding-left: 45px; ">
+<div style="float: left; margin-left: -40px;"><img width="35" border="0" src="../../Images/Note.png"/></div>
+<div><b>Scout Tutorial</b><br/>This page belongs to the <a href="http://wiki.eclipse.org/Scout/Tutorial/3.8/Minicrm_Step-by-Step" title="Scout/Tutorial/3.8/Minicrm_Step-by-Step" target="doc_external">Minicrm Step-by-Step Tutorial</a>. It explains how to create a lookup call and a lookup service that can then be used to fill smartfields or listboxes. You need to have completed the <a href="09_code_types.html" title="Scout/Tutorial/3.8/Minicrm/Code Types">Code Types</a> chapter in order to continue.</div>
+</div></p><h2 id="What_is_this_chapter_about.3F">What is this chapter about?</h2><p>In the previous chapter we have seen how to fill smartfields with an enumerated list of codes that were based on a code type. However, sometimes you need a smartfield (or listbox) with dynamically calculated entries that are based on the data in your database (e.g. a smartfield that allows selecting a person or company).
+This chapter shows how to accomplish this by implementing a so called <b>Lookup Call</b> and a corresponding <b>Lookup Service</b>. The lookup call is going to allow us to dynamically query companies from our database and provides the basis for a new <b>Employer</b> smartfield on the person search form.</p><h2 id="Create_Person_Search_Form">Create Person Search Form</h2><p>Before we get to the interesting part we have to do some quick preliminary work. If you have not already done so in an earlier chapter, we first have to create a person search form. Go to the <i>PersonTablePage</i>, right-click and choose <b>Create Search Form</b>. The created search form contains a field for each column defined on the <i>PersonTablePage</i>.</p><p><img border="0" src="../../Images/Scout-PersonSearchForm.PNG"/></p><p>Use <i>Person</i> as the name and click <i>Finish</i>.</p><p><img border="0" src="../../Images/Scout-PersonSearchForm1.PNG"/></p><h2 id="Create_Company_Lookup_Call">Create Company Lookup Call</h2><p>In the steps following later we want to add a company smartfield to the <i>PersonSearchForm</i> we just created. This field will present a filterable list of companies that allows users to easily find persons who are working for a specific company. In order to be able to do that we first have to create a new <i>LookupCall</i>: </p><p><img border="0" src="../../Images/Scout-NewSharedLookupCall.PNG"/></p><p>Set the type name to <i>CompanyLookupCall</i> and also make sure to select the <i>create new lookup service</i> option as well as the <i>AbstractSqlLookupService</i>, then click <i>Finish</i>.</p><p><img border="0" src="../../Images/org.eclipse.scout.tutorial.minicrm.CreateCompanyLookupCall2.png"/></p><p><div class="messagebox " style="background-color: #def3fe; border: 1px solid #c5d7e0; color: black; padding: 5px; margin: 1ex 0; min-height: 35px; padding-left: 45px; ">
+<div style="float: left; margin-left: -40px;"><img width="35" border="0" src="../../Images/Note.png"/></div>
+<div>'<b><i>AbstractLookupService</i></b>'<br/>In this tutorial the <b>AbstractSqlLookupService</b> implementation is used as lookup service super class. As shown later in this chapter, this abstract implementation is very convenient if your lookup service is based on a single SQL statement to retrieve the data. However, keep in mind that the Scout framework does not force you to use this class, instead it allows you to use any <b>AbstractLookupService</b> implementation. If you for example need a lookup service that operates on the basis of webservice calls you can easily provide your own specialized lookup service implementation.</div>
+</div></p><p>The new lookup call has now been created. Note that it is already configured to use an (also automatically created) lookup service.
+Note that we did not have to care about the creation and registration of the lookup service and its corresponding service interface, it has all been managed by the Scout SDK.</p><p><img border="0" src="../../Images/Scout-CompanyLookupResult.PNG"/></p><pre class="source-java">public class CompanyLookupCall extends LookupCall {
+  private static final long serialVersionUID = 1L;
+  @Override
+  protected Class&lt;? extends ILookupService&gt; getConfiguredService() {
+    return ICompanyLookupService.class;
+  }
+}
+
+</pre><p>Now it is time to implement the company lookup service. Double-click on the <i>CompanyLookupService</i> and use the following implementation:</p><pre class="source-java">public class CompanyLookupService extends AbstractSqlLookupService implements ICompanyLookupService {
+
+  @Override
+  public String getConfiguredSqlSelect() {
+    return "SELECT  C.COMPANY_NR, " +
+        "        C.NAME " +
+        "FROM    COMPANY C " +
+        "WHERE   1=1 " +
+        "&lt;key&gt;   AND     C.COMPANY_NR = :key &lt;/key&gt; " +
+        "&lt;text&gt;  AND     UPPER(C.NAME) LIKE UPPER(:text||'%') &lt;/text&gt; " +
+        "&lt;all&gt; &lt;/all&gt; ";
+  }
+}
+
+</pre><p>Looking at this implementation we see that for each company returned by our lookup service we provide both a (unique) key and a text, which is a general characteristic of lookup services.
+Further we see that parts of the SQL statement are enclosed in tags. This is because a lookup can be performed in several ways:</p><ul><li><b>Key-Lookup</b>: Single-result lookup based on a unique key (e.g. when loading a form with a smartfield containing a value).</li><li><b>Text-Lookup</b>: Multi-result lookup based on a textual search-term (e.g. when entering text into a smartfield).</li><li><b>All-Lookup</b>: Unrestricted lookup that returns all available key-text pairs (e.g. when clicking the magnifier button on a smartfield).</li></ul><p>Depending on the way the lookup is performed, only one SQL part in tags is used. If for example a <b>Text-Lookup</b> is performed, only the SQL code in the corresponding <b>&lt;text&gt;</b> tag is used, whereas the SQL code in the other tags is ignored.</p><p><div class="messagebox " style="background-color: #def3fe; border: 1px solid #c5d7e0; color: black; padding: 5px; margin: 1ex 0; min-height: 35px; padding-left: 45px; ">
+<div style="float: left; margin-left: -40px;"><img width="35" border="0" src="../../Images/Note.png"/></div>
+<div>'<b><i>AbstractSqlLookupService</i></b>'<br/>In the above section we have shown you how to return key-text pairs in your lookup service implementation. There is nothing wrong about that, but it is also not the whole truth. The <b>AbstractSqlLookupService</b> actually allows you to return additional <i>meta-data</i> that controls how the returned data is presented to the users. You can for example return icon IDs, color codes, tooltip texts or font descriptions. The complete list and order of all columns supported by the <b>AbstractSqlLookupService</b> is as follows:</p><ul><li>Object key</li><li>String text</li><li>String iconId</li><li>String tooltip</li><li>String background color</li><li>String foreground color</li><li>String font</li><li>Boolean enabled</li><li>Object parentKey used in hierarchical structures to point to the parents primary key</li><li>Boolean active (0,1)</li></ul><p></div>
+</div></p><p>Our lookup call is now ready to be used. This is what we are going to do in the next section.</p><h2 id="Adding_an_.27.27Employer.27.27_Field">Adding an <i>Employer</i> Field</h2><p>Next we are adding an additional <i>Employer</i> smartfield to the search dialog. This will allow users to find persons who are working for a specific company.
+The field is added to the <i>search form</i> as follows: right-click on the <i>PersonSearchForm</i> and pick <b>New Form Field...</b> from the menu.</p><p><img border="0" src="../../Images/Scout-AddingEmployerField.PNG"/></p><p>Then pick <b>Smart Field</b> from the list and click <i>Next</i>.</p><p><img border="0" src="../../Images/Scout-EmployerField1.PNG"/></p><p>Set the name to <i>Employer</i> and set the lookup call to our newly created <i>CompanyLookupCall</i>, then click <i>Finish</i>.</p><p><img border="0" src="../../Images/Scout-EmployerField.PNG"/></p><p>After restarting our server and client we can see a fully functional <i>Employer</i> smartfield in the person search form.
+When entering text into this smartfield, the system automatically filters the shown list of available companies.</p><p><img width="600" border="0" src="../../Images/org.eclipse.scout.tutorial.minicrm.ApplicationPersonSearchFormEmployerSmartfield1.png"/></p><p>Now there is only one piece missing here. Even though the <i>Employer</i> smartfield behaves as desired, the rows in the <i>PersonTablePage</i> are not yet filtered according to the search constraints when clicking on the search button. That is what we do in the next section.</p><h2 id="Updating_Table_Pages_and_Outline_Service">Updating Table Pages and Outline Service</h2><p>In order to constrain the SQL statement for the person outline, we have to adapt the service operation <i>getPersonTableData</i> and add a parameter <i>formData</i> of the type <i>PersonSearchFormData</i> to the method. Do that for both the service interface <i>IStandardOutlineService</i> and the service implementation <i>StandardOutlineService</i>.</p><p>Interface:</p><pre class="source-java">public interface IStandardOutlineService extends IService {
+  public Object[][] getPersonTableData(PersonSearchFormData formData, Long companyNr) throws ProcessingException;
+}
+
+</pre><p>Implementation:</p><pre class="source-java">  @Override
+  public Object[][] getPersonTableData(PersonSearchFormData formData, Long parentPageCompanyNr) throws ProcessingException {
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT PERSON_NR, LAST_NAME, FIRST_NAME FROM PERSON WHERE 1=1 ");
+
+    if (parentPageCompanyNr != null) {
+      statement.append("AND COMPANY_NR = :parentPageCompanyNr ");
+    }
+
+    if (!StringUtility.isNullOrEmpty(formData.getFirstname().getValue())) {
+      statement.append("AND UPPER(FIRST_NAME) LIKE UPPER(:firstname || '%') ");
+    }
+    if (!StringUtility.isNullOrEmpty(formData.getLastname().getValue())) {
+      statement.append("AND UPPER(LAST_NAME) LIKE UPPER(:lastname || '%') ");
+    }
+    if (formData.getEmployer().getValue() != null) {
+      statement.append("AND COMPANY_NR = :employer ");
+    }
+    return SQL.select(statement.toString(), new NVPair("parentPageCompanyNr", parentPageCompanyNr), formData);
+  }
+
+</pre><p>Note that we have relied once again on the naming convention: We are referencing the value of the <b>Employer</b> form field by using an identically named <b>:employer</b> bind variable.</p><p>Now we need to forward the <i>PersonSearchFormData</i> to the server. Return to the method <b>execLoadTableData</b> in the <b>PersonTablePage</b> and add a new parameter to the service call according to its interface definition. The required <i>PersonSearchFormData</i> is available from the <i>filter</i> parameter:</p><pre class="source-java">  @Override
+  protected Object[][] execLoadTableData(SearchFilter filter) throws ProcessingException {
+    return SERVICES.getService(IStandardOutlineService.class).getPersonTableData((PersonSearchFormData) filter.getFormData(), getCompanyNr());
+  }
+
+</pre><p>After restarting both server and client the <i>Employer</i> smartfield is fully functional and ready to be used.</p><p><img width="600" border="0" src="../../Images/org.eclipse.scout.tutorial.minicrm.ApplicationPersonSearchFormEmployerSmartfield2.png"/></p><h2 id="Parametrizing_Lookup_Calls">Parametrizing Lookup Calls</h2><p>So far our <i>Employer</i> smartfield has been independent of any other fields in the search form. In this section we are going to change this and add an additional <i>Employer Type</i> smartfield to the person search form. This smartfield will allow us to search for persons working for a specific type of company (e.g. only persons working for <i>Supplier</i> companies). Then of course the two employer smartfields should also be linked. If we have for example set the <i>Employer Type</i> field to <i>Supplier</i>, then the <i>Employer</i> smartfield should only list suppliers but no customers.</p><p>Let us start by adding the new <i>Employer Type</i> smartfield to the person search form:</p><p><img border="0" src="../../Images/Scout-AddingEmployerField.PNG"/></p><p>When creating the field use the following options:</p><p><img border="0" src="../../Images/Scout-EmployerTypeSmartField.PNG"/></p><p>One way to pass on the information from the <i>Employer Type</i> to the <i>Employer</i> smartfield is by setting the master field accordingly: Click on the <i>Employer</i> field in the Scout Explorer view. Then change the <i>Master Field</i> property to <i>Employer Type</i>.</p><p><img border="0" src="../../Images/Scout-MasterFieldEmployerType.PNG"/></p><p>We can now adapt the <i>CompanyLookupService</i> quite easily. Scout automatically provides a <b>:master</b> bind variable that contains the value of the master field. We can make use of this variable as follows:</p><pre class="source-java">public class CompanyLookupService extends AbstractSqlLookupService implements ICompanyLookupService {
+
+  @Override
+  public String getConfiguredSqlSelect() {
+    return "SELECT  C.COMPANY_NR, " +
+        "        C.NAME " +
+        "FROM    COMPANY C " +
+        "WHERE   1=1 " +
+        "  AND (C.TYPE_UID = :master OR :master IS NULL) " +
+        "&lt;key&gt;   AND     C.COMPANY_NR = :key &lt;/key&gt; " +
+        "&lt;text&gt;  AND     UPPER(C.NAME) LIKE UPPER(:text||'%') &lt;/text&gt; " +
+        "&lt;all&gt; &lt;/all&gt; ";
+  }
+}
+
+</pre><p><div class="messagebox " style="background-color: #def3fe; border: 1px solid #c5d7e0; color: black; padding: 5px; margin: 1ex 0; min-height: 35px; padding-left: 45px; ">
+<div style="float: left; margin-left: -40px;"><img width="35" border="0" src="../../Images/Note.png"/></div>
+<div><b>Lookup Call Parameterization</b><br/>In this section the lookup call was implicitely parameterized by configuring a master field on the smartfield. However, lookup calls can also be explicitely parameterized by configuring a <i>Lookup Call Variable</i>. Such variables can be created very easily in the <i>Scout Explorer</i> view by right-clicking on the <i>Variables</i> folder below a lookup call. Once such a variable has been defined, a correspondingly named bind variable (e.g. <i>:companyNr</i> for a lookup call variable named <i>CompanyNr</i>) will automatically be available to your <b>AbstractSqlLookupService</b> implementation.
+Note that instead of creating multiple lookup calls and lookup services that share an almost identical code-base it is usually preferable to create a single lookup call that is properly parametrized. This leads to unduplicated and more maintainable code. (E.g. instead of creating a <i>MalePersonsLookupCall</i> and a <i>CompanyPersonsLookupCall</i> you could combine them to a generic <i>PersonLookupCall</i> with variables <i>GenderUid</i> and <i>CompanyNr</i>.)</div>
+</div></p><p>Our outline service method responsible for selecting persons needs an update as well:</p><pre class="source-java">public class StandardOutlineService extends AbstractService implements IStandardOutlineService {
+
+  @Override
+  public Object[][] getPersonTableData(PersonSearchFormData formData, Long parentPageCompanyNr) throws ProcessingException {
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT PERSON_NR, LAST_NAME, FIRST_NAME FROM PERSON WHERE 1=1 ");
+
+    if (parentPageCompanyNr != null) {
+      statement.append("AND COMPANY_NR = :parentPageCompanyNr ");
+    }
+
+    if (!StringUtility.isNullOrEmpty(formData.getFirstname().getValue())) {
+      statement.append("AND UPPER(FIRST_NAME) LIKE UPPER(:firstname || '%') ");
+    }
+    if (!StringUtility.isNullOrEmpty(formData.getLastname().getValue())) {
+      statement.append("AND UPPER(LAST_NAME) LIKE UPPER(:lastname || '%') ");
+    }
+    if (formData.getEmployer().getValue() != null) {
+      statement.append("AND COMPANY_NR = :employer ");
+    }
+    else if (formData.getEmployerType().getValue() != null) {
+      statement.append("AND COMPANY_NR IN (SELECT COMPANY_NR FROM COMPANY WHERE TYPE_UID = :employerType) ");
+    }
+    return SQL.select(statement.toString(), new NVPair("parentPageCompanyNr", parentPageCompanyNr), formData);
+  }
+}
+
+</pre><p>After restarting server and client our new person search form should work like a charm!</p><p><img width="600" border="0" src="../../Images/org.eclipse.scout.tutorial.minicrm.ApplicationPersonSearchFormComplete1.png"/></p><h2 id="Search_Form_Parameterization">Search Form Parameterization</h2><p>The PersonSearchForm is now working very well for our top-level <i>PersonTablePage</i>. But how about other places? When navigating to the <i>PersonTablePage</i> below a specific company the <i>Employer</i> (and <i>Employer Type</i>) field in the <i>PersonSearchForm</i> does not make much sense, because all listed persons are belonging to the same company anyway. One way to resolve this would be to hide the <i>Employer</i> field in the <i>PersonSearchForm</i> in such a case. Another, probably more transparent solution, is to disable the <i>Employer</i> field and to fill it with the corresponding company. Let us implement the second solution.</p><p>First create a <i>CompanyNr</i> variable of type <i>Long</i> for the <i>PersonSearchForm</i>:</p><p><img border="0" src="../../Images/Scout-SearchFormAddVariable.PNG"/></p><p><img border="0" src="../../Images/Scout-NewPropertyBean.PNG"/></p><p>Now we have to adapt the <i>SearchHandler</i> of the <i>PersonSearchForm</i>, so that the <i>Employer</i> field gets disabled and prefilled if the search form is used in the context of a specific company:</p><pre class="source-java">  public class SearchHandler extends AbstractFormHandler {
+
+    @Override
+    public void execLoad() {
+      if (m_companyNr != null) {
+        getEmployerField().setValue(m_companyNr);
+        getEmployerField().setEnabled(false);
+        getEmployerTypeField().setVisible(false);
+      }
+    }
+  }
+
+</pre><p>Then we also have to pass on the <i>CompanyNr</i> variable from the <i>PersonTablePage</i> to the corresponding search form.
+In the <i>PersonTablePage</i> we implement the <b>Exec Init Search Form</b> method as follows:</p><pre class="source-java">  @Override
+  protected void execInitSearchForm() throws ProcessingException {
+    ((PersonSearchForm) getSearchFormInternal()).setCompanyNr(m_companyNr);
+  }
+
+</pre><p>If you have navigated to the persons below a company, the search form should now look as below. Note that the <i>Employer</i> field is now disabled and prefilled with the correct company:</p><p><img width="600" border="0" src="../../Images/Scout-ResultSearchFormParameterization.PNG"/></p><p>Parameterizing the <i>PersonSearchForm</i> with the <i>CompanyNr</i> allows us to do some refactoring. Let us throw out some old code!</p><p>The <i>companyNr</i> argument is not needed anymore in our outline service, since this information is already included in the PersonSearchFormData. The corresponding implementation gets simpler as well:</p><pre class="source-java">public interface IStandardOutlineService extends IService {
+
+  public Object[][] getPersonTableData(PersonSearchFormData formData) throws ProcessingException;
+}
+
+</pre><pre class="source-java">public class StandardOutlineService extends AbstractService implements IStandardOutlineService {
+
+  @Override
+  public Object[][] getPersonTableData(PersonSearchFormData formData) throws ProcessingException {
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT PERSON_NR, LAST_NAME, FIRST_NAME FROM PERSON WHERE 1=1 ");
+
+    if (!StringUtility.isNullOrEmpty(formData.getFirstname().getValue())) {
+      statement.append("AND UPPER(FIRST_NAME) LIKE UPPER(:firstname || '%') ");
+    }
+    if (!StringUtility.isNullOrEmpty(formData.getLastname().getValue())) {
+      statement.append("AND UPPER(LAST_NAME) LIKE UPPER(:lastname || '%') ");
+    }
+    if (formData.getEmployer().getValue() != null) {
+      statement.append("AND COMPANY_NR = :employer ");
+    }
+    else if (formData.getEmployerType().getValue() != null) {
+      statement.append("AND COMPANY_NR IN (SELECT COMPANY_NR FROM COMPANY WHERE TYPE_UID = :employerType) ");
+    }
+    return SQL.select(statement.toString(), formData);
+  }
+}
+
+</pre><p>In a last step we also remove the <i>companyNr</i> argument in our <i>execLoadTableData(..)</i> implementation of the <i>PersonTablePage</i>.</p><pre class="source-java">  @Override
+  protected Object[][] execLoadTableData(SearchFilter filter) throws ProcessingException {
+    return SERVICES.getService(IStandardOutlineService.class).getPersonTableData((PersonSearchFormData) filter.getFormData());
+  }
+
+</pre><p>...and there we are!</p><h2 id="What_did_we_just_do.3F">What did we just do?</h2><p>Let us quickly sum up what we have done in this chapter:</p><ul><li>We created a search form for the <i>PersonTablePage</i> and added an <i>Employer</i> smartfield to it. This smartfield allows selecting an arbitrary company and is based on the <i>CompanyLookupCall</i> (and the corresponding service) that we have created earlier.</li><li>The <i>CompanyLookupService</i> provides the data for the <i>CompanyLookupCall</i> and is built around an SQL statement that returns a key-text pair for each company. The SQL statement contains <i>&lt;key&gt;</i>, <i>&lt;text&gt;</i> and <i>&lt;all&gt;</i> tags that allow multiple kinds of lookups. This allows a lookup call to be properly used as a data source for a smartfield.</li><li>We added another smartfield to the search form. The <i>Employer Type</i> field allows to search for persons working for a specific type of company. We configured the <i>Employer Type</i> field to be the master of the <i>Employer</i> field and adapted the SQL code of the <i>CompanyLookupService</i> accordingly. As a result, when the user has set an <i>Employer Type</i> then the field <i>Employer</i> only allows selecting companies of that type.</li><li>In a last step we parameterized our person search form. As a result the search form's <i>Employer</i> field is disabled and already prefilled when the user navigates to persons below a specific company. This adaption then allowed us to refactor our outline service code and make it simpler and more consistent.</li></ul><table border="0" class="navigation" style="width: 100%;" summary="navigation"><tr><td align="left" colspan="1" rowspan="1" style="width: 20%"><a href="09_code_types.html" shape="rect" title="Code Types"><img alt="Previous" border="0" src="../../Images/prev.gif"></img></a></td><td align="center" colspan="1" rowspan="1" style="width: 60%"><a href="index.html" shape="rect" title="Mini CRM Scout application"><img alt="Mini CRM Scout application" border="0" src="../../Images/home.gif"></img></a></td><td align="right" colspan="1" rowspan="1" style="width: 20%"></td></tr><tr><td align="left" colspan="1" rowspan="1" style="width: 20%">Code Types</td><td align="center" colspan="1" rowspan="1" style="width: 60%"></td><td align="right" colspan="1" rowspan="1" style="width: 20%"></td></tr></table></body></html>

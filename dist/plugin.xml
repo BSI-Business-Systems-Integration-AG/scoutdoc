@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            file="testToc.xml"
+            primary="true">
+      </toc>
+      <toc
+            file="Tutorials_HelloWorld_toc.xml">
+      </toc>
+      <toc
+            file="Tutorials_DeployToTomcat_toc.xml">
+      </toc>
+      <toc
+            file="Tutorials_Minicrm_toc.xml">
+      </toc>
+   </extension>
+
+</plugin>

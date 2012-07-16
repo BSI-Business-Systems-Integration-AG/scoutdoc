@@ -29,11 +29,11 @@ public class MainFetch {
 		try {
 			//Load the task.
 			if(args.length == 0) {
-				new IllegalArgumentException("first argument must be the name of the task file");
+				throw new IllegalArgumentException("first argument must be the name of the task file");
 			}
 			Task t = TaskUtility.toTask(args[0]);
 
-			if(args.length > 2) {
+			if(args.length > 1) {
 				ProjectProperties.initProperties(args[1]);
 			}
 			

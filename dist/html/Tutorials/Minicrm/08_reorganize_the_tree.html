@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='utf-8' ?><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/></head><body><table border="0" class="navigation" style="width: 100%;" summary="navigation"><tr><th align="center" colspan="3" rowspan="1" style="width: 100%;">Reorganize the tree</th></tr><tr><td align="left" colspan="1" rowspan="1" style="width: 20%"><a href="07_write_the_second_page.html" shape="rect" title="Write the second page"><img alt="Previous" border="0" src="../../Images/prev.gif"></img></a></td><td align="center" colspan="1" rowspan="1" style="width: 60%"></td><td align="right" colspan="1" rowspan="1" style="width: 20%"><a href="09_code_types.html" shape="rect" title="Code Types"><img alt="Next" border="0" src="../../Images/next.gif"></img></a></td></tr><tr><td align="left" colspan="1" rowspan="1" style="width: 20%">Write the second page</td><td align="center" colspan="1" rowspan="1" style="width: 60%"></td><td align="right" colspan="1" rowspan="1" style="width: 20%">Code Types</td></tr></table><p><div class="messagebox " style="background-color: #def3fe; border: 1px solid #c5d7e0; color: black; padding: 5px; margin: 1ex 0; min-height: 35px; padding-left: 45px; ">
+<div style="float: left; margin-left: -40px;"><img width="35" border="0" src="../../Images/Note.png"/></div>
+<div><b>Scout Tutorial</b><br/>This page belongs to the <a href="http://wiki.eclipse.org/Scout/Tutorial/3.8/Minicrm_Step-by-Step" title="Scout/Tutorial/3.8/Minicrm_Step-by-Step" target="doc_external">Minicrm Step-by-Step Tutorial</a>. Previous step: <a href="07_write_the_second_page.html" title="Scout/Tutorial/3.8/Minicrm/Write the second page">write the second page</a>.</div>
+</div></p><p>We started out with an application having two table pages. Notice how the list of persons comes just beneath the list of companies. </p><p>If we need to add several folders of different types under each company (e.g. persons, activities, offers), we need to insert a <b>page with nodes</b> (called <i>CompanyDetailsNodePage</i> in the diagram below) inbetween the <i>CompanyTablePage</i> and the <i>PersonTablePage</i>.</p><table><tr><td>⇒</td></tr></table><h2 id="Add_a_node_page">Add a node page</h2><p>In a first step, we need to <b>remove PersonTablePage as a child of the CompanyTablePage</b>.</p><p>Standard Outline</p><pre>│
+├─Company Table Page
+│  │
+│  └─Person Table Page  ← <font style="background-color: #ff6347">wrong for the purpose of this tutorial!</font>
+│
+└─Person Table Page
+</pre><p>Return to the <b>CompanyTablePage</b> and click on the red minus (<span style="font-weight:900;font-size:16pt;color:red">-</span>) next to <b>Exec Create Child Page</b> in order to delete it.</p><p><img border="0" src="../../Images/Scout-Reorganize.PNG"/></p><p>The result:</p><pre> Standard Outline
+  │
+  ├─Company Table Page
+  │
+  └─Person Table Page
+</pre><p>Once you have deleted the method, you can right-click on the <b>Child Page</b> folder and pick <b>New Page...</b></p><p>Use <b>AbstractPageWithNodes</b> as your template. There's <i>no need to give it a name</i>. Use <b>CompanyDetailsNodePage</b> as the <i>type name</i>.</p><pre> Standard Outline
+  │
+  ├─Company Table Page
+  │  │
+  │  └─Company Details Node Page ← <font style="background-color: yellow">new</font>
+  │
+  └─Person Table Page
+</pre><p><div class="messagebox " style="background-color: #def3fe; border: 1px solid #c5d7e0; color: black; padding: 5px; margin: 1ex 0; min-height: 35px; padding-left: 45px; ">
+<div style="float: left; margin-left: -40px;"><img width="35" border="0" src="../../Images/Note.png"/></div>
+<div><b>No name?</b><br/>Indeed, this particular <i>node page</i> does not need a name. That's because the <i>name</i> of a <i>page</i> is only shown if its parent is an <i>outline</i> or a <i>page with nodes</i>. If the parent is a <i>page with table</i>, <b>the selected row replaces the name of the child table</b>.</div>
+</div></p><p>Now go to the newly created <b>CompanyDetailsNodePage</b>, click through to the <b>Child Pages</b> folder, right-click and pick <b>Add Existing Page...</b> Pick the <b>PersonTablePage</b> from the list and click <i>Finish</i>.</p><pre> Standard Outline
+  │
+  ├─Company Table Page
+  │  │
+  │  └─Company Details Node Page
+  │     │
+  │     └─Person Table Page ← <font style="background-color: yellow">back again</font>
+  │
+  └─Person Table Page
+</pre><p><div class="messagebox " style="background-color: #def3fe; border: 1px solid #c5d7e0; color: black; padding: 5px; margin: 1ex 0; min-height: 35px; padding-left: 45px; ">
+<div style="float: left; margin-left: -40px;"><img width="35" border="0" src="../../Images/Note.png"/></div>
+<div><b>Child Page or Child Pages?</b><br/>Note how there is <i>only child page</i> for a <b>page with table</b> where as there are <i>multiple child pages</i> for a <i>page with nodes</i>.</div>
+</div></p><h2 id="Fix_data_flow">Fix data flow</h2><p>If you attempt to test your application, you'll notice a problem: <b>Every person is listed under every company</b>!</p><p>Why is that?</p><p>We interrupted "the flow of data": When the user picks a company from the <i>CompanyTablePage</i>, the appropriate child page is created. When we created <a href="07_write_the_second_page.html" title="Scout/Tutorial/3.8/Minicrm/Write the second page">our second page</a>, we made sure to pass the <b>value</b> of the <i>CompanyNrColumn</i> along. The newly introduced <i>CompanyDetailsNodePage</i> needs to be fixed!</p><p><img border="0" src="../../Images/Scout-FixDataFlowChildPages.PNG"/></p><p>Return to the <b>CompanyDetailsNodePage</b> and click through to <b>Variables</b>. Pick <b>Create New Property Bean...</b> from the context menu, use <b>companyNr</b> as the <i>name</i> and <b>Long</b> as the <i>bean type</i>.</p><p>Click on the <b>Exec Create Child Pages</b> link on the <i>Properties</i> view of the <b>CompanyDetailsNodePage</b>. Change the code as follows:</p><pre class="source-java">@Override
+protected void execCreateChildPages(Collection&lt;IPage&gt; pageList) throws ProcessingException {
+PersonTablePage personTablePage = new PersonTablePage();
+  personTablePage.setCompanyNr(getCompanyNr());
+  pageList.add(personTablePage);
+
+}
+
+</pre><p>Return to the <b>CompanyTablePage</b> and click on the <b>Exec Create Child Page</b> link on the <i>Properties</i> view. Change the code as follows:</p><pre class="source-java">@Override
+protected IPage execCreateChildPage(ITableRow row) throws ProcessingException {
+  CompanyDetailsNodePage childPage=new CompanyDetailsNodePage();
+  childPage.setCompanyNr(getTable().getCompanyNrColumn().getValue(row));
+  return childPage;
+}
+
+</pre><p>We reached our goal! This is the new structure, and it works as intended.</p><pre> Standard Outline
+  │
+  ├─Company Table Page
+  │  │
+  │  └─Company Details Node Page
+  │     │
+  │     └─Person Table Page
+  │
+  └─Person Table Page
+</pre><p>Let's review how the data flows back and forth:</p><ol><li>CompanyTablePage calls execLoadTableData</li><li>execLoadTableData calls the getCompanyTableData method on the StandardOutlineService</li><li>StandardOutlineService returns tabular data including the primary key for every row</li><li>user picks a company and clicks through</li><li>the CompanyDetailsNodePage is created by execCreateChildPage; the value of the current CompanyNrColumn is copied to the node page's companyNr variable</li><li>the user picks Persons and clicks through</li><li>the PersonTablePage is created by execCreateChildPages; the value of the companyNr variable is copied to the table page's companyNr variable</li><li>PersonTablePage calls execLoadTableData</li><li>execLoadTableData calls the getPersonTableData method on the StandardOutlineService</li><li>StandardOutlineService determines that the companyNr is not null, runs a SELECT statement that only selects appropriate persons from the database and returns tabular data</li></ol><table border="0" class="navigation" style="width: 100%;" summary="navigation"><tr><td align="left" colspan="1" rowspan="1" style="width: 20%"><a href="07_write_the_second_page.html" shape="rect" title="Write the second page"><img alt="Previous" border="0" src="../../Images/prev.gif"></img></a></td><td align="center" colspan="1" rowspan="1" style="width: 60%"><a href="index.html" shape="rect" title="Mini CRM Scout application"><img alt="Mini CRM Scout application" border="0" src="../../Images/home.gif"></img></a></td><td align="right" colspan="1" rowspan="1" style="width: 20%"><a href="09_code_types.html" shape="rect" title="Code Types"><img alt="Next" border="0" src="../../Images/next.gif"></img></a></td></tr><tr><td align="left" colspan="1" rowspan="1" style="width: 20%">Write the second page</td><td align="center" colspan="1" rowspan="1" style="width: 60%"></td><td align="right" colspan="1" rowspan="1" style="width: 20%">Code Types</td></tr></table></body></html>

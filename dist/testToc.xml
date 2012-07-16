@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Eclipse Scout" topic="html/index.html">
+	<topic href="html/Tutorials/index.html" label="Tutorials">
+		<link toc="Tutorials_HelloWorld_toc.xml" />
+		<link toc="Tutorials_DeployToTomcat_toc.xml" />
+		<link toc="Tutorials_Minicrm_toc.xml" />
+	</topic>
+</toc>

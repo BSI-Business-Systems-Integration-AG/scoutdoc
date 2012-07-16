@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<toc topic="html/Tutorials/Minicrm/index.html" label="Mini CRM Scout application">
+	<topic href="html/Tutorials/Minicrm/index.html" label="Mini CRM Scout application">
+		<topic href="html/Tutorials/Minicrm/index.html" label="Requirements"></topic>
+		<topic href="html/Tutorials/Minicrm/index.html#Create_New_Scout_Project" label="Create New Scout Project"></topic>
+		<topic href="html/Tutorials/Minicrm/index.html#Get_example_Database" label="Get example Database"></topic>
+		<topic href="html/Tutorials/Minicrm/index.html#Set_up_SQL_Service" label="Set up SQL Service"></topic>
+		<topic href="html/Tutorials/Minicrm/index.html#Write_the_first_Page" label="Write the first Page"></topic>
+		<topic href="html/Tutorials/Minicrm/index.html#Add_a_search_form" label="Add a search form"></topic>
+		<topic href="html/Tutorials/Minicrm/index.html#Add_a_form_to_edit_the_data" label="Add a form to edit the data"></topic>
+		<topic href="html/Tutorials/Minicrm/index.html#Write_the_second_page" label="Write the second page"></topic>
+		<topic href="html/Tutorials/Minicrm/index.html#Reorganize_the_tree" label="Reorganize the tree"></topic>
+		<topic href="html/Tutorials/Minicrm/index.html#Code_Types" label="Code Types"></topic>
+		<topic href="html/Tutorials/Minicrm/index.html#Lookup_Calls_and_Lookup_Services" label="Lookup Calls and Lookup Services"></topic>
+		<topic href="html/Tutorials/Minicrm/01_new_eclipse_scout_project.html" label="New Eclipse Scout Project">
+			<topic href="html/Tutorials/Minicrm/01_new_eclipse_scout_project.html" label="Create a new Eclipse Scout project"></topic>
+			<topic href="html/Tutorials/Minicrm/01_new_eclipse_scout_project.html#Start_the_Server" label="Start the Server"></topic>
+			<topic href="html/Tutorials/Minicrm/01_new_eclipse_scout_project.html#Test_the_Server" label="Test the Server"></topic>
+			<topic href="html/Tutorials/Minicrm/01_new_eclipse_scout_project.html#Start_the_Client" label="Start the Client"></topic>
+		</topic>
+		<topic href="html/Tutorials/Minicrm/02_get_example_database.html" label="Get example database">
+			<topic href="html/Tutorials/Minicrm/02_get_example_database.html" label="Getting the example database"></topic>
+		</topic>
+		<topic href="html/Tutorials/Minicrm/03_set_up_sql_service.html" label="Set up SQL Service">
+			<topic href="html/Tutorials/Minicrm/03_set_up_sql_service.html" label="Create a new AbstractDerbySqlService"></topic>
+			<topic href="html/Tutorials/Minicrm/03_set_up_sql_service.html#Change_default_configuration_settings" label="Change default configuration settings"></topic>
+		</topic>
+		<topic href="html/Tutorials/Minicrm/04_write_the_first_page.html" label="Write the first page">
+			<topic href="html/Tutorials/Minicrm/04_write_the_first_page.html" label="What are we talking about?"></topic>
+			<topic href="html/Tutorials/Minicrm/04_write_the_first_page.html#Add_a_Page_to_the_Outline" label="Add a Page to the Outline"></topic>
+			<topic href="html/Tutorials/Minicrm/04_write_the_first_page.html#Add_colums_to_the_table" label="Add colums to the table"></topic>
+			<topic href="html/Tutorials/Minicrm/04_write_the_first_page.html#Column_Width" label="Column Width"></topic>
+			<topic href="html/Tutorials/Minicrm/04_write_the_first_page.html#Hiding_Columns" label="Hiding Columns"></topic>
+			<topic href="html/Tutorials/Minicrm/04_write_the_first_page.html#The_Flow_of_Data" label="The Flow of Data"></topic>
+			<topic href="html/Tutorials/Minicrm/04_write_the_first_page.html#Create_an_new_service_operation_in_StandardOutlineService" label="Create an new service operation in StandardOutlineService"></topic>
+			<topic href="html/Tutorials/Minicrm/04_write_the_first_page.html#Load_data_on_the_server" label="Load data on the server"></topic>
+			<topic href="html/Tutorials/Minicrm/04_write_the_first_page.html#Display_data_on_the_client" label="Display data on the client"></topic>
+		</topic>
+		<topic href="html/Tutorials/Minicrm/05_add_a_search_form.html" label="Add a search form">
+			<topic href="html/Tutorials/Minicrm/05_add_a_search_form.html" label="What are we talking about?"></topic>
+			<topic href="html/Tutorials/Minicrm/05_add_a_search_form.html#Create_a_Search_Form" label="Create a Search Form"></topic>
+			<topic href="html/Tutorials/Minicrm/05_add_a_search_form.html#Adding_Fields" label="Adding Fields"></topic>
+			<topic href="html/Tutorials/Minicrm/05_add_a_search_form.html#Adapt_the_outline_service_operation_getCompanyTableData" label="Adapt the outline service operation getCompanyTableData"></topic>
+		</topic>
+		<topic href="html/Tutorials/Minicrm/06_add_a_form_to_edit_the_data.html" label="Add a form to edit the data">
+			<topic href="html/Tutorials/Minicrm/06_add_a_form_to_edit_the_data.html" label="What are we talking about?"></topic>
+			<topic href="html/Tutorials/Minicrm/06_add_a_form_to_edit_the_data.html#Create_a_form" label="Create a form"></topic>
+			<topic href="html/Tutorials/Minicrm/06_add_a_form_to_edit_the_data.html#Modify_the_form.27s_ProcessService" label="Modify the form's ProcessService"></topic>
+			<topic href="html/Tutorials/Minicrm/06_add_a_form_to_edit_the_data.html#Load_the_data_for_the_form" label="Load the data for the form"></topic>
+			<topic href="html/Tutorials/Minicrm/06_add_a_form_to_edit_the_data.html#From_Form_to_FormData_to_Form" label="From Form to FormData to Form"></topic>
+			<topic href="html/Tutorials/Minicrm/06_add_a_form_to_edit_the_data.html#Add_Edit_..._Menu_and_Start_the_Form" label="Add Edit ... Menu and Start the Form"></topic>
+			<topic href="html/Tutorials/Minicrm/06_add_a_form_to_edit_the_data.html#Update_the_company_with_the_new_values" label="Update the company with the new values"></topic>
+			<topic href="html/Tutorials/Minicrm/06_add_a_form_to_edit_the_data.html#Pass_the_primary_key_and_reload_page" label="Pass the primary key and reload page"></topic>
+			<topic href="html/Tutorials/Minicrm/06_add_a_form_to_edit_the_data.html#Can_you_create_new_companies.3F" label="Can you create new companies?"></topic>
+		</topic>
+		<topic href="html/Tutorials/Minicrm/07_write_the_second_page.html" label="Write the second page">
+			<topic href="html/Tutorials/Minicrm/07_write_the_second_page.html" label="A new table page"></topic>
+			<topic href="html/Tutorials/Minicrm/07_write_the_second_page.html#Using_a_table_page_as_a_child_page_to_another_page" label="Using a table page as a child page to another page"></topic>
+		</topic>
+		<topic href="html/Tutorials/Minicrm/08_reorganize_the_tree.html" label="Reorganize the tree">
+			<topic href="html/Tutorials/Minicrm/08_reorganize_the_tree.html" label="Add a node page"></topic>
+			<topic href="html/Tutorials/Minicrm/08_reorganize_the_tree.html#Fix_data_flow" label="Fix data flow"></topic>
+		</topic>
+		<topic href="html/Tutorials/Minicrm/09_code_types.html" label="Code Types">
+			<topic href="html/Tutorials/Minicrm/09_code_types.html" label="How to Create Code Types"></topic>
+			<topic href="html/Tutorials/Minicrm/09_code_types.html#How_to_Use_a_Code_Type_in_a_Dialog_.28Radio_Button_Group.29" label="How to Use a Code Type in a Dialog (Radio Button Group)"></topic>
+			<topic href="html/Tutorials/Minicrm/09_code_types.html#Update_the_Database_Model" label="Update the Database Model"></topic>
+			<topic href="html/Tutorials/Minicrm/09_code_types.html#Update_the_Form.27s_Process_Service" label="Update the Form's Process Service"></topic>
+			<topic href="html/Tutorials/Minicrm/09_code_types.html#Add_a_Company_Rating_Field_to_the_Company_Dialog_.28Smart_Field.29" label="Add a Company Rating Field to the Company Dialog (Smart Field)"></topic>
+			<topic href="html/Tutorials/Minicrm/09_code_types.html#Conditional_Dependencies_Between_Fields_and_Controlling_Field_Visibility" label="Conditional Dependencies Between Fields and Controlling Field Visibility"></topic>
+			<topic href="html/Tutorials/Minicrm/09_code_types.html#Display_Code_Types_in_Tables" label="Display Code Types in Tables"></topic>
+		</topic>
+		<topic href="html/Tutorials/Minicrm/10_lookup_calls_and_lookup_services.html" label="Lookup Calls and Lookup Services">
+			<topic href="html/Tutorials/Minicrm/10_lookup_calls_and_lookup_services.html" label="What is this chapter about?"></topic>
+			<topic href="html/Tutorials/Minicrm/10_lookup_calls_and_lookup_services.html#Create_Person_Search_Form" label="Create Person Search Form"></topic>
+			<topic href="html/Tutorials/Minicrm/10_lookup_calls_and_lookup_services.html#Create_Company_Lookup_Call" label="Create Company Lookup Call"></topic>
+			<topic href="html/Tutorials/Minicrm/10_lookup_calls_and_lookup_services.html#Adding_an_.27.27Employer.27.27_Field" label="Adding an ''Employer'' Field"></topic>
+			<topic href="html/Tutorials/Minicrm/10_lookup_calls_and_lookup_services.html#Updating_Table_Pages_and_Outline_Service" label="Updating Table Pages and Outline Service"></topic>
+			<topic href="html/Tutorials/Minicrm/10_lookup_calls_and_lookup_services.html#Parametrizing_Lookup_Calls" label="Parametrizing Lookup Calls"></topic>
+			<topic href="html/Tutorials/Minicrm/10_lookup_calls_and_lookup_services.html#Search_Form_Parameterization" label="Search Form Parameterization"></topic>
+			<topic href="html/Tutorials/Minicrm/10_lookup_calls_and_lookup_services.html#What_did_we_just_do.3F" label="What did we just do?"></topic>
+		</topic>
+	</topic>
+</toc>

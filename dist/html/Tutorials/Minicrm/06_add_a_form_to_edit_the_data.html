@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='utf-8' ?><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/></head><body><table border="0" class="navigation" style="width: 100%;" summary="navigation"><tr><th align="center" colspan="3" rowspan="1" style="width: 100%;">Add a form to edit the data</th></tr><tr><td align="left" colspan="1" rowspan="1" style="width: 20%"><a href="05_add_a_search_form.html" shape="rect" title="Add a search form"><img alt="Previous" border="0" src="../../Images/prev.gif"></img></a></td><td align="center" colspan="1" rowspan="1" style="width: 60%"></td><td align="right" colspan="1" rowspan="1" style="width: 20%"><a href="07_write_the_second_page.html" shape="rect" title="Write the second page"><img alt="Next" border="0" src="../../Images/next.gif"></img></a></td></tr><tr><td align="left" colspan="1" rowspan="1" style="width: 20%">Add a search form</td><td align="center" colspan="1" rowspan="1" style="width: 60%"></td><td align="right" colspan="1" rowspan="1" style="width: 20%">Write the second page</td></tr></table><p><div class="messagebox " style="background-color: #def3fe; border: 1px solid #c5d7e0; color: black; padding: 5px; margin: 1ex 0; min-height: 35px; padding-left: 45px; ">
+<div style="float: left; margin-left: -40px;"><img width="35" border="0" src="../../Images/Note.png"/></div>
+<div><b>Scout Tutorial</b><br/>This page belongs to the <a href="http://wiki.eclipse.org/Scout/Tutorial/3.8/Minicrm_Step-by-Step" title="Scout/Tutorial/3.8/Minicrm_Step-by-Step" target="doc_external">Minicrm Step-by-Step Tutorial</a>. It explains how to add a form to a table page such that you can edit the data on the database. You need to <a href="04_write_the_first_page.html" title="Scout/Tutorial/3.8/Minicrm/Write the first page">have a table page in your application</a> in order to continue.</div>
+</div></p><p>We need to create a <b>form</b> containing various <b>fields</b>, we need to have a <b>process service</b> that allows us to select, insert, and update data on the database, and we need a <b>context menu</b> to call the form, possibly passing along an id (the <i>primary key</i>) to the form if we want to edit a particular row.</p><h2 id="What_are_we_talking_about.3F">What are we talking about?</h2><p>The following diagram illustrates our goal: We already have our <b>CompanyTablePage</b>. We'll want <b>two menus</b> to call our <b>CompanyForm</b>. When editing a company, we'll start a <b>ModifyHandler</b> that will <b>select</b> data from the database and <b>update</b> it when we're done; when creating a new company we'll start a <b>NewHandler</b> that will <b>insert</b> it when we're done.</p><p>As you can see the framework provides for a place to run code when preparing for a new company. This is where you could set some default values to the form.</p><p><img width="900" border="0" src="../../Images/Scout_Form_Details.png"/></p><h2 id="Create_a_form">Create a form</h2><p>We now build a form to add and edit companies. Expand the node client of your Scout project, scroll down to the node <i>Forms</i>, right click on it and select <b>New Form...</b></p><p><img border="0" src="../../Images/Newform.jpg"/></p><p>As name for the form choose <i>Company</i>. As you can see on the New Form Wizard a <b>form ID</b> called <i>CompanyNr</i> will automatically be created. This ID is later needed to pass the primary key of the company you want to display the data for in the form.</p><p><img border="0" src="../../Images/Newformwizard.jpg"/></p><p>When you click <i>Next</i>, you'll see permissions and a process service will also be created for this form. We'll discuss these later.</p><p><img border="0" src="../../Images/InnerFormClasses.jpg"/></p><p>Click <i>Finish</i> to create the form.</p><p>When you now expand the tree below your <i>CompanyForm</i> you can see a <b>MainBox</b>. This is the mandatory root element for every form. Inside this <i>MainBox</i> you can now add fields as you wish by right clicking on it and choosing <b>New Form Field</b>.</p><p><img border="0" src="../../Images/Newformfield.jpg"/></p><p>On the <i>New Form Field</i> wizard you need to choose a template for the field. First, we want to add a field for the company's name, therefore choose <b>String Field</b>. Click <i>Next</i> and enter the name of the field ("Name") and then click <i>Finish</i>.</p><p><img border="0" src="../../Images/Fieldtemplates.jpg"/>
+<img border="0" src="../../Images/newFormField_3.png"/></p><p>Now proceed in the same way and add a field for the <i>Short Name</i>.</p><p>You should already have an <b>Ok</b> button (<b>OK Button</b> template) and a <b>Cancel</b> button (<i>Cancel Button</i> template). The two buttons don't need a name since they'll get appropriate names from their template.</p><p><div class="messagebox " style="background-color: #def3fe; border: 1px solid #c5d7e0; color: black; padding: 5px; margin: 1ex 0; min-height: 35px; padding-left: 45px; ">
+<div style="float: left; margin-left: -40px;"><img width="35" border="0" src="../../Images/Note.png"/></div>
+<div><b>Ampersand in Field Names</b><br/>Button names usually contain an ampersand. This is used for a <b>keyboard shortcut</b>. Thus, &amp;Ok means that Alt-O will activate the Ok button.</div>
+</div></p><h2 id="Modify_the_form.27s_ProcessService">Modify the form's ProcessService</h2><p>Go to the server node of your Scout project, open the node <b>Process Service</b> and expand it. Double click on the entry <b>CompanyProcessService</b> in order to open it.</p><pre class="source-java">public class CompanyProcessService extends AbstractService implements ICompanyProcessService{
+
+  public CompanyFormData prepareCreate(CompanyFormData formData) throws ProcessingException{
+    if(!ACCESS.check(new CreateCompanyPermission())){
+      throw new VetoException(Texts.get("AuthorizationFailed"));
+    }
+    // TODO business logic here
+    return formData;
+  }
+
+  public CompanyFormData create(CompanyFormData formData) throws ProcessingException{
+    if(!ACCESS.check(new CreateCompanyPermission())){
+      throw new VetoException(Texts.get("AuthorizationFailed"));
+    }
+    // TODO business logic here
+    return formData;
+  }
+
+  public CompanyFormData load(CompanyFormData formData) throws ProcessingException{
+    if(!ACCESS.check(new ReadCompanyPermission())){
+      throw new VetoException(Texts.get("AuthorizationFailed"));
+    }
+    // TODO business logic here
+    return formData;
+  }
+
+  public CompanyFormData store(CompanyFormData formData) throws ProcessingException{
+    if(!ACCESS.check(new UpdateCompanyPermission())){
+      throw new VetoException(Texts.get("AuthorizationFailed"));
+    }
+    // TODO business logic here
+    return formData;
+  }
+}
+
+</pre><p>As you can see, the generated <i>process service</i> contains <i>four methods</i>. If you check from where they are called (Ctrl+Shift+G), you will notice that the callers are two <i>form handlers</i>: a <b>NewHandler</b> and a <b>ModifyHandler</b>.</p><p>These two handlers are <b>inner classes</b> of the <i>company form</i>. You can see them in the Scout SDK as well: expand the <i>CompanyForm</i> node and you'll find the <i>Handlers</i> node right there. </p><p><b>Form handlers</b> are used to start a form in a particular <i>mode</i>. For instance, if you want to use your form to add a new company, you want to bring it up empty. On the other hand, if you want to use it to edit an already existing company, you want to bring it up already containing the company's values. </p><p>Generally speaking, we'll use <b>execLoad</b> and <b>execStore</b> for every handler.
+Here's how our <i>CompanyProcessService</i> methods are called:</p><table cellpadding="10"><tr><th>Form Handler</th><th>Handler Method</th><th>Process Server Method</th></tr><tr><td rowspan="2">ModifyHandler</td><td>execLoad</td><td>load</td></tr><tr><td>execStore</td><td>store</td></tr><tr><td rowspan="2">NewHandler</td><td>execLoad</td><td>prepareCreate</td></tr><tr><td>execStore</td><td>create</td></tr></table><p>A FormHandler's methods are executed in a specified order. With that, you can control a form's processing at different moments or with the form in different state: </p><ol><li>execLoad: Loads form state before it is made visible</li><li>execPostLoad: After the form is loaded, changes to fields inside this method result in marking the form as <i>changed</i> and thus requiring a <i>save</i>.</li><li>execCheckFields: Executed before execValidate but after <i>AbstractForm.execCheckFields()</i>. Returning false cancels processing. </li><li>execValidate: Executed after <i>AbstractForm.execValidate()</i>. </li><li>execStore: After this method call, the form is in the <i>unchanged</i> state with no <i>save</i> required. Executed before <i>AbstractForm.execStored()</i>. </li><li>execDiscard</li><li>execFinally</li></ol><p>Please <b>consult the javadoc of these methods</b> for details.</p><p>Furthermore you can see in the source code generated that <b>Permissions are checked</b>. These checks exist on both the client and on the server side. On the client side, these are simple convenience checks to prevent the user from changing fields if they cannot be saved.
+We need similar checks on the server side to handle service calls from outside the client.
+The process service could potentially be used by an interface, for example.</p><h2 id="Load_the_data_for_the_form">Load the data for the form</h2><p>To begin with, we want to edit an existing company.</p><p>Go to the <b>load</b> method of the <b>CompanyProcessService</b> and select the data to be displayed using the SQL method <i>SQL.selectInto</i>.</p><pre class="source-java">SQL.selectInto("" +
+	"SELECT SHORT_NAME, " +
+	"       NAME " +
+	"FROM   COMPANY " +
+	"WHERE  COMPANY_NR = :companyNr " +
+	"INTO   :shortName," +
+	"       :name"
+    , formData);
+
+</pre><p>The INTO clause of your SQL statement will refer to form fields by prefixing them with a colon. These are the <b>bind variables</b>. A field called <b>ShortName</b> will be referred to as <b>:shortName</b>. Don't forget the naming conventions: downcase the first character.</p><p>If your <i>form data</i> is up to date, you can use <b>content assistance</b> after the colon: press <i>CTRL-Space</i> to complete on the <i>fields</i>. If some (or all) of the fields are missing, you need to <b>update your form data</b> (e.g. if you have disabled the auto update mechanism of Scout SDK).</p><p><img border="0" src="../../Images/Updateformdata.jpg"/></p><p><div class="messagebox " style="background-color: #def3fe; border: 1px solid #c5d7e0; color: black; padding: 5px; margin: 1ex 0; min-height: 35px; padding-left: 45px; ">
+<div style="float: left; margin-left: -40px;"><img width="35" border="0" src="../../Images/Note.png"/></div>
+<div><b>Update Form Data</b><br/>Every <i>form</i> comes with a <i>form data</i> object which will be used to communicate between client and server. Its code can be created automatically by using the context menu on the <i>form</i> itself. Right click on <i>CompanyForm</i> and pick <b>Update Form Data</b>. This is only required if the automatic <i>form data</i> update mechanism of Scout SDK has been disabled. If it is still active, the manual update is not necessary.</div>
+</div></p><p>In the WHERE clause you need to specify the company's <i>primary key</i>. This is contained in the variable <i>companyNr</i>. Remember, when we created the <i>form</i> this id was created for us as well. You can find it in the <i>Variables</i> section of the <i>CompanyForm</i>.</p><h2 id="From_Form_to_FormData_to_Form">From Form to FormData to Form</h2><p>If you want to load data from a service, you need to <b>export</b> data from the <i>form</i> into the <i>form data</i> (the <i>primary key</i> in particular). Once the call returns you need to <b>import</b> the data from the <i>form data</i> back into the <i>form</i>.</p><p>Forms provide an <b>import and export method</b>, respectively. Therefore loading data into and storing them from a form into a form data is just a single method call. This has already been automatically added by Scout in the FormHandler methods:</p><pre class="source-java">@Override
+public void execLoad() throws ProcessingException{
+  ICompanyProcessService service = SERVICES.getService(ICompanyProcessService.class);
+  CompanyFormData formData = new CompanyFormData();
+  exportFormData(formData);
+  formData = service.load(formData);
+  importFormData(formData);
+  setEnabledPermission(new UpdateCompanyPermission());
+}
+
+</pre><h2 id="Add_Edit_..._Menu_and_Start_the_Form">Add Edit ... Menu and Start the Form</h2><p>The last thing to do is to actually call the form and to open it. In order to do that we need a <b>menu on the CompanyTablePage</b>. Go to your <i>CompanyTablePage</i> expand it, go to the <i>table</i>, click on the <i>Menu</i> node, right click and choose <b>New Menu...</b>.</p><p><img border="0" src="../../Images/Newmenu.jpg"/></p><p>Enter the name of the menu: <i>Edit Company...</i> (and add a new translated text). Specify <i>CompanyForm</i> as the <b>Form to start</b>, choose <i>ModifyHandler</i> as the <b>Form handler</b>, and click <i>Finish</i>.</p><p><img border="0" src="../../Images/Editcompanymenu.jpg"/></p><p><div class="messagebox " style="background-color: #def3fe; border: 1px solid #c5d7e0; color: black; padding: 5px; margin: 1ex 0; min-height: 35px; padding-left: 45px; ">
+<div style="float: left; margin-left: -40px;"><img width="35" border="0" src="../../Images/Note.png"/></div>
+<div><b>Use of Ellipsis</b><br/>A menu name should end with an ellipsis (three dots: ...) if it opens a form. Since the text is also proposed as the <i>key</i>, you will have to delete the dots. It should not end with an ellipsis if the menu immediately (without user interaction) performs an action.</div>
+</div></p><p><img border="0" src="../../Images/New_Scout_Text_Entry_With_Ellipsis.jpg"/></p><h2 id="Update_the_company_with_the_new_values">Update the company with the new values</h2><p>Now we need to edit the <i>store</i> method in the <i>CompanyProcessService</i> and add the sql statement for the update. </p><pre class="source-java">@Override
+public CompanyFormData store(CompanyFormData formData)  throws ProcessingException { 
+ if(!ACCESS.check(new UpdateCompanyPermission())){
+    throw new VetoException(TEXTS.get("AuthorizationFailed"));
+ }
+
+ SQL.update(
+     "UPDATE COMPANY SET" +
+     "       SHORT_NAME = :shortName, " +
+     "       NAME = :name " +
+     "WHERE  COMPANY_NR = :companyNr", formData);
+
+ return formData;
+}
+
+</pre><p>Make sure that you don't end up with code like this:</p><pre class="source-java">     "       NAME = :name" +
+     "WHERE  COMPANY_NR = :companyNr", formData);
+
+</pre><p>This would result in ...":nameWHERE"...</p><h2 id="Pass_the_primary_key_and_reload_page">Pass the primary key and reload page</h2><p>If you open the generated <i>EditCompanyMenu</i> you see that code for the <i>execAction</i> method has been generated for you. This code opens the form and calls the handler.</p><p>The <i>companyNr</i> is available in the <i>CompanyNrColumn</i> of the table. We just need to find the value in said column for the <b>selected row</b>. The auto generated code should look like this:</p><pre class="source-java">@Override
+public void execAction()  throws ProcessingException {
+  CompanyForm form = new CompanyForm();
+  form.setCompanyNr(getCompanyNrColumn().getSelectedValue());
+  form.startModify();
+  form.waitFor();
+
+  if (form.isFormStored()){
+    reloadPage();
+  }
+}
+
+</pre><p>The method startModify starts the modify handler. The <i>waitFor</i> interrupts the execution at this point, until the form is closed again. With <i>isFormStored</i> we check wether the user has closed the form by pressing the <i>OK-Button</i> (form values are stored) or by pressing the <i>Cancel-Button</i> (form values are discarded). In the first case we reload the current table the see the changes instantly.</p><p><div class="messagebox " style="background-color: #f9f6b7; border: 1px solid #c4c295; color: black; padding: 5px; margin: 1ex 0; min-height: 35px; padding-left: 45px; ">
+<div style="float: left; margin-left: -40px;"><img width="35" border="0" src="../../Images/Warning2.png"/></div>
+<div><b>Restart the Server</b><br/>If you've been following along, you might think that changes are not being saved. In that case, consider whether you have restarted the server. If you change code on the client side, such as adding code to the <b>store</b> method, you might need to restart the server. If you're running the server in debug mode, Eclipse will attempt to hot swap the code for you, but it won't always work.</div>
+</div></p><p><img border="0" src="../../Images/Scout-CompanyForm-Edit.png"/></p><h2 id="Can_you_create_new_companies.3F">Can you create new companies?</h2><p>Can you create a second menu to create new companies? Sure you can!</p><p>Here are some hints:</p><p>You need a <b>NewCompanyMenu</b>. It needs an <b>execAction</b> that runs the <i>New Handler</i>.
+<div class="messagebox " style="background-color: #def3fe; border: 1px solid #c5d7e0; color: black; padding: 5px; margin: 1ex 0; min-height: 35px; padding-left: 45px; ">
+<div style="float: left; margin-left: -40px;"><img width="35" border="0" src="../../Images/Note.png"/></div>
+<div><b>Auto generated</b><br/>If you choose <i>NewHandler</i> in the new menu dialog the following code should already be generated automatically</div>
+</div></p><pre class="source-java">CompanyForm form = new CompanyForm();
+form.startNew();
+form.waitFor();
+
+if (form.isFormStored()) {
+  reloadPage();
+}
+
+</pre><p>The new menu should not appear on existing rows. Instead, it should appear when no row has been selected. Uncheck the <b>Single Select Action</b> property to do this.</p><p>You already have a <b>NewHandler</b> so the only thing you need to do is write appropriate code for the <b>create</b> method of the <b>CompanyProcessService</b>. There's currently nothing to do before the actual INSERT statement, thus we do not need to write anything for the <i>prepareCreate</i> method.</p><p>Unfortunately, the COMPANY_NR column in the sample DB has not been declared as an <i>auto increment</i> column (<tt>GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1)</tt>). For the purpose of this tutorial, we need to work around this within our application. (Yes, this is a terrible excuse...)</p><p>Here's what we do for <b>create</b>:</p><pre class="source-java">SQL.selectInto("" +
+    "SELECT MAX(COMPANY_NR)+1 " +
+    "FROM   COMPANY " +
+    "INTO   :companyNr"
+    , formData);
+SQL.insert("" +
+	"INSERT INTO COMPANY (COMPANY_NR, SHORT_NAME, NAME) " +
+	"VALUES (:companyNr, :shortName, :name)"
+	, formData);
+
+</pre><table border="0" class="navigation" style="width: 100%;" summary="navigation"><tr><td align="left" colspan="1" rowspan="1" style="width: 20%"><a href="05_add_a_search_form.html" shape="rect" title="Add a search form"><img alt="Previous" border="0" src="../../Images/prev.gif"></img></a></td><td align="center" colspan="1" rowspan="1" style="width: 60%"><a href="index.html" shape="rect" title="Mini CRM Scout application"><img alt="Mini CRM Scout application" border="0" src="../../Images/home.gif"></img></a></td><td align="right" colspan="1" rowspan="1" style="width: 20%"><a href="07_write_the_second_page.html" shape="rect" title="Write the second page"><img alt="Next" border="0" src="../../Images/next.gif"></img></a></td></tr><tr><td align="left" colspan="1" rowspan="1" style="width: 20%">Add a search form</td><td align="center" colspan="1" rowspan="1" style="width: 60%"></td><td align="right" colspan="1" rowspan="1" style="width: 20%">Write the second page</td></tr></table></body></html>

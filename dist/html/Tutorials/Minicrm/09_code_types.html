@@ -1,0 +1,177 @@
+<?xml version='1.0' encoding='utf-8' ?><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/></head><body><table border="0" class="navigation" style="width: 100%;" summary="navigation"><tr><th align="center" colspan="3" rowspan="1" style="width: 100%;">Code Types</th></tr><tr><td align="left" colspan="1" rowspan="1" style="width: 20%"><a href="08_reorganize_the_tree.html" shape="rect" title="Reorganize the tree"><img alt="Previous" border="0" src="../../Images/prev.gif"></img></a></td><td align="center" colspan="1" rowspan="1" style="width: 60%"></td><td align="right" colspan="1" rowspan="1" style="width: 20%"><a href="10_lookup_calls_and_lookup_services.html" shape="rect" title="Lookup Calls and Lookup Services"><img alt="Next" border="0" src="../../Images/next.gif"></img></a></td></tr><tr><td align="left" colspan="1" rowspan="1" style="width: 20%">Reorganize the tree</td><td align="center" colspan="1" rowspan="1" style="width: 60%"></td><td align="right" colspan="1" rowspan="1" style="width: 20%">Lookup Calls and Lookup Services</td></tr></table><p><div class="messagebox " style="background-color: #def3fe; border: 1px solid #c5d7e0; color: black; padding: 5px; margin: 1ex 0; min-height: 35px; padding-left: 45px; ">
+<div style="float: left; margin-left: -40px;"><img width="35" border="0" src="../../Images/Note.png"/></div>
+<div><b>Scout Tutorial</b><br/>This page belongs to the <a href="http://wiki.eclipse.org/Scout/Tutorial/3.8/Minicrm_Step-by-Step" title="Scout/Tutorial/3.8/Minicrm_Step-by-Step" target="doc_external">Minicrm Step-by-Step Tutorial</a>. It explains how to add and use Code Types. You need to finish at least step <a href="06_add_a_form_to_edit_the_data.html" title="Scout/Tutorial/3.8/Minicrm/Add a form to edit the data">Add a form</a> in order to continue.</div>
+</div> </p><h2 id="How_to_Create_Code_Types">How to Create Code Types</h2><p>Code Types always contain of an ID and a list of values. </p><p>Open the shared node in Eclipse Scout and expand the tree until you reach the Enumerations node. Right-click on the node and choose <i>New Codetype…</i> menu. </p><p><img border="0" src="../../Images/Scout-NewCodeType0.PNG"/> </p><p>The Code ID needs to be an unique number, which helps to identify the values belonging to the Code Type.</p><p>The convention usually followed is that we always leave enough space between the Code Type's IDs, because the Code Type's <i>values</i> need IDs as well. The idea is that the IDs of Code Types and their values are close together (e.g. Code Type has the number 10000 and its values range from 10001 to 10099; the next Code Type has the number 10100).</p><p><br/> </p><p>Enter the information into the Code Type form according to the picture: </p><p><img border="0" src="../../Images/Scout-NewCodeType1.PNG"/> </p><p><br/> </p><p>Right-click on the newly created Code Type and choose ''New Code… ''</p><p><img border="0" src="../../Images/Scout-NewCode.PNG"/> </p><p><br/> </p><p>Increase the CompanyType Code Type's ID by 1 and assign it to the Code ID field. Give it a name like <b>Customer</b>. </p><p><img border="0" src="../../Images/Scout-NewCodeType.PNG"/> </p><p>Repeat these last two steps for two other codes called <b>Supplier</b> (Code ID: 10002), and <b>Other</b> (Code ID: 10003). </p><p><br/></p><h2 id="How_to_Use_a_Code_Type_in_a_Dialog_.28Radio_Button_Group.29">How to Use a Code Type in a Dialog (Radio Button Group)</h2><p>So let's use the code type inside the Company Form: we are going to add a Radio Button Group containing those two values. </p><p>In a Radio Button Group only one item can be selected at a time. This is exactly what we need here, as we don't like a company being both, customer and supplier. </p><p>Back in Scout Explorer we expand the tree like: client &gt; Forms &gt; CompanyForm and right-click on MainBox to choose New Form Field… </p><p>Choose <i>RadioButtonGroup</i> as Type, give it a name like CompanyType and press Finish. </p><p><img border="0" src="../../Images/Scout-NewRadioButtonGroup.PNG"/> </p><p><br/> </p><p>In the properties editor go to the property Code Type and choose the Code Type CompanyTypeCodeType we have previously created. That’s all we need to do to fill the Code Type's values into the Radio Button Group. </p><p><img border="0" src="../../Images/Scout-RadioButtonGroupSetCodeType.PNG"/> </p><p><br/> </p><p>After adding this additional field, don't forget to update the form data: right-click on the CompanyForm and choose "Update Form Data" </p><p><br/></p><h2 id="Update_the_Database_Model">Update the Database Model</h2><p><div class="messagebox " style="background-color: #def3fe; border: 1px solid #c5d7e0; color: black; padding: 5px; margin: 1ex 0; min-height: 35px; padding-left: 45px; ">
+<div style="float: left; margin-left: -40px;"><img width="35" border="0" src="../../Images/Note.png"/></div>
+<div><b>Access Derby database</b><br/>Check the following link for <a href="http://wiki.eclipse.org/Scout/Tutorial/Database_Development_Perspective#Access_the_Derby_database_on_the_Command_Line" target="doc_external">Derby command line access</a>
+</div>
+</div></p><p>If you want to add a new code type to your application, you probably need a new column in the database model as well. For our example you may use </p><p><code lang="sql">ALTER TABLE minicrm.company ADD COLUMN type_uid int;</code></p><h2 id="Update_the_Form.27s_Process_Service">Update the Form's Process Service</h2><p>To read and write the values for the new Radio Button Field on the company dialog from and to the database, we need to adjust the CompanyProcessService: </p><pre class="source-java">public CompanyFormData create(CompanyFormData formData) throws ProcessingException {
+    if (!ACCESS.check(new CreateCompanyPermission())) {
+      throw new VetoException(TEXTS.get("AuthorizationFailed"));
+    }
+    SQL.selectInto("" +
+        "SELECT MAX(COMPANY_NR)+1 " +
+        "FROM   COMPANY " +
+        "INTO   :companyNr"
+        , formData);
+
+    /*
+     * NEW: TYPE_UID behind INSERT INTO
+     * NEW: :companyTypeGroup in VALUES, field is named according to the inner class CompanyTypeGroup
+     *      of CompanyForm
+     */
+    SQL.insert("" +
+        "INSERT INTO COMPANY (COMPANY_NR, SHORT_NAME, NAME, TYPE_UID) " +
+        "VALUES (:companyNr, :shortName, :name, :companyTypeGroup)"
+        , formData);
+    return formData;
+  }
+
+  public CompanyFormData load(CompanyFormData formData) throws ProcessingException {
+    if (!ACCESS.check(new ReadCompanyPermission())) {
+      throw new VetoException(TEXTS.get("AuthorizationFailed"));
+    }
+
+    /*
+     * NEW: TYPE_UID in SELECT
+     * NEW: :companyTypeGroup behind INTO, field is named according to the inner class CompanyTypeGroup
+     *      of CompanyForm
+     */
+    SQL.selectInto("" +
+        "SELECT SHORT_NAME, " +
+        "       NAME," +
+        "       TYPE_UID " +
+        "FROM   COMPANY " +
+        "WHERE  COMPANY_NR = :companyNr " +
+        "INTO   :shortName," +
+        "       :name, " +
+        "       :companyTypeGroup"
+          , formData);
+    return formData;
+  }
+
+  public CompanyFormData store(CompanyFormData formData) throws ProcessingException {
+    if (!ACCESS.check(new UpdateCompanyPermission())) {
+      throw new VetoException(TEXTS.get("AuthorizationFailed"));
+    }
+
+    /*
+     * NEW: TYPE_UID = :companyTypeGroup in SET, field is named according to
+     *      the inner class CompanyTypeGroup of CompanyForm
+     */
+    SQL.update("" +
+        "UPDATE COMPANY " +
+        " SET SHORT_NAME = :shortName, " +
+        "     NAME = :name, " +
+        "     TYPE_UID = :companyTypeGroup " +
+        "WHERE  COMPANY_NR = :companyNr "
+        , formData);
+
+    return formData;
+  }
+
+</pre><h2 id="Add_a_Company_Rating_Field_to_the_Company_Dialog_.28Smart_Field.29">Add a Company Rating Field to the Company Dialog (Smart Field)</h2><p>Repeat the steps above for a new code type <b>CompanyRatingCodeType</b> with the values A, B, C, D for both the database and the new enumeration on the shared node in the Scout Explorer.</p><p>Use id 10100 for the CompanyRatingCodeType, so that you have enough space to add other company types.</p><p>The result should look similar to</p><p><img border="0" src="../../Images/Scout-CodeTypeResult.PNG"/> </p><p>Back in Scout Explorer expand the tree: client &gt; Forms &gt; CompanyForm &gt; MainBox, right-click on <i>MainBox</i> and use context menu ''New Form Field… ''
+Add a new form field of type <i>SmartField</i> with the name <b>Company Rating</b> and select <b>CompanyRatingCodeType</b> as the code type.</p><p><img border="0" src="../../Images/Scout-NewSmartFieldCompanyRating.PNG"/> </p><p>As in the case abovee for the code type <b>Company Type</b> you will need to update the database model.
+For reading and writing from and to the database we need to update the methods of the <b>CompanyProcessService</b> once more</p><pre class="source-java">public CompanyFormData create(CompanyFormData formData) throws ProcessingException {
+    if (!ACCESS.check(new CreateCompanyPermission())) {
+      throw new VetoException(TEXTS.get("AuthorizationFailed"));
+    }
+    SQL.selectInto("" +
+        "SELECT MAX(COMPANY_NR)+1 " +
+        "FROM   COMPANY " +
+        "INTO   :companyNr"
+        , formData);
+
+    /*
+     * NEW: RATING_UID behind INSERT INTO
+     * NEW: :companyRating in VALUES, field is named according to the inner class CompanyRating
+     *      of CompanyForm
+     */
+    SQL.insert("" +
+        "INSERT INTO COMPANY (COMPANY_NR, SHORT_NAME, NAME, TYPE_UID, RATING_UID) " +
+        "VALUES (:companyNr, :shortName, :name, :companyTypeGroup, :companyRating)"
+        , formData);
+    return formData;
+  }
+
+  public CompanyFormData load(CompanyFormData formData) throws ProcessingException {
+    if (!ACCESS.check(new ReadCompanyPermission())) {
+      throw new VetoException(TEXTS.get("AuthorizationFailed"));
+    }
+
+    /*
+     * NEW: RATING_UID in SELECT
+     * NEW: :companyRating behind INTO, field is named according to the inner class CompanyRating
+     *      of CompanyForm
+     */
+    SQL.selectInto("" +
+        "SELECT SHORT_NAME, " +
+        "       NAME," +
+        "       TYPE_UID, " +
+        "       RATING_UID " +
+        "FROM   COMPANY " +
+        "WHERE  COMPANY_NR = :companyNr " +
+        "INTO   :shortName," +
+        "       :name, " +
+        "       :companyTypeGroup, " +
+        "       :companyRating "
+          , formData);
+    return formData;
+  }
+
+  public CompanyFormData store(CompanyFormData formData) throws ProcessingException {
+    if (!ACCESS.check(new UpdateCompanyPermission())) {
+      throw new VetoException(TEXTS.get("AuthorizationFailed"));
+    }
+
+    /*
+     * NEW: RATING_UID = :companyRating in SET, field is named according to
+     * the inner class CompanyRating of CompanyForm
+     */
+    SQL.update("" +
+        "UPDATE COMPANY " +
+        " SET SHORT_NAME = :shortName, " +
+        "     NAME = :name, " +
+        "     TYPE_UID = :companyTypeGroup, " +
+        "     RATING_UID = :companyRating " +
+        "WHERE  COMPANY_NR = :companyNr "
+        , formData);
+
+    return formData;
+  }
+
+</pre><h2 id="Conditional_Dependencies_Between_Fields_and_Controlling_Field_Visibility">Conditional Dependencies Between Fields and Controlling Field Visibility</h2><p>In the Example above we added a Smart Field to choose a rating between A and D on the Company Form. To improve the usability of the company form, the rating field should only become visible, when the users selects '<i>Customer</i> as the company type.</p><p>As there is a dependency between fields, we have to define a <i>Master – Slave</i> relation between the company type and the company rating field. For this we specify the master field on the (slave) form field. </p><p>Expand the tree in the Scout Explorer like: client &gt; Forms &gt; CompanyForm &gt; MainBox &gt; CompanyRatingField. Set the <i>Master Field</i> and <i>Master Required</i> as shown in the picture below. </p><p><img border="0" src="../../Images/Scout-CompanyRatingMaster.png"/> </p><p>Untick <i>Visible</i> in the scout object properties of the <i>CompanyRatingField</i>.</p><p>Clicking on the green plus right of method <i>Exec Changed Master Value</i> adds the method <i>execChangedMasterValue</i> to the (slave) company rating field. Now we can control the fields visibility depending on the selected company type as follows</p><pre class="source-java">      @Override
+      protected void execChangedMasterValue(Object newMasterValue) throws
+ProcessingException {
+
+        if (CompareUtility.equals(getCompanyTypeGroup().getValue(), 
+            CompanyTypeCodeType.CustomerCode.ID)) {
+          setEnabled(true);
+          setVisible(true);
+        }
+        else {
+          setEnabled(false);
+          setVisible(false);
+          setValue(null);
+        }
+      }
+
+</pre><p> 
+<br/> </p><p>When execChangedMasterValue is called, we check if the customer type value equals the Customer code. If so, the fields is set visible and enabled. In all other cases the field has to be invisible and disabled, as well as set to null  nothing must be written to the database. </p><p>This method <i>execChangedMasterValue</i> is called whenever the value in the defined master field (the company type field in this example) of the slave field (company rating field here) is changed.  </p><p><div class="messagebox " style="background-color: #def3fe; border: 1px solid #c5d7e0; color: black; padding: 5px; margin: 1ex 0; min-height: 35px; padding-left: 45px; ">
+<div style="float: left; margin-left: -40px;"><img width="35" border="0" src="../../Images/Idea.png"/></div>
+<div><b>Scout Utility Classes</b><br/>calling a member means to make sure that the object is not null. Standard operations like comparisons etc. always follow the same pattern: first check for null values, second call the actual operation. To prevent the programmer from coding the same thing all over again, Scout often provides so called Utility classes, which make sure that no unnecessary Exceptions will be thrown.</p><p>Have a look at those Utility classes by pressing ctrl + shift + T and type *Utility. It's highly recommended to use these classes whenever possible.</div>
+</div> </p><p>Now that the Form works, we have to make sure that the rating value can be read and written from and to the database. So let's change the CompanyProcessService once more.</p><h2 id="Display_Code_Types_in_Tables">Display Code Types in Tables</h2><p>Whenever we want to display a Code Type in a table, we cannot just use the value returned by the database query. This out of the reason that Code Types IDs are stored and displaying IDs would mean nothing to a user. </p><p>Instead we use a Smart Column, tell it which Code Type will be returned and let it translate the ID into a name. So let's add a new column to the CompanyTablePage and extend the StandardOutlineService. </p><p>Expand the tree in Scout Explorer like: client &gt; All pages and right-click on CompanyTablePage &gt; Table &gt; Columns and choose New Column… </p><p><div class="messagebox " style="background-color: #def3fe; border: 1px solid #c5d7e0; color: black; padding: 5px; margin: 1ex 0; min-height: 35px; padding-left: 45px; ">
+<div style="float: left; margin-left: -40px;"><img width="35" border="0" src="../../Images/Idea.png"/></div>
+<div><b>All roads lead to Rome</b><br/>Wherever CompanyTablePage has been linked to, we'll find it (e.g. client &gt; Desktop &gt; StandardOutline &gt; Child Pages &gt; CompanyTablePage). Nevertheless, all pages, no matter where they are linked to, are situated in: client &gt; All pages.</div>
+</div> </p><p>Choose type Smart Column and fill in the information according to the picture. </p><p><img border="0" src="../../Images/Scout-NewSmartTableColumn.PNG"/> </p><p><br/> </p><p>Adjust the getCompanyTableData method in the StandardOutlineService (server &gt; Outline Services &gt; StandardOutlineService): </p><pre class="source-java">/*
+ * NEW: TYPE_UID behind SELECT
+ */
+ statement.append(
+ "SELECT COMPANY_NR, " +
+ "       SHORT_NAME, " +
+ "       NAME, " +
+ "       TYPE_UID " +
+ " FROM COMPANY " +
+ " WHERE 1 = 1 ");
+
+</pre><p> </p><p><img border="0" src="../../Images/Scout-SmartTableColumnResult.png"/></p><table border="0" class="navigation" style="width: 100%;" summary="navigation"><tr><td align="left" colspan="1" rowspan="1" style="width: 20%"><a href="08_reorganize_the_tree.html" shape="rect" title="Reorganize the tree"><img alt="Previous" border="0" src="../../Images/prev.gif"></img></a></td><td align="center" colspan="1" rowspan="1" style="width: 60%"><a href="index.html" shape="rect" title="Mini CRM Scout application"><img alt="Mini CRM Scout application" border="0" src="../../Images/home.gif"></img></a></td><td align="right" colspan="1" rowspan="1" style="width: 20%"><a href="10_lookup_calls_and_lookup_services.html" shape="rect" title="Lookup Calls and Lookup Services"><img alt="Next" border="0" src="../../Images/next.gif"></img></a></td></tr><tr><td align="left" colspan="1" rowspan="1" style="width: 20%">Reorganize the tree</td><td align="center" colspan="1" rowspan="1" style="width: 60%"></td><td align="right" colspan="1" rowspan="1" style="width: 20%">Lookup Calls and Lookup Services</td></tr></table></body></html>
