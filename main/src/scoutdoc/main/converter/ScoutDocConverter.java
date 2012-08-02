@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -24,17 +25,17 @@ import org.eclipse.mylyn.wikitext.core.parser.outline.OutlineItem;
 import org.eclipse.mylyn.wikitext.core.parser.outline.OutlineParser;
 import org.eclipse.mylyn.wikitext.core.parser.util.MarkupToEclipseToc;
 
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Preconditions;
-import com.google.common.io.Files;
-
 import scoutdoc.main.ProjectProperties;
+import scoutdoc.main.fetch.ApiFileUtility;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageUtility;
 import scoutdoc.main.structure.Task;
 
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Preconditions;
+import com.google.common.io.Files;
+
 public class ScoutDocConverter {
-	private static final String IMAGES_REL_PATH = "../../Images";
 	private static final Charset CHARSET = Charset.forName("UTF-8");
 
 	public void execute(Task t) throws IOException {
@@ -43,7 +44,7 @@ public class ScoutDocConverter {
 		MediaWikiLanguageExt markupLanguage = new MediaWikiLanguageExt();
 		
 		markupLanguage.getTemplateProviders().add(new IgnoreTemplateProvider("ScoutPage", "note")); //Could also use: markupLanguage.setTemplateExcludes("ScoutPage")
-		markupLanguage.getTemplateProviders().add(new FilesTemplateProvider(new File(ProjectProperties.getWikiSourceFolder() + ProjectProperties.getFileSeparator() + "Template")));
+		markupLanguage.getTemplateProviders().add(new FilesTemplateProvider(new File(ProjectProperties.getFolderWikiSource() + ProjectProperties.getFileSeparator() + "Template")));
 		markupLanguage.setInternalLinkPattern("http://wiki.eclipse.org/{0}");
 		
 		MarkupParser markupParser = new MarkupParser();
@@ -86,13 +87,13 @@ public class ScoutDocConverter {
 			
 			item.inputContent = Files.toString(new File(PageUtility.toFilePath(item.inputPage)), CHARSET);
 
-			item.outputFile = new File(ProjectProperties.getWikiDistFolder() + ProjectProperties.getFileSeparator() + t.getOutputFolder() + ProjectProperties.getFileSeparator() + item.outputFileName);
+			item.outputFile = new File(ProjectProperties.getFolderWikiDist() + ProjectProperties.getFileSeparator() + t.getOutputFolder() + ProjectProperties.getFileSeparator() + item.outputFileName);
 			Files.createParentDirs(item.outputFile);
 			System.out.println("outputFile: " +item.outputFile);
 			
 			StringWriter out = new StringWriter();
 			HtmlDocumentBuilderExt htmlDocumentBuilder = new HtmlDocumentBuilderExt(out);
-			htmlDocumentBuilder.setPrependImagePrefix(IMAGES_REL_PATH);
+			htmlDocumentBuilder.setPrependImagePrefix(ProjectProperties.getRelPathNavImagesDist());
 			htmlDocumentBuilder.setDefaultAbsoluteLinkTarget("doc_external");
 			htmlDocumentBuilder.setItems(items);
 			htmlDocumentBuilder.setCurrentItemIndex(j);
@@ -122,10 +123,15 @@ public class ScoutDocConverter {
 				}
 			}
 			
-			//TODO: copy the images of this MediaWiki Page (or add the page to the pagesSet and copy the image at the end of the method).
-			//Images list: ScoutDocFetch.parseApiFile(File apiFile, String xpathQuery, Set<Page> pagesSet)
-			//Images source: PageUtility.toFilePath(page, null)
-			//Images destination: ProjectProperties.getWikiDistFolder() + ProjectProperties.getFileSeparator() + t.getOutputFolder() + ProjectProperties.getFileSeparator() + IMAGES_REL_PATH
+			Set<Page> images = new HashSet<Page>();
+			File apiFile = new File(PageUtility.toFilePath(item.inputPage, ProjectProperties.FILE_EXTENTION_META));
+			ApiFileUtility.parseImages(apiFile, images);
+			
+			File toFolder = computeImagesFolder(t);
+			for (Page image : images) {
+				File from = PageUtility.toFile(image); 
+				Files.copy(from, new File(toFolder, PageUtility.convertToInternalName(image.getName())));
+			}
 		}
 		
 		MarkupToEclipseToc eclipseToc = new MarkupToEclipseToc(){
@@ -142,10 +148,25 @@ public class ScoutDocConverter {
 		eclipseToc.setHtmlFile("index.html");
 		String tocContent = eclipseToc.createToc(rootItem);
 		
-		File tocOutputFile = new File(ProjectProperties.getWikiDistFolder() + ProjectProperties.getFileSeparator() + t.getOutputTocFile());
+		File tocOutputFile = new File(ProjectProperties.getFolderWikiDist() + ProjectProperties.getFileSeparator() + t.getOutputTocFile());
 		Files.write(tocContent, tocOutputFile, CHARSET);
 		
-		//TODO: if items size > 1, copy the navigation images to images.
+		//If more than one page, copy navigation images.
+		if(t.getInputPages().size() > 1) {
+			File fromFolder = new File(ProjectProperties.getFolderNavImagesSource());
+			File toFolder = computeImagesFolder(t);
+			Files.copy(new File(fromFolder, ProjectProperties.IMAGE_HOME), new File(toFolder, ProjectProperties.IMAGE_HOME));
+			Files.copy(new File(fromFolder, ProjectProperties.IMAGE_NEXT), new File(toFolder, ProjectProperties.IMAGE_NEXT));
+			Files.copy(new File(fromFolder, ProjectProperties.IMAGE_PREV), new File(toFolder, ProjectProperties.IMAGE_PREV));
+		}
+	}
+
+	private File computeImagesFolder(Task t) throws IOException {
+		String filePath = ProjectProperties.getFolderWikiDist() + ProjectProperties.getFileSeparator() + t.getOutputFolder() + ProjectProperties.getFileSeparator() + ProjectProperties.getRelPathNavImagesDist();
+		File file = new File(filePath);
+		Files.createParentDirs(file);
+		file.mkdir();
+		return file;
 	}
 
 	private static OutlineItem computeOutline(OutlineParser outlineParser, ConversionItem conversionItem) {

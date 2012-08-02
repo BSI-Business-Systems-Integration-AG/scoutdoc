@@ -16,8 +16,16 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class ProjectProperties {
+	public static final String IMAGE_NEXT = "next.gif";
+	public static final String IMAGE_HOME = "home.gif";
+	public static final String IMAGE_PREV = "prev.gif";
+	public static final String FILE_EXTENTION_CONTENT = "mediawiki";
+	public static final String FILE_EXTENTION_META = "meta.xml";
+	
 	private static final String PROP_FOLDER_WIKI_SOURCE = "folder.wiki.source";
 	private static final String PROP_FOLDER_WIKI_DIST = "folder.wiki.dist";
+	private static final String PROP_FOLDER_NAV_IMG_SOURCE = "folder.navigation.images.source";
+	private static final String PROP_REL_PATH_NAV_IMG_DIST = "relative.path.images.dist";
 	private static final String PROP_WIKI_API_URL = "wiki.api.url";
 	private static final String PROP_WIKI_INDEX_URL = "wiki.index.url";
 	private static final String PROP_WIKI_SERVER_URL = "wiki.server.url";
@@ -25,6 +33,8 @@ public class ProjectProperties {
 	private static String fileSeparator = System.getProperty("file.separator");
 	private static String folderWikiSource = "wiki_source";
 	private static String folderWikiDist = "wiki_dist";
+	private static String folderNavImagesSource = "nav_images";
+	private static String relPathNavImagesDist = "../../Images";
 	private static String wikiServerUrl = "http://wiki.eclipse.org";
 	private static String wikiIndexUrl = wikiServerUrl + "/index.php";
 	private static String wikiApiUrl = wikiServerUrl + "/api.php";
@@ -48,16 +58,22 @@ public class ProjectProperties {
 	        if (properties.containsKey(PROP_FOLDER_WIKI_DIST)) {
 	        	folderWikiDist = (String) properties.get(PROP_FOLDER_WIKI_DIST);
 	        }
+	        if (properties.containsKey(PROP_FOLDER_NAV_IMG_SOURCE)) {
+	        	folderNavImagesSource = (String) properties.get(PROP_FOLDER_NAV_IMG_SOURCE);
+	        }
+	        if (properties.containsKey(PROP_REL_PATH_NAV_IMG_DIST)) {
+	        	relPathNavImagesDist = (String) properties.get(PROP_REL_PATH_NAV_IMG_DIST);
+	        }
 	    } catch (IOException e) { 
 	    	e.printStackTrace();
 	    }
 	}
 	
-	public static String getWikiSourceFolder() { //TODO: rename getFolderWikiSource()
+	public static String getFolderWikiSource() {
 		return folderWikiSource;
 	}
 
-	public static String getWikiDistFolder() {//TODO: rename getFolderWikiDist()
+	public static String getFolderWikiDist() {
 		return folderWikiDist;
 	}
 	
@@ -75,5 +91,13 @@ public class ProjectProperties {
 	
 	public static String getWikiApiUrl() {
 		return wikiApiUrl;
+	}
+
+	public static String getFolderNavImagesSource() {
+		return folderNavImagesSource;
+	}
+	
+	public static String getRelPathNavImagesDist() {
+		return relPathNavImagesDist;
 	}
 }

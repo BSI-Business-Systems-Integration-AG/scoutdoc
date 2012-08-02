@@ -17,6 +17,8 @@ import java.util.List;
 
 import org.eclipse.mylyn.wikitext.core.parser.builder.HtmlDocumentBuilder;
 
+import scoutdoc.main.ProjectProperties;
+
 /**
  * Extension of the HtmlDocumentBuilder of WikiText to add navigation table
  */
@@ -81,9 +83,9 @@ public class HtmlDocumentBuilderExt extends HtmlDocumentBuilder {
 				writer.writeEndElement(); // tr
 				
 			}
-			AbstractCreator prevItemLinkCreator = new LinkCreator(prevItem, "Previous", "../../Images/prev.gif");
-			AbstractCreator homeItemLinkCreator = new LinkCreator(homeItem, homeItem.outputTitle, "../../Images/home.gif");
-			AbstractCreator nextItemLinkCreator = new LinkCreator(nextItem, "Next", "../../Images/next.gif");
+			AbstractCreator prevItemLinkCreator = new LinkCreator(prevItem, "Previous", ProjectProperties.getRelPathNavImagesDist() + "/" + ProjectProperties.IMAGE_PREV);
+			AbstractCreator homeItemLinkCreator = new LinkCreator(homeItem, homeItem.outputTitle, ProjectProperties.getRelPathNavImagesDist() + "/" + ProjectProperties.IMAGE_HOME);
+			AbstractCreator nextItemLinkCreator = new LinkCreator(nextItem, "Next", ProjectProperties.getRelPathNavImagesDist() + "/" + ProjectProperties.IMAGE_NEXT);
 			appendNavigationTableTR(prevItemLinkCreator, homeItemLinkCreator, nextItemLinkCreator);
 			appendNavigationTableTR(new TextCreator(prevItem.outputTitle), NULL_CREATOR, new TextCreator(nextItem.outputTitle) );
 			writer.writeEndElement(); // table

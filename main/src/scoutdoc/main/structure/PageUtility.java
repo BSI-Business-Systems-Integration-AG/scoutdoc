@@ -11,6 +11,8 @@
 
 package scoutdoc.main.structure;
 
+import java.io.File;
+
 import scoutdoc.main.ProjectProperties;
 
 import com.google.common.base.CharMatcher;
@@ -34,9 +36,14 @@ public class PageUtility {
 		} else {
 			namespace = page.getType()+":";
 		}
-		return namespace + page.getName();
+		return convertToInternalName(namespace + page.getName());
 	}
 	
+	public static String /*pageNamee*/ toPageNamee(Page page) {
+		Preconditions.checkNotNull(page.getName(), "Page#Name can not be null");
+		return convertToInternalName(page.getName());
+	}
+
 	public static String /*basePageNamee*/  toBasePageNamee(Page page) {
 		Preconditions.checkNotNull(page.getName(), "Page#Name can not be null");
 		
@@ -45,7 +52,7 @@ public class PageUtility {
 		if(index > 0) {
 			name = name.substring(index+1);
 		}
-		return name;
+		return convertToInternalName(name);
 	}
 	
 	public static String /*basePageName*/ toBasePageName(Page page) {
@@ -62,12 +69,25 @@ public class PageUtility {
 		Preconditions.checkNotNull(page.getType(), "Page#Type can not be null");
 		Preconditions.checkNotNull(page.getName(), "Page#Name can not be null");
 
-		String filePath =  ProjectProperties.getWikiSourceFolder() + ProjectProperties.getFileSeparator() + page.getType().name() + ProjectProperties.getFileSeparator() + page.getName();
-		return Joiner.on('.').join(filePath, fileExtension);
+		return toFilePath(page.getType(), page.getName(), fileExtension);
 	}
 	
 	public static String toFilePath(Page page) {
-		return toFilePath(page, "mediawiki");
+		return toFilePath(page, ProjectProperties.FILE_EXTENTION_CONTENT);
+	}
+	
+	private static String toFilePath(PageType type, String fileName, String fileExtension) {
+		String filePath = ProjectProperties.getFolderWikiSource() + ProjectProperties.getFileSeparator() + type.name() + ProjectProperties.getFileSeparator() + fileName;
+		filePath = Joiner.on('.').skipNulls().join(filePath, fileExtension);
+		return convertToInternalName(filePath);
+	}
+	
+	public static File toFile(Page page) {
+		if(page.getType() == PageType.Image) {
+			return new File(toFilePath(page.getType(), toPageNamee(page), null));
+		} else {
+			return new File(toFilePath(page));
+		}
 	}
 	
 	public static Page /*page*/ toPage(String fullPageName) {

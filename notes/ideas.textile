@@ -1,0 +1,38 @@
+h1. Ideas
+
+h2. Check
+
+Output format: checkstyle xml.
+
+Guidelines examples:
+* All pictures that appears in a Scout page should be in the “Scout Image” category
+* No link to a redirection page.
+* Old pages (e.g 3.7 tutorials) needs to contain a special template to mention that the content of the page is old, and that there is a newer version.
+* @<br clear="all" />@ is not supported by the converter tool: warning if used
+* @<code>xxx</CODE>@ is not supported by the converter tool: should be @<code>xxx</code>@.
+
+The tool verify the content follow the guideline or not, an publish a list of warning as checkstyle xml output.
+
+__TODO: provide a small how to use the tool__ 
+
+
+h2. Git Mirror of the MediaWiki content
+
+Goal: replace the fetch tool with a mirror of the MediaWiki changes as a git repository. 
+
+Advantages:
+* Be able to restore any state.
+* Structured delta download of the changes.
+* Standard tool.
+* Integration with Hudson
+* ...
+
+Existing project: "mw-to-git":https://github.com/git/git/tree/master/contrib/mw-to-git - "documentation":https://github.com/Bibzball/Git-Mediawiki/wiki/User-manual
+
+
+h2. Hudson integration
+
+Usage of Hudson.
+* Checkout the last wiki state (delta since last run, ... ).
+* Execute the verification and display the check result.
+* Build the documentation.

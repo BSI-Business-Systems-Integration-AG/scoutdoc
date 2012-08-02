@@ -31,7 +31,7 @@ public class TaskUtility {
 
 	public static Task toTask(String filename) throws FileNotFoundException, IOException {
 		Task t = new Task();
-		Map<String, Page> pages = Maps.newTreeMap(); 
+		Map<String, Page> pages = Maps.newTreeMap(); //Creates a mutable, empty TreeMap instance using the natural ordering of its elements.
 
 		Properties properties = new Properties();
 	    properties.load(new FileInputStream(filename));
@@ -51,8 +51,8 @@ public class TaskUtility {
 				throw new IllegalStateException("Unknwon property <"+key+">");
 			}
 		}
-	    //TODO: ensure that Lists.newArrayList sort the entries by key.
-		t.setInputPages(Lists.newArrayList(pages.values()));
+
+	    t.setInputPages(Lists.newArrayList(pages.values()));
 		return t;
 	}
 

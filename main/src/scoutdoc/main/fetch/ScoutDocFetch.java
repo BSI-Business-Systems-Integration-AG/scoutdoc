@@ -40,7 +40,6 @@ import scoutdoc.main.structure.PageType;
 import scoutdoc.main.structure.PageUtility;
 import scoutdoc.main.structure.Task;
 
-import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.io.Files;
@@ -48,7 +47,7 @@ import com.google.common.io.InputSupplier;
 import com.google.common.io.Resources;
 
 public class ScoutDocFetch {
-
+	
 	public void execute(Task t) {
 		//Download pages:
 		Set<Page> templates = new HashSet<Page>(); 
@@ -66,9 +65,11 @@ public class ScoutDocFetch {
 		Set<Page> emptyTemplateSet = new HashSet<Page>(); 
 		downloadPages(templates, emptyTemplateSet, emptyImageSet);
 		if(!emptyImageSet.isEmpty()) {
+			//TODO: find out why got 3 (in MiniCRM 3.8 Tutorial)
 			System.err.println("Got templates containing other images: "+emptyImageSet.size());
 		}
 		if(!emptyTemplateSet.isEmpty()) {
+			//TODO: find out why got 3 (in MiniCRM 3.8 Tutorial)
 			System.err.println("Got templates containing other templates: "+emptyTemplateSet.size());
 		}
 		
@@ -82,8 +83,8 @@ public class ScoutDocFetch {
 				File apiFile = downloadApiPage(page);
 				
 				//Read the API Page to add the images and template to the sets. 
-				parseApiFile(apiFile, "//tl/@title", templates);
-				parseApiFile(apiFile, "//im/@title", images);
+				ApiFileUtility.parseImages(apiFile, images);
+				ApiFileUtility.parseTemplate(apiFile, templates);
 				
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -91,27 +92,7 @@ public class ScoutDocFetch {
 		}
 	}
 
-	private static void parseApiFile(File apiFile, String xpathQuery, Set<Page> pagesSet) {
-		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-		docFactory.setNamespaceAware(true);
-		try {
-			DocumentBuilder builder = docFactory.newDocumentBuilder();
-			Document doc = builder.parse(apiFile);
-			
-			XPathFactory factory = XPathFactory.newInstance();
-			XPath xpath = factory.newXPath();
-			XPathExpression expr = xpath.compile(xpathQuery);
-			NodeList nodes = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
-			for (int i = 0; i < nodes.getLength(); i++) {
-				pagesSet.add(PageUtility.toPage(nodes.item(i).getNodeValue()));				
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 	private static void downloadMediaWikiPage(Page page) throws IOException {
-		String fileExtension = "mediawiki";
 		String url = ProjectProperties.getWikiIndexUrl();
 		
 		Map<String, String> parameters = new LinkedHashMap<String, String>();
@@ -119,13 +100,12 @@ public class ScoutDocFetch {
 		parameters.put("title", PageUtility.toFullPageNamee(page));
 //		parameters.put("templates", "expand");
 
-		downloadPage(page, url, parameters, fileExtension);
+		downloadPage(page, url, parameters, ProjectProperties.FILE_EXTENTION_CONTENT);
 	}
 	
 	private static File downloadApiPage(Page page) throws IOException {
 		Preconditions.checkNotNull(page.getType(), "Page#Type can not be null");
 		
-		String fileExtension = "meta.xml";
 		String url = ProjectProperties.getWikiApiUrl();
 		
 		Map<String, String> parameters = new LinkedHashMap<String, String>();
@@ -142,7 +122,7 @@ public class ScoutDocFetch {
 		}
 		parameters.put("titles", URLEncoder.encode(PageUtility.toFullPageNamee(page), "UTF-8"));
 		
-		File file = downloadPage(page, url, parameters, fileExtension);
+		File file = downloadPage(page, url, parameters, ProjectProperties.FILE_EXTENTION_META);
 		
 //		String content = Files.toString(file, Charsets.UTF_8);
 //		System.out.println(content);
@@ -160,7 +140,7 @@ public class ScoutDocFetch {
 				XPathExpression expr = xpath.compile("//imageinfo/ii/@url");
 				NodeList nodes = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
 				if(nodes.getLength() == 1) {
-					downloadImage(nodes.item(0).getNodeValue());
+					downloadImage(page, nodes.item(0).getNodeValue());
 				} else {
 					throw new UnexpectedException("[Get Image URL] Unexpected node length: "+nodes.getLength());
 				}
@@ -185,20 +165,15 @@ public class ScoutDocFetch {
 		return file;
 	}
 	
-	private static File downloadImage(String imageServerPath) throws IOException, MalformedURLException {
+	private static File downloadImage(Page imagePage, String imageServerPath) throws IOException, MalformedURLException {
 		Preconditions.checkNotNull(imageServerPath, "imageServerPath can not be null");
+		Preconditions.checkNotNull(imagePage, "imagePage can not be null");
+		Preconditions.checkArgument(imagePage.getType() == PageType.Image, "imagePage should have the type Image");
 		
-		String imageName = imageServerPath;
-		int lastIndex = CharMatcher.is('/').lastIndexIn(imageName);
-		if(lastIndex > 0) {
-			imageName = imageName.substring(lastIndex+1);
-		}
-		File file = new File(ProjectProperties.getWikiSourceFolder() + ProjectProperties.getFileSeparator()  + PageType.Image.name() + ProjectProperties.getFileSeparator() + imageName);
-		
+		File file = PageUtility.toFile(imagePage);
 		String fullUrl = ProjectProperties.getWikiServerUrl() + imageServerPath;
 		
 		downlaod(file, fullUrl);
-		
 		return file;
 	}
 
