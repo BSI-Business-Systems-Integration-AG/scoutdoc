@@ -20,6 +20,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 
 public class PageUtility {
+	private static final String TRAILING_SLASH_REPLACEMENT = "%2F";
+
 	/**
 	 * Convert a {@link Page} to the FULLPAGENAME (which is {{NAMESPACE}}:{{PAGENAME}}).
 	 * Can be used a title parameter in a query to MediaWiki.
@@ -83,7 +85,7 @@ public class PageUtility {
 	}
 	
 	public static File toFile(Page page) {
-		if(page.getType() == PageType.Image) {
+		if(isFile(page)) {
 			return new File(toFilePath(page.getType(), toPageNamee(page), null));
 		} else {
 			return new File(toFilePath(page));
@@ -91,20 +93,28 @@ public class PageUtility {
 	}
 	
 	public static Page /*page*/ toPage(String fullPageName) {
-		Page page = new Page();
+		String fullPageNamee = convertToInternalName(fullPageName);
 		
-		PageType type = PageType.Article;
-		String name = fullPageName;
-		int index = CharMatcher.is(':').indexIn(fullPageName);
+		PageType type;
+		String name;
+		int index = CharMatcher.is(':').indexIn(fullPageNamee);
 		if(index > 0) {
-			name = fullPageName.substring(index+1);
-			String typeRaw = fullPageName.substring(0, index);
+			name = fullPageNamee.substring(index+1);
+			String typeRaw = fullPageNamee.substring(0, index);
 			try {
 				type = PageType.valueOf(typeRaw);	
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
+				type = PageType.Article;
 			}
+		} else {
+			type = PageType.Article;
+			name = fullPageNamee;
 		}
+		if(name.endsWith("/")) {
+			name = name.substring(0, name.length() - 1) + TRAILING_SLASH_REPLACEMENT;
+		}
+		Page page = new Page();
 		page.setName(name);	
 		page.setType(type);
 		return page;
@@ -116,5 +126,9 @@ public class PageUtility {
 	
 	public static String convertToDisplayName(String pageId) {
 		return CharMatcher.anyOf("_").replaceFrom(pageId, " ");
+	}
+	
+	public static boolean isFile(Page page) {
+		return page.getType() == PageType.Image || page.getType() == PageType.File;
 	}
 }

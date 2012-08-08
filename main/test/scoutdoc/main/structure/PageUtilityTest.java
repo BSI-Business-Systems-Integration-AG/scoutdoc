@@ -11,8 +11,12 @@
 
 package scoutdoc.main.structure;
 
+import java.io.File;
+
 import org.junit.Assert;
 import org.junit.Test;
+
+import scoutdoc.main.ProjectProperties;
 
 public class PageUtilityTest {
 
@@ -52,20 +56,52 @@ public class PageUtilityTest {
 		Assert.assertEquals("MyPage Foo", PageUtility.toBasePageName(createPage(PageType.Template, "Root/MyPage_Foo")));
 	}
 
-//	@Test
-//	public void testToFilePathPageString() {
-//		fail("Not yet implemented");
-//	}
+	@Test
+	public void testToFilePath() {
+		runToFilePath(createPage(PageType.Article, "Root/MyPage"));
+		runToFilePath(createPage(PageType.Image, "Img1.png"));
+		runToFilePath(createPage(PageType.Article, "My/Page%2F"));
+	}
 
-//	@Test
-//	public void testToFilePathPage() {
-//		fail("Not yet implemented");
-//	}
+	private void runToFilePath(Page page) {
+		String root = ProjectProperties.getFolderWikiSource() + ProjectProperties.getFileSeparator() + page.getType() + ProjectProperties.getFileSeparator() + page.getName();
+		Assert.assertEquals(root + ".mediawiki", PageUtility.toFilePath(page));
+		Assert.assertEquals(root + ".txt", PageUtility.toFilePath(page,"txt"));
+	}
 
-//	@Test
-//	public void testToPage() {
-//		fail("Not yet implemented");
-//	}
+	@Test
+	public void testToPage() {
+		runToPage(PageType.Template, "Root/MyPage_Foo", "Template:Root/MyPage_Foo");
+		runToPage(PageType.File, "This/MyPage_Foo", "File:This/MyPage_Foo");
+		runToPage(PageType.Article, "My/Page", "My/Page");
+		runToPage(PageType.Article, "My/Page%2F", "My/Page/");
+	}
+
+	private void runToPage(PageType expectedPageType, String expectedPageName, String fullPageName) {
+		Page page = PageUtility.toPage(fullPageName);
+		Assert.assertEquals("Page Type", expectedPageType, page.getType());
+		Assert.assertEquals("Page Name", expectedPageName, page.getName());
+	}
+	
+	@Test
+	public void testToFile() {
+		runToFile("Root/MyPage.mediawiki", createPage(PageType.Article, "Root/MyPage"));
+		runToFile("TheTemplate.mediawiki", createPage(PageType.Template, "TheTemplate"));
+		runToFile("Img1.png", createPage(PageType.Image, "Img1.png"));
+		runToFile("Img1.png", PageUtility.toPage("Image:Img1.png"));
+		runToFile("My/Page%2F.mediawiki", createPage(PageType.Article, "My/Page%2F"));
+		runToFile("My/Page%2F.mediawiki", PageUtility.toPage("My/Page/"));
+		runToFile("Img1.png", createPage(PageType.File, "Img1.png"));
+		runToFile("Img1.png", PageUtility.toPage("File:Img1.png"));
+	}
+
+	private void runToFile(String expectedFileName, Page page) {
+		String root = ProjectProperties.getFolderWikiSource() + ProjectProperties.getFileSeparator() + page.getType() + ProjectProperties.getFileSeparator();
+		File expected = new File(root + expectedFileName);
+		File actual = PageUtility.toFile(page);
+		Assert.assertEquals("AbsolutePath", expected.getAbsolutePath(), actual.getAbsolutePath());
+	}
+	
 
 	private Page createPage(PageType type, String name) {
 		Page page = new Page();

@@ -36,7 +36,6 @@ import org.w3c.dom.NodeList;
 
 import scoutdoc.main.ProjectProperties;
 import scoutdoc.main.structure.Page;
-import scoutdoc.main.structure.PageType;
 import scoutdoc.main.structure.PageUtility;
 import scoutdoc.main.structure.Task;
 
@@ -54,26 +53,33 @@ public class ScoutDocFetch {
 		Set<Page> images = new HashSet<Page>(); 
 		downloadPages(t.getInputPages(), templates, images);
 
-		//Download images:
-		Set<Page> emptyImageSet = new HashSet<Page>(); 
-		downloadPages(images, templates, emptyImageSet);
-		if(!emptyImageSet.isEmpty()) {
-			System.err.println("Got images containing other images: "+emptyImageSet.size());
-		}
+		//Download templates and images:
+		Set<Page> templatesToDownload = new HashSet<Page>();
+		templatesToDownload.addAll(templates);
+		Set<Page> imagesToDownload = new HashSet<Page>(); 
+		imagesToDownload.addAll(images);
 		
-		//Download templates:
-		Set<Page> emptyTemplateSet = new HashSet<Page>(); 
-		downloadPages(templates, emptyTemplateSet, emptyImageSet);
-		if(!emptyImageSet.isEmpty()) {
-			//TODO: find out why got 3 (in MiniCRM 3.8 Tutorial)
-			System.err.println("Got templates containing other images: "+emptyImageSet.size());
+		while (templatesToDownload.size() > 0 || imagesToDownload.size() > 0) {
+			Set<Page> templatesAdditional = new HashSet<Page>(); 
+			Set<Page> imagesAdditional = new HashSet<Page>();
+			
+			downloadPages(templatesToDownload, templatesAdditional, imagesAdditional);
+			downloadPages(imagesToDownload, templatesAdditional, imagesAdditional);
+			
+			templatesToDownload = new HashSet<Page>();
+			for (Page page : templatesAdditional) {
+				if(!templates.contains(page)) {
+					templatesToDownload.add(page);
+				}
+			}
+			
+			imagesToDownload = new HashSet<Page>();
+			for (Page page : imagesAdditional) {
+				if(!images.contains(page)) {
+					imagesToDownload.add(page);
+				}
+			}			
 		}
-		if(!emptyTemplateSet.isEmpty()) {
-			//TODO: find out why got 3 (in MiniCRM 3.8 Tutorial)
-			System.err.println("Got templates containing other templates: "+emptyTemplateSet.size());
-		}
-		
-		
 	}
 
 	private static void downloadPages(Collection<Page> pages, Set<Page> templates, Set<Page> images) {
@@ -111,24 +117,17 @@ public class ScoutDocFetch {
 		Map<String, String> parameters = new LinkedHashMap<String, String>();
 		parameters.put("format", "xml");
 		parameters.put("action", "query");
-		switch (page.getType()) {
-		case Image:
+		if(PageUtility.isFile(page)) {
 			parameters.put("prop", Joiner.on("|").join("categories", "images", "templates", "imageinfo"));
-			parameters.put("iiprop", Joiner.on("|").join("timestamp", "user", "url", "metadata"));
-			break;
-		default:
-			parameters.put("prop", Joiner.on("|").join("categories", "images", "templates"));
-			break;
+			parameters.put("iiprop", Joiner.on("|").join("timestamp", "user", "url", "metadata"));			
+		} else {
+			parameters.put("prop", Joiner.on("|").join("categories", "images", "templates"));			
 		}
 		parameters.put("titles", URLEncoder.encode(PageUtility.toFullPageNamee(page), "UTF-8"));
 		
 		File file = downloadPage(page, url, parameters, ProjectProperties.FILE_EXTENTION_META);
-		
-//		String content = Files.toString(file, Charsets.UTF_8);
-//		System.out.println(content);
-//		System.out.println();
-		
-		if(page.getType() == PageType.Image) {
+				
+		if(PageUtility.isFile(page)) {
 			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 			docFactory.setNamespaceAware(true);
 			try {
@@ -168,10 +167,15 @@ public class ScoutDocFetch {
 	private static File downloadImage(Page imagePage, String imageServerPath) throws IOException, MalformedURLException {
 		Preconditions.checkNotNull(imageServerPath, "imageServerPath can not be null");
 		Preconditions.checkNotNull(imagePage, "imagePage can not be null");
-		Preconditions.checkArgument(imagePage.getType() == PageType.Image, "imagePage should have the type Image");
+		Preconditions.checkArgument(PageUtility.isFile(imagePage), "imagePage should have a PageUtility.isFile(..) type (Image/File)");
 		
 		File file = PageUtility.toFile(imagePage);
-		String fullUrl = ProjectProperties.getWikiServerUrl() + imageServerPath;
+		String fullUrl;
+		if(imageServerPath.startsWith(ProjectProperties.getWikiServerUrl())) {
+			fullUrl = imageServerPath;			
+		} else {
+			fullUrl = ProjectProperties.getWikiServerUrl() + imageServerPath;						
+		}
 		
 		downlaod(file, fullUrl);
 		return file;

@@ -15,5 +15,6 @@ public enum PageType {
 	Article,
 	Category,
 	Image,
+	File,
 	Template
 }

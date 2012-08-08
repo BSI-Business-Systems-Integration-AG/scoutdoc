@@ -33,6 +33,7 @@ public class PageMapper implements PageMapping {
 
 	@Override
 	public String mapPageNameToHref(String pageName) {
+		//TODO: Handle redirections 
 		return pageToHrefMap.get(PageUtility.convertToInternalName(pageName));
 	}
 
