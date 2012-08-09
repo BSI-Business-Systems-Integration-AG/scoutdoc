@@ -16,7 +16,7 @@ public class SubstringFinder {
 
 	private String targetClose;
 
-	public static final Range EMPTY_RANGE = new Range(-1, -1);
+	public static final Range EMPTY_RANGE = new Range(-1, -1, -1, -1);
 
 	private SubstringFinder() {
 	}
@@ -29,26 +29,27 @@ public class SubstringFinder {
 	}
 
 	public Range nextRange(String text, int startAt) {
-		int openIndex = text.indexOf(targetOpen, startAt);
-		if (openIndex > -1) {
-			Range nextRange = nextRange(text, openIndex + targetOpen.length());
-			int closeIndex = text.indexOf(targetClose, openIndex + targetOpen.length());
-			if (nextRange.start > 0) {
-				if (closeIndex < nextRange.start) {
-					Range r = new Range(openIndex, closeIndex);
+		int rangeStartIndex = text.indexOf(targetOpen, startAt);
+		if (rangeStartIndex > -1) {
+			int contentStartIndex = rangeStartIndex + targetOpen.length();
+			Range nextRange = nextRange(text, contentStartIndex);
+			int closeIndex = text.indexOf(targetClose, contentStartIndex);
+			if (nextRange.contentStart > 0) {
+				if (closeIndex < nextRange.contentStart) {
+					Range r = new Range(rangeStartIndex, contentStartIndex, closeIndex, closeIndex + targetClose.length());
 					return r;
-				} else if (nextRange.end > 0) {
-					closeIndex = text.indexOf(targetClose, nextRange.end + targetClose.length());
+				} else if (nextRange.contentEnd > 0) {
+					closeIndex = text.indexOf(targetClose, nextRange.contentEnd + targetClose.length());
 					Range r;
 					if (closeIndex > 0) {
-						r = new Range(openIndex, closeIndex);
+						r = new Range(rangeStartIndex, contentStartIndex, closeIndex, closeIndex + targetClose.length());
 					} else {
-						r = new Range(openIndex, nextRange.end);
+						r = new Range(rangeStartIndex, contentStartIndex, nextRange.contentEnd,  nextRange.contentStart);
 					}
 					return r;
 				}
 			} else if (closeIndex > 0) {
-				Range r = new Range(openIndex, closeIndex);
+				Range r = new Range(rangeStartIndex, contentStartIndex, closeIndex, closeIndex + targetClose.length());
 				return r;
 			}
 		}
@@ -64,22 +65,65 @@ public class SubstringFinder {
 	}
 
 	public static class Range {
-		private final int start;
-
-		private final int end;
-
-		public Range(int start, int end) {
+		private final int rangeStart;
+		private final int contentStart;
+		private final int contentEnd;
+		private final int rangeEnd;
+		
+		public Range(int rangeStart, int contentStart, int contentEnd, int rangeEnd) {
 			super();
-			this.start = start;
-			this.end = end;
+			this.rangeStart = rangeStart;
+			this.contentStart = contentStart;
+			this.contentEnd = contentEnd;
+			this.rangeEnd = rangeEnd;
+		}
+		
+		public int getRangeStart() {
+			return rangeStart;
 		}
 
-		public int getStart() {
-			return start;
+		public int getContentStart() {
+			return contentStart;
 		}
 
-		public int getEnd() {
-			return end;
+		public int getContentEnd() {
+			return contentEnd;
 		}
+		
+		public int getRangeEnd() {
+			return rangeEnd;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + contentEnd;
+			result = prime * result + contentStart;
+			result = prime * result + rangeEnd;
+			result = prime * result + rangeStart;
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Range other = (Range) obj;
+			if (contentEnd != other.contentEnd)
+				return false;
+			if (contentStart != other.contentStart)
+				return false;
+			if (rangeEnd != other.rangeEnd)
+				return false;
+			if (rangeStart != other.rangeStart)
+				return false;
+			return true;
+		}
+
 	}
 }

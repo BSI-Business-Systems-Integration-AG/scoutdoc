@@ -11,15 +11,12 @@
 
 package scoutdoc.main.converter.finder;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import scoutdoc.main.converter.finder.SubstringFinder.Range;
-
-
 
 public class PositionFinder {
 	private String target;
@@ -45,9 +42,9 @@ public class PositionFinder {
 
 	private void addResult(List<Integer> results, String text, int startAt) {
 		Range exclude = excludeSubstringFinder.nextRange(text, startAt);
-		if (exclude.getStart() > startAt) {
-			addResult(results, text, startAt, exclude.getStart());
-			addResult(results, text, exclude.getEnd() + excludeSubstringFinder.getOpenLength());
+		if (exclude.getContentStart() > startAt) {
+			addResult(results, text, startAt, exclude.getContentStart());
+			addResult(results, text, exclude.getRangeEnd());
 		} else {
 			addResult(results, text, startAt, text.length());
 		}

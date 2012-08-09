@@ -26,7 +26,7 @@ import org.eclipse.mylyn.wikitext.core.parser.outline.OutlineParser;
 import org.eclipse.mylyn.wikitext.core.parser.util.MarkupToEclipseToc;
 
 import scoutdoc.main.ProjectProperties;
-import scoutdoc.main.fetch.ApiFileUtility;
+import scoutdoc.main.mediawiki.ApiFileUtility;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageUtility;
 import scoutdoc.main.structure.Task;

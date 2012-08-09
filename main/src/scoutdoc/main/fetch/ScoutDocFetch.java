@@ -35,6 +35,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 import scoutdoc.main.ProjectProperties;
+import scoutdoc.main.mediawiki.ApiFileUtility;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageUtility;
 import scoutdoc.main.structure.Task;

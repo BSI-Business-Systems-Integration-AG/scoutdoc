@@ -1,4 +1,4 @@
-package scoutdoc.main.fetch;
+package scoutdoc.main.mediawiki;
 
 import java.io.File;
 import java.util.Set;
