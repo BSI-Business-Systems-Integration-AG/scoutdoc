@@ -16,11 +16,27 @@ public class ContentFileUtility {
 	private static final String REDIRECT_MARKER = "#REDIRECT";
 
 	public static Page checkRedirection(File contentFile) throws IOException {
-		String contentText = Files.toString(contentFile, Charsets.UTF_8);
-
-		return checkRedirection(contentText);
+		if(contentFile.exists()) {
+			String contentText = Files.toString(contentFile, Charsets.UTF_8);			
+			return checkRedirection(contentText);
+		}
+		return null;
 	}
 
+	public static Page checkRedirection(Page page) {
+		try {
+			Page result = checkRedirection(PageUtility.toFile(page));
+			if(page.equals(result)) {
+				return null; //Redirection on the same page is like no redirection at all.
+			} else {
+				return result;				
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	public static Page checkRedirection(String contentText) {
 		if(contentText.startsWith(REDIRECT_MARKER)) {
 			SubstringFinder finder = SubstringFinder.define("[[", "]]");

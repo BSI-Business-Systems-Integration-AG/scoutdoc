@@ -17,6 +17,8 @@ import java.util.Map;
 
 import org.eclipse.mylyn.internal.wikitext.mediawiki.core.PageMapping;
 
+import scoutdoc.main.mediawiki.ContentFileUtility;
+import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageUtility;
 
 
@@ -33,8 +35,24 @@ public class PageMapper implements PageMapping {
 
 	@Override
 	public String mapPageNameToHref(String pageName) {
-		//TODO: Handle redirections 
-		return pageToHrefMap.get(PageUtility.convertToInternalName(pageName));
+		String pageNamee = PageUtility.convertToInternalName(pageName);
+		if(!pageToHrefMap.containsKey(pageNamee)) {
+			//New pageName, check if it is a redirection:
+			Page page = PageUtility.toPage(pageNamee);
+			while(page != null) {
+				String newPageNamee = PageUtility.toFullPageNamee(page);
+				if(pageToHrefMap.containsKey(newPageNamee)) {
+					String href = pageToHrefMap.get(newPageNamee);
+					pageToHrefMap.put(pageNamee, href);
+					return href;
+				}
+				page = ContentFileUtility.checkRedirection(page);
+			}
+			//Is not a redirection, but it do not exisits
+			return null;
+		}
+		//pageName already exists => return Href.
+		return pageToHrefMap.get(pageNamee);
 	}
 
 }

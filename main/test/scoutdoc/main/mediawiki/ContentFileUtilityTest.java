@@ -37,7 +37,17 @@ public class ContentFileUtilityTest {
 		Page category = TU.createPage(PageType.Category, "MyCategory");
 		TU.assertPageEquals(category, ContentFileUtility.checkRedirection("#REDIRECT [[:Category:MyCategory]]"));
 		TU.assertPageEquals(category, ContentFileUtility.checkRedirection("#REDIRECT [[:Category:MyCategory]]\n"));
-
 	}
+	
+	@Test
+	public void testCheckRedirectionPage() {
+		TU.initProperties();
+		
+		TU.assertPageEquals(TU.RED_2, ContentFileUtility.checkRedirection(TU.RED_1));
+		TU.assertPageEquals(TU.PAGE_2, ContentFileUtility.checkRedirection(TU.RED_2));
+		TU.assertPageEquals(null, ContentFileUtility.checkRedirection(TU.PAGE_2));
+		TU.assertPageEquals(null, ContentFileUtility.checkRedirection(TU.RED_SELF));		
+	}
+
 
 }
