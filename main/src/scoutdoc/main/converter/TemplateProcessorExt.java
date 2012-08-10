@@ -12,13 +12,14 @@
 
 package scoutdoc.main.converter;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,6 +28,8 @@ import org.eclipse.mylyn.wikitext.mediawiki.core.Template;
 import org.eclipse.mylyn.wikitext.mediawiki.core.TemplateResolver;
 
 import scoutdoc.main.converter.finder.PositionFinder;
+import scoutdoc.main.converter.finder.SubstringFinder;
+import scoutdoc.main.converter.finder.SubstringFinder.Range;
 
 import com.google.common.base.CharMatcher;
 
@@ -37,9 +40,7 @@ public class TemplateProcessorExt {
 
 //	private static final Pattern templatePattern = Pattern.compile("(?:^|(?<!\\{))(\\{\\{(#?[a-zA-Z0-9_ :]+)\\s*(\\|[^\\}]*)?\\}\\})"); //$NON-NLS-1$
 	
-	private static final String templateOpen = "{{"; //$NON-NLS-1$
-
-	private static final String templateClose = "}}"; //$NON-NLS-1$
+	private static final SubstringFinder templateFinder = SubstringFinder.define("{{", "}}"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private static final String templateSeparator = "|"; //$NON-NLS-1$
 	
@@ -88,74 +89,57 @@ public class TemplateProcessorExt {
 	
 
  	public String processTemplates(String markupContent, String markupPageName) {
- 		return processTemplates(markupContent, markupPageName, Collections.<Template> emptySet());
+ 		return processTemplates(markupContent, markupPageName, Collections.<String> emptySet());
  	}
- 	
-	public String processTemplates(String markupContent, String markupPageName, Collection<Template> usedTemplates) {
-		if(markupContent == null || markupContent.length() == 0) {
-			return "";
-		}
+
+	private String processTemplates(String markupContent, String markupPageName, Set<String> usedTemplates) {
 		StringBuilder processedMarkup = new StringBuilder();
 
 		int index = 0;
-		int stack = 0;
-		int templateStart = markupContent.indexOf(templateOpen, index);
-		int templateEnd = 0;
-		index = templateStart + templateOpen.length();
-		while (templateStart > -1) {
-			int openIndex = markupContent.indexOf(templateOpen, index);
-			int closeIndex = markupContent.indexOf(templateClose, index);
-			if (closeIndex == -1) {
-				templateStart = -1;
-			} else if (openIndex == -1 || closeIndex < openIndex) {
-				if (stack == 0) {
-					if (templateEnd < templateStart) {
-						processedMarkup.append(markupContent.substring(templateEnd, templateStart));
-					}
+		Range templateRange = templateFinder.nextRange(markupContent, index);
+		while (!SubstringFinder.EMPTY_RANGE.equals(templateRange)) {
+			processedMarkup.append(markupContent.substring(index, templateRange.getRangeStart()));
 
-					int contentStart = templateStart + templateOpen.length();
-					String templateName, parameterText;
-					int pipeIndex = markupContent.indexOf(templateSeparator, contentStart);
-					if (pipeIndex == -1 || pipeIndex > closeIndex) {
-						templateName = markupContent.substring(contentStart, closeIndex);
-						parameterText = ""; //$NON-NLS-1$
-					} else {
-						templateName = markupContent.substring(contentStart, pipeIndex);
-						parameterText = markupContent.substring(pipeIndex, closeIndex);
-					}
+			int contentStart = templateRange.getContentStart();
+			int contentEnd = templateRange.getContentEnd();
 
-					templateName = templateName.trim();
-					Template template = resolveTemplate(templateName);
-					if (template != null) {
-						String replacementText;
-						if (usedTemplates.contains(template)) {
-							replacementText = "<span class=\"error\">Template loop detected:" + template.getName() + "</span>"; //$NON-NLS-1$//$NON-NLS-2$
-						} else {
-							parameterText = processTemplates(parameterText, markupPageName);
-							List<Parameter> parameters = processParameters(parameterText);
-							replacementText = processTemplate(template, markupPageName, parameters);
-							//The replacementText might contain other templates. Add the current template to the set of used template and call recursively this function again:
-							HashSet<Template> templates = new HashSet<Template>(usedTemplates);
-							templates.add(template);
-							replacementText = processTemplates(replacementText, markupPageName, templates);
-						}
-						processedMarkup.append(replacementText);
-					}
-
-					templateEnd = closeIndex + templateClose.length();
-					templateStart = markupContent.indexOf(templateOpen, index);
-					index = templateStart + templateOpen.length();
-				} else {
-					stack = stack - 1;
-					index = closeIndex + templateClose.length();
-				}
+			String templateName, parametersText;
+			int pipeIndex = markupContent.indexOf(templateSeparator, contentStart);
+			if (pipeIndex == -1 || pipeIndex > contentEnd) {
+				templateName = markupContent.substring(contentStart, contentEnd);
+				parametersText = ""; //$NON-NLS-1$
 			} else {
-				stack = stack + 1;
-				index = openIndex + templateOpen.length();
+				templateName = markupContent.substring(contentStart, pipeIndex);
+				parametersText = markupContent.substring(pipeIndex, contentEnd);
 			}
+
+			templateName = templateName.trim();
+			Template template = resolveTemplate(templateName);
+			if (template != null) {
+				String replacementText;
+				if (usedTemplates.contains(templateName)) {
+					StringBuilder sb = new StringBuilder();
+					sb.append("<span class=\"error\">"); //$NON-NLS-1$
+					sb.append(MessageFormat.format("Template loop detected:{0}", template.getName())); //$NON-NLS-1$
+					sb.append("</span>"); //$NON-NLS-1$
+					replacementText = sb.toString();
+				} else {
+					//The replacementText might contain other templates. Add the current template to the set of used template and call recursively this function again:
+					Set<String> templates = new HashSet<String>(usedTemplates);
+					templates.add(templateName);
+					parametersText = processTemplates(parametersText, markupPageName);
+					List<Parameter> parameters = processParameters(parametersText); 
+					replacementText = processTemplate(template, markupPageName, parameters);
+					replacementText = processTemplates(replacementText, markupPageName, templates);
+				}
+				processedMarkup.append(replacementText);
+			}
+
+			index = contentEnd + templateFinder.getCloseLength();
+			templateRange = templateFinder.nextRange(markupContent, index);
 		}
-		if (templateEnd < markupContent.length()) {
-			processedMarkup.append(markupContent.substring(templateEnd));
+		if (index < markupContent.length()) {
+			processedMarkup.append(markupContent.substring(index));
 		}
 
 		return processedMarkup.toString();
@@ -375,6 +359,4 @@ public class TemplateProcessorExt {
 		String name;
 		String value;
 	}
-
-
 }
