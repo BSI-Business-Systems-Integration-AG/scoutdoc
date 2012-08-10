@@ -45,7 +45,7 @@ public class ScoutDocConverter {
 		
 		markupLanguage.getTemplateProviders().add(new IgnoreTemplateProvider("ScoutPage", "note")); //Could also use: markupLanguage.setTemplateExcludes("ScoutPage")
 		markupLanguage.getTemplateProviders().add(new FilesTemplateProvider(new File(ProjectProperties.getFolderWikiSource() + ProjectProperties.getFileSeparator() + "Template")));
-		markupLanguage.setInternalLinkPattern("http://wiki.eclipse.org/{0}");
+		markupLanguage.setInternalLinkPattern(ProjectProperties.getWikiServerInternalLinkPattern());
 		
 		MarkupParser markupParser = new MarkupParser();
 		markupParser.setMarkupLanguage(markupLanguage);
