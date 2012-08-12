@@ -14,34 +14,37 @@ package scoutdoc.main.fetch;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.rmi.UnexpectedException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import scoutdoc.main.ProjectProperties;
 import scoutdoc.main.mediawiki.ApiFileUtility;
+import scoutdoc.main.structure.ContentType;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageUtility;
 import scoutdoc.main.structure.Task;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.io.CharStreams;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import com.google.common.io.Resources;
@@ -49,49 +52,42 @@ import com.google.common.io.Resources;
 public class ScoutDocFetch {
 	
 	public void execute(Task t) {
-		//Download pages:
-		Set<Page> templates = new HashSet<Page>(); 
-		Set<Page> images = new HashSet<Page>(); 
-		downloadPages(t.getInputPages(), templates, images);
+		execute(t.getInputPages(), Arrays.asList(ContentType.Images, ContentType.Template));
+	}
+	
+	/**
+	 * @param inputPages
+	 * @param relatedTypes also download the 
+	 */
+	public void execute(Collection<Page> inputPages, Collection<ContentType> relatedTypes) {
+		Set<Page> pages = new HashSet<Page>();
+		Set<Page> pagesToDownload = new HashSet<Page>();
+		pages.addAll(inputPages);
+		pagesToDownload.addAll(inputPages);
 
-		//Download templates and images:
-		Set<Page> templatesToDownload = new HashSet<Page>();
-		templatesToDownload.addAll(templates);
-		Set<Page> imagesToDownload = new HashSet<Page>(); 
-		imagesToDownload.addAll(images);
-		
-		while (templatesToDownload.size() > 0 || imagesToDownload.size() > 0) {
-			Set<Page> templatesAdditional = new HashSet<Page>(); 
-			Set<Page> imagesAdditional = new HashSet<Page>();
+		while (pagesToDownload.size() > 0) {
+			Set<Page> pagesAdditional = new HashSet<Page>(); 
 			
-			downloadPages(templatesToDownload, templatesAdditional, imagesAdditional);
-			downloadPages(imagesToDownload, templatesAdditional, imagesAdditional);
+			downloadPages(pagesToDownload, pagesAdditional, relatedTypes);
 			
-			templatesToDownload = new HashSet<Page>();
-			for (Page page : templatesAdditional) {
-				if(!templates.contains(page)) {
-					templatesToDownload.add(page);
+			pagesToDownload = new HashSet<Page>();
+			for (Page page : pagesAdditional) {
+				if(!pages.contains(page)) {
+					pages.add(page);
+					pagesToDownload.add(page);
 				}
 			}
-			
-			imagesToDownload = new HashSet<Page>();
-			for (Page page : imagesAdditional) {
-				if(!images.contains(page)) {
-					imagesToDownload.add(page);
-				}
-			}			
 		}
 	}
 
-	private static void downloadPages(Collection<Page> pages, Set<Page> templates, Set<Page> images) {
+	private static void downloadPages(Collection<Page> pages, Set<Page> relatedPages, Collection<ContentType> relatedTypes) {
 		for (Page page : pages) {
 			try {
 				downloadMediaWikiPage(page);
 				File apiFile = downloadApiPage(page);
 				
 				//Read the API Page to add the images and template to the sets. 
-				ApiFileUtility.parseImages(apiFile, images);
-				ApiFileUtility.parseTemplate(apiFile, templates);
+				relatedPages.addAll(ApiFileUtility.parseContent(apiFile, relatedTypes));
 				
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -99,7 +95,7 @@ public class ScoutDocFetch {
 		}
 	}
 
-	private static void downloadMediaWikiPage(Page page) throws IOException {
+	private static void downloadMediaWikiPage(Page page) throws IOException, TransformerException {
 		String url = ProjectProperties.getWikiIndexUrl();
 		
 		Map<String, String> parameters = new LinkedHashMap<String, String>();
@@ -107,10 +103,10 @@ public class ScoutDocFetch {
 		parameters.put("title", PageUtility.toFullPageNamee(page));
 //		parameters.put("templates", "expand");
 
-		downloadPage(page, url, parameters, ProjectProperties.FILE_EXTENTION_CONTENT);
+		downloadPage(page, url, parameters, ProjectProperties.FILE_EXTENTION_CONTENT, false);
 	}
 	
-	private static File downloadApiPage(Page page) throws IOException {
+	private static File downloadApiPage(Page page) throws IOException, TransformerException {
 		Preconditions.checkNotNull(page.getType(), "Page#Type can not be null");
 		
 		String url = ProjectProperties.getWikiApiUrl();
@@ -118,41 +114,26 @@ public class ScoutDocFetch {
 		Map<String, String> parameters = new LinkedHashMap<String, String>();
 		parameters.put("format", "xml");
 		parameters.put("action", "query");
-		if(PageUtility.isFile(page)) {
-			parameters.put("prop", Joiner.on("|").join("categories", "images", "templates", "imageinfo"));
+		if(PageUtility.isImage(page)) {
+			parameters.put("prop", Joiner.on("|").join("categories", "images", "links", "templates", "revisions", "imageinfo"));
 			parameters.put("iiprop", Joiner.on("|").join("timestamp", "user", "url", "metadata"));			
 		} else {
-			parameters.put("prop", Joiner.on("|").join("categories", "images", "templates"));			
+			parameters.put("prop", Joiner.on("|").join("categories", "images", "links", "templates", "revisions"));
 		}
 		parameters.put("titles", URLEncoder.encode(PageUtility.toFullPageNamee(page), "UTF-8"));
 		
-		File file = downloadPage(page, url, parameters, ProjectProperties.FILE_EXTENTION_META);
+		File file = downloadPage(page, url, parameters, ProjectProperties.FILE_EXTENTION_META, true);
 				
-		if(PageUtility.isFile(page)) {
-			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-			docFactory.setNamespaceAware(true);
-			try {
-				DocumentBuilder builder = docFactory.newDocumentBuilder();
-				Document doc = builder.parse(file);
-				
-				XPathFactory factory = XPathFactory.newInstance();
-				XPath xpath = factory.newXPath();
-				XPathExpression expr = xpath.compile("//imageinfo/ii/@url");
-				NodeList nodes = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
-				if(nodes.getLength() == 1) {
-					downloadImage(page, nodes.item(0).getNodeValue());
-				} else {
-					throw new UnexpectedException("[Get Image URL] Unexpected node length: "+nodes.getLength());
-				}
-
-			} catch (Exception e) {
-				e.printStackTrace();
+		if(PageUtility.isImage(page)) {
+			String value = ApiFileUtility.readValue(file, "//imageinfo/ii/@url");
+			if(value == null) {
+				downloadImage(page, value);
 			}
 		}
 		return file;
 	}
 
-	private static File downloadPage(Page page, String url, Map<String, String> parameters, String fileExtension) throws IOException, MalformedURLException {
+	private static File downloadPage(Page page, String url, Map<String, String> parameters, String fileExtension, boolean isXml) throws IOException, TransformerException {
 		Preconditions.checkNotNull(page.getType(), "Page#Type can not be null");
 
 		File file = new File(PageUtility.toFilePath(page, fileExtension));
@@ -160,15 +141,15 @@ public class ScoutDocFetch {
 		String fullUrl = Joiner.on("?").join(url, Joiner.on("&").withKeyValueSeparator("=").join(parameters));
 		fullUrl = fullUrl.replaceAll(" ", "%20");
 		
-		downlaod(file, fullUrl);
+		downlaod(file, fullUrl, isXml);
 		
 		return file;
 	}
 	
-	private static File downloadImage(Page imagePage, String imageServerPath) throws IOException, MalformedURLException {
+	private static File downloadImage(Page imagePage, String imageServerPath) throws IOException, TransformerException {
 		Preconditions.checkNotNull(imageServerPath, "imageServerPath can not be null");
 		Preconditions.checkNotNull(imagePage, "imagePage can not be null");
-		Preconditions.checkArgument(PageUtility.isFile(imagePage), "imagePage should have a PageUtility.isFile(..) type (Image/File)");
+		Preconditions.checkArgument(PageUtility.isImage(imagePage), "imagePage should have a PageUtility.isFile(..) type (Image/File)");
 		
 		File file = PageUtility.toFile(imagePage);
 		String fullUrl;
@@ -178,15 +159,34 @@ public class ScoutDocFetch {
 			fullUrl = ProjectProperties.getWikiServerUrl() + imageServerPath;						
 		}
 		
-		downlaod(file, fullUrl);
+		downlaod(file, fullUrl, true);
 		return file;
 	}
 
-	private static void downlaod(File file, String fullUrl) throws MalformedURLException, IOException {
+	private static void downlaod(File file, String fullUrl, boolean isXml) throws IOException, TransformerException {
 		System.out.println(fullUrl);
 
 		InputSupplier<InputStream> inputSupplier = Resources.newInputStreamSupplier(new URL(fullUrl));
+		
+		InputSupplier<InputStreamReader> readerSupplier = CharStreams.newReaderSupplier(inputSupplier, Charsets.UTF_8);
+		String content = CharStreams.toString(readerSupplier);
+		if(isXml) {
+			content = prettyFormat(content);
+		} 
+		
 		Files.createParentDirs(file);
-		Files.copy(inputSupplier, file);
+		Files.write(content, file, Charsets.UTF_8);
+	}
+	
+	public static String prettyFormat(String input) throws TransformerException {
+        Source xmlInput = new StreamSource(new StringReader(input));
+        StringWriter stringWriter = new StringWriter();
+        StreamResult xmlOutput = new StreamResult(stringWriter);
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        transformerFactory.setAttribute("indent-number", 2);
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.transform(xmlInput, xmlOutput);
+        return xmlOutput.getWriter().toString();
 	}
 }

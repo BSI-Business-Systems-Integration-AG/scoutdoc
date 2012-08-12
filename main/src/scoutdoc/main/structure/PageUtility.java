@@ -85,7 +85,7 @@ public class PageUtility {
 	}
 	
 	public static File toFile(Page page) {
-		if(isFile(page)) {
+		if(isImage(page)) {
 			return new File(toFilePath(page.getType(), toPageNamee(page), null));
 		} else {
 			return new File(toFilePath(page));
@@ -128,7 +128,7 @@ public class PageUtility {
 		return CharMatcher.anyOf("_").replaceFrom(pageId, " ");
 	}
 	
-	public static boolean isFile(Page page) {
+	public static boolean isImage(Page page) {
 		return page.getType() == PageType.Image || page.getType() == PageType.File;
 	}
 }

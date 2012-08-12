@@ -16,9 +16,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.mylyn.wikitext.core.parser.MarkupParser;
 import org.eclipse.mylyn.wikitext.core.parser.outline.OutlineItem;
@@ -123,9 +122,8 @@ public class ScoutDocConverter {
 				}
 			}
 			
-			Set<Page> images = new HashSet<Page>();
 			File apiFile = new File(PageUtility.toFilePath(item.inputPage, ProjectProperties.FILE_EXTENTION_META));
-			ApiFileUtility.parseImages(apiFile, images);
+			Collection<Page> images = ApiFileUtility.parseImages(apiFile);
 			
 			File toFolder = computeImagesFolder(t);
 			for (Page image : images) {
