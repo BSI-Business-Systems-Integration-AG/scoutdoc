@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api>
+  <query>
+    <pages>
+      <page pageid="125" ns="0" title="Test_Page1">
+        <categories>
+          <cl ns="14" title="Category:Cat1"/>
+          <cl ns="14" title="Category:Cat2"/>
+        </categories>
+        <images>
+          <im ns="6" title="File:Img1.png"/>
+        </images>
+        <links>
+          <pl ns="0" title="Page2"/>
+          <pl ns="0" title="Page3"/>
+          <pl ns="0" title="Red1"/>
+        </links>
+        <templates>
+          <tl ns="10" title="Template:Ipsum"/>
+          <tl ns="10" title="Template:Lorem"/>
+        </templates>
+        <revisions>
+          <rev revid="245" parentid="243" user="Admin" timestamp="2012-08-10T16:59:40Z" comment=""/>
+        </revisions>
+      </page>
+    </pages>
+  </query>
+</api>

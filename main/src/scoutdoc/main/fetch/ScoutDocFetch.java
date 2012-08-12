@@ -83,12 +83,15 @@ public class ScoutDocFetch {
 	private static void downloadPages(Collection<Page> pages, Set<Page> relatedPages, Collection<ContentType> relatedTypes) {
 		for (Page page : pages) {
 			try {
-				downloadMediaWikiPage(page);
-				File apiFile = downloadApiPage(page);
-				
-				//Read the API Page to add the images and template to the sets. 
-				relatedPages.addAll(ApiFileUtility.parseContent(apiFile, relatedTypes));
-				
+				String filePath = PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_META);
+				long lastRevisionId = ApiFileUtility.readRevisionId(new File(filePath));
+				File apiFile = downloadApiPage(page, lastRevisionId);
+				if(apiFile != null) {
+					downloadMediaWikiPage(page);
+					
+					//Read the API Page to related content to the set. 
+					relatedPages.addAll(ApiFileUtility.parseContent(apiFile, relatedTypes));
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -103,10 +106,14 @@ public class ScoutDocFetch {
 		parameters.put("title", PageUtility.toFullPageNamee(page));
 //		parameters.put("templates", "expand");
 
-		downloadPage(page, url, parameters, ProjectProperties.FILE_EXTENTION_CONTENT, false);
+		String fullUrl = createFullUrl(url, parameters);
+		String content = downlaod(fullUrl);
+		
+		File file = new File(PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_CONTENT));
+		writeContentToFile(file, content);
 	}
 	
-	private static File downloadApiPage(Page page) throws IOException, TransformerException {
+	private static File downloadApiPage(Page page, long lastRevisionId) throws IOException, TransformerException {
 		Preconditions.checkNotNull(page.getType(), "Page#Type can not be null");
 		
 		String url = ProjectProperties.getWikiApiUrl();
@@ -122,8 +129,18 @@ public class ScoutDocFetch {
 		}
 		parameters.put("titles", URLEncoder.encode(PageUtility.toFullPageNamee(page), "UTF-8"));
 		
-		File file = downloadPage(page, url, parameters, ProjectProperties.FILE_EXTENTION_META, true);
-				
+		String fullUrl = createFullUrl(url, parameters);
+		String content = downlaod(fullUrl);
+		
+		long revisionId = ApiFileUtility.readRevisionId(content);
+		if(revisionId <= lastRevisionId) {
+			return null;
+		}
+		content = prettyFormat(content);
+		
+		File file = new File(PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_META));
+		writeContentToFile(file, content);
+		
 		if(PageUtility.isImage(page)) {
 			String value = ApiFileUtility.readValue(file, "//imageinfo/ii/@url");
 			if(value == null) {
@@ -133,17 +150,10 @@ public class ScoutDocFetch {
 		return file;
 	}
 
-	private static File downloadPage(Page page, String url, Map<String, String> parameters, String fileExtension, boolean isXml) throws IOException, TransformerException {
-		Preconditions.checkNotNull(page.getType(), "Page#Type can not be null");
-
-		File file = new File(PageUtility.toFilePath(page, fileExtension));
-		
+	private static String createFullUrl(String url, Map<String, String> parameters) {
 		String fullUrl = Joiner.on("?").join(url, Joiner.on("&").withKeyValueSeparator("=").join(parameters));
 		fullUrl = fullUrl.replaceAll(" ", "%20");
-		
-		downlaod(file, fullUrl, isXml);
-		
-		return file;
+		return fullUrl;
 	}
 	
 	private static File downloadImage(Page imagePage, String imageServerPath) throws IOException, TransformerException {
@@ -159,21 +169,22 @@ public class ScoutDocFetch {
 			fullUrl = ProjectProperties.getWikiServerUrl() + imageServerPath;						
 		}
 		
-		downlaod(file, fullUrl, true);
+		String content = downlaod(fullUrl);
+		writeContentToFile(file, content);
 		return file;
 	}
 
-	private static void downlaod(File file, String fullUrl, boolean isXml) throws IOException, TransformerException {
+	private static String downlaod(String fullUrl) throws IOException, TransformerException {
 		System.out.println(fullUrl);
 
 		InputSupplier<InputStream> inputSupplier = Resources.newInputStreamSupplier(new URL(fullUrl));
 		
 		InputSupplier<InputStreamReader> readerSupplier = CharStreams.newReaderSupplier(inputSupplier, Charsets.UTF_8);
 		String content = CharStreams.toString(readerSupplier);
-		if(isXml) {
-			content = prettyFormat(content);
-		} 
-		
+		return content;
+	}
+	
+	private static void writeContentToFile(File file, String content) throws IOException {
 		Files.createParentDirs(file);
 		Files.write(content, file, Charsets.UTF_8);
 	}
