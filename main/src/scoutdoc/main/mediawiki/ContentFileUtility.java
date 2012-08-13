@@ -13,7 +13,7 @@ import com.google.common.io.Files;
 
 public class ContentFileUtility {
 	
-	private static final String REDIRECT_MARKER = "#REDIRECT";
+	public static final String REDIRECT_MARKER = "#REDIRECT";
 
 	public static Page checkRedirection(File contentFile) throws IOException {
 		if(contentFile.exists()) {
@@ -24,9 +24,13 @@ public class ContentFileUtility {
 	}
 
 	public static Page checkRedirection(Page page) {
+		return checkRedirection(page, false);
+	}
+	
+	public static Page checkRedirection(Page page, boolean checkSelfRedirection) {
 		try {
 			Page result = checkRedirection(PageUtility.toFile(page));
-			if(page.equals(result)) {
+			if(!checkSelfRedirection && page.equals(result)) {
 				return null; //Redirection on the same page is like no redirection at all.
 			} else {
 				return result;				

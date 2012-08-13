@@ -57,6 +57,10 @@ public class PageUtility {
 		return convertToInternalName(name);
 	}
 	
+	public static String /*fullPageName*/ toFullPageName(Page page) {
+		return convertToDisplayName(toFullPageNamee(page));
+	}
+	
 	public static String /*basePageName*/ toBasePageName(Page page) {
 		return convertToDisplayName(toBasePageNamee(page));
 	}

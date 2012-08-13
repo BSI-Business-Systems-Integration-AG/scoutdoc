@@ -35,6 +35,7 @@ input.pages.page01=Scout/Tutorial/3.8/Minicrm/Minicrm_Step-by-Step
 input.pages.page02=Scout/Tutorial/3.8/Minicrm/New_Eclipse_Scout_Project
 input.pages.page03=Scout/Tutorial/3.8/Minicrm/Get_example_database
 
+
 h2. Fetch
 
 Download the eclipsepedia content in a local directory (pages, pages meta-information, images, templates, ...) for a specific task.
@@ -79,6 +80,23 @@ bc.
        ScoutLink.mediawiki
        ScoutLink.meta.xml
        ...
+
+
+h2. Check
+
+The check tool perform some checks over the MediaWiki content.
+This allows to verify whether the content match the guideline or not.
+
+Output format: checkstyle xml.
+
+Implemented checks:
+* Double redirection: Check if a redirection links to an other redirection (warning or error in case of circular redirection).
+
+Java main class: @MainCheck@
+* First parameter: the task properties file.
+* Second parameter (optional): the project properties file.
+
+The tool will check all pages of the task and their links (inclusive redirection).
 
 
 h2. Converter
