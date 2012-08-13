@@ -74,10 +74,16 @@ public class TemplateProcessorExtTest {
 	
 	@Test
 	public void testIncludeTemplate() {		
+		Template templateFoo = new Template();
+		templateFoo.setName("foo");
+		templateFoo.setTemplateMarkup("'''{{{1}}}'''");
+		markupLanguage.getTemplates().add(templateFoo);	
+
 		Template templateBar = new Template();
 		templateBar.setName("bar");
 		templateBar.setTemplateMarkup("1:{{{1}}}, 2:{{{2}}}");
 		markupLanguage.getTemplates().add(templateBar);	
+		
 		
 		TemplateProcessorExt templateProcessor = new TemplateProcessorExt(markupLanguage);
 
@@ -87,8 +93,11 @@ public class TemplateProcessorExtTest {
 		
 		markup = templateProcessor.processTemplates("xx {{bar|foo [[page|link]] foo|foo.}} xx", "MyPage");
 		assertEquals("xx 1:foo [[page|link]] foo, 2:foo. xx", markup);
-		
+				
 		markup = templateProcessor.processTemplates("xx {{bar|Scout Tutorial|This page [[{{BASEPAGENAME}}_Step-by-Step|Minicrm Step-by-Step Tutorial]].}} xx", "MyPage");
 		assertEquals("xx 1:Scout Tutorial, 2:This page [[MyPage_Step-by-Step|Minicrm Step-by-Step Tutorial]]. xx", markup);
+		
+		markup = templateProcessor.processTemplates("xx {{bar|foo {{foo|fff}} foo|bar {{foo|bbb}} bar}} xx", "MyPage");
+		assertEquals("xx 1:foo '''fff''' foo, 2:bar '''bbb''' bar xx", markup);
 	}
 }

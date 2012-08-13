@@ -37,7 +37,7 @@ public class ProjectProperties {
 	private static String folderNavImagesSource = "nav_images";
 	private static String relPathNavImagesDist = "../../Images";
 	private static String wikiServerUrl = "http://wiki.eclipse.org";
-	private static String wikiServerInternalLinkPattern = wikiServerUrl+ "{0}";
+	private static String wikiServerInternalLinkPattern = wikiServerUrl+ "/{0}";
 	private static String wikiIndexUrl = wikiServerUrl + "/index.php";
 	private static String wikiApiUrl = wikiServerUrl + "/api.php";
 	

@@ -14,7 +14,8 @@ package scoutdoc.main.structure;
 public enum PageType {
 	Article,
 	Category,
-	Image,
 	File,
+	Image,
+	Media,
 	Template
 }

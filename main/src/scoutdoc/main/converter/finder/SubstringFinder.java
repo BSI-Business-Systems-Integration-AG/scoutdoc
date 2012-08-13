@@ -32,27 +32,27 @@ public class SubstringFinder {
 		int rangeStartIndex = text.indexOf(targetOpen, startAt);
 		if (rangeStartIndex > -1) {
 			int contentStartIndex = rangeStartIndex + targetOpen.length();
-			Range nextRange = nextRange(text, contentStartIndex);
-			int closeIndex = text.indexOf(targetClose, contentStartIndex);
-			if (nextRange.contentStart > 0) {
-				if (closeIndex < nextRange.contentStart) {
-					Range r = new Range(rangeStartIndex, contentStartIndex, closeIndex, closeIndex + targetClose.length());
-					return r;
-				} else if (nextRange.contentEnd > 0) {
-					closeIndex = text.indexOf(targetClose, nextRange.contentEnd + targetClose.length());
-					Range r;
-					if (closeIndex > 0) {
-						r = new Range(rangeStartIndex, contentStartIndex, closeIndex, closeIndex + targetClose.length());
-					} else {
-						r = new Range(rangeStartIndex, contentStartIndex, nextRange.contentEnd,  nextRange.contentStart);
-					}
-					return r;
-				}
-			} else if (closeIndex > 0) {
+			return computeCloseIndexAndCreateRange(text, rangeStartIndex, contentStartIndex, contentStartIndex);
+		}
+		return EMPTY_RANGE;
+	}
+
+	private Range computeCloseIndexAndCreateRange(String text, int rangeStartIndex, int contentStartIndex, int startAt) {
+		Range nextRange = nextRange(text, startAt);
+		
+		int closeIndex = text.indexOf(targetClose, startAt);
+		if (nextRange != EMPTY_RANGE) {
+			if (closeIndex < nextRange.contentStart) {
 				Range r = new Range(rangeStartIndex, contentStartIndex, closeIndex, closeIndex + targetClose.length());
 				return r;
+			} else {
+				return computeCloseIndexAndCreateRange(text, rangeStartIndex, contentStartIndex, nextRange.rangeEnd);
 			}
+		} else if (closeIndex > 0) {
+			Range r = new Range(rangeStartIndex, contentStartIndex, closeIndex, closeIndex + targetClose.length());
+			return r;
 		}
+
 		return EMPTY_RANGE;
 	}
 

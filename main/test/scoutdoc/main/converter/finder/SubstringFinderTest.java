@@ -19,6 +19,7 @@ import scoutdoc.main.converter.finder.SubstringFinder.Range;
 
 
 public class SubstringFinderTest {
+	private static final String STRING = "xxx{{zz{{ww}}zz}}xxx";
 
 	@Test
 	public void testNextRange() {
@@ -28,20 +29,34 @@ public class SubstringFinderTest {
 		assertEquals(-1, -1, finder, finder.nextRange("xxx{{zzz}}xxx", 4));
 		assertEquals(-1, -1, finder, finder.nextRange("xxx{{zzz}}xxx", 6));
 		assertEquals(5, 15, finder, finder.nextRange("xxx{{zz{{ww}}zz}}xxx", 0));
+		assertEquals(5, 24, finder, finder.nextRange("xxx{{zz{{ww}}zzz{{ww}}zz}}xxx", 0));
 		assertEquals(5, 15, finder, finder.nextRange("xxx{{zz{{ww}}zz}}xxx", 3));
 		assertEquals(5, 07, finder, finder.nextRange("xxx{{zz}}zz}}xxx", 0));
 		assertEquals(9, 11, finder, finder.nextRange("xxx{{zz{{ww}}zz}}xxx", 4));
 		
 		assertEquals(-1, -1, finder, finder.nextRange("xxx}}zzz{{xxx", 0));
+		
+	}
+	
+	@Test
+	public void testNextRangeCompareContent() {
+		SubstringFinder finder = SubstringFinder.define("{{", "}}");
+
+		Range range = finder.nextRange(STRING, 0);
+		Assert.assertEquals("{{zz{{ww}}zz}}", STRING.substring(range.getRangeStart(), range.getRangeEnd()));		
+		Assert.assertEquals("zz{{ww}}zz", STRING.substring(range.getContentStart(), range.getContentEnd()));		
 	}
 	
 	@Test
 	public void testNextRange2() {
 		SubstringFinder finder = SubstringFinder.define("[[[", ")");
 		assertEquals(-1, -1, finder, finder.nextRange("xxxxxx", 0));
+		assertEquals(-1, -1, finder, finder.nextRange(")xxxxxx", 0));
+		assertEquals(-1, -1, finder, finder.nextRange(")xxxx[[[xx", 0));
 		assertEquals(5, 8, finder, finder.nextRange("xx[[[zzz)xxxx", 0));
 		assertEquals(3, 8, finder, finder.nextRange("[[[zzzzz)xxx", 0));
 		assertEquals(4, 8, finder, finder.nextRange("z[[[zzzz)xxx", 0));
+		assertEquals(5, 8, finder, finder.nextRange(")x[[[zzz)xxxx", 0));
 		assertEquals(8, 8, finder, finder.nextRange("zzzzz[[[)", 0));
 		assertEquals(8, 8, finder, finder.nextRange("zzzzz[[[)xxx", 0));
 		assertEquals(-1, -1, finder, finder.nextRange("xx[[[zzz)xxxx", 4));

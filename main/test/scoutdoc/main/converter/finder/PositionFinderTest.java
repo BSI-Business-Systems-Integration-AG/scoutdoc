@@ -35,8 +35,16 @@ public class PositionFinderTest {
 		assertListEquals(expected, finder.indexesOf("foooo|b{{a}}r|baz"));
 		assertListEquals(expected, finder.indexesOf("f{{}}|baaaaar|baz"));
 		assertListEquals(expected, finder.indexesOf("f{{}}|b{{a}}r|baz"));
+		assertListEquals(expected, finder.indexesOf("f{{}}|{{a|x}}|baz"));
+		assertListEquals(expected, finder.indexesOf("foooo|{{a|x}}|baz{{zz{{a|b}}zzz|x}}"));
 		assertListEquals(Collections.singletonList(Integer.valueOf(3)), finder.indexesOf("foo|b{{ar|ba}}z"));
-		assertListEquals(Collections.singletonList(Integer.valueOf(3)), finder.indexesOf("foo|b{{ar|ba}}z"));
+		assertListEquals(Collections.singletonList(Integer.valueOf(3)), finder.indexesOf("foo|b{{ar|bax|x}}xxx"));
+		Collection<Integer> expected2 = Arrays.<Integer>asList(
+				Integer.valueOf(3),
+				Integer.valueOf(20)
+				);
+		assertListEquals(expected2, finder.indexesOf("foo|b{{ar|bax|e}}xxx|xx"));
+		assertListEquals(expected2, finder.indexesOf("foo|b{{ar|bax|e}}xxx|xx{{aa{{r|b}}ax|e}}"));
 	}
 	
 	@Test

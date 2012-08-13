@@ -133,6 +133,6 @@ public class PageUtility {
 	}
 	
 	public static boolean isImage(Page page) {
-		return page.getType() == PageType.Image || page.getType() == PageType.File;
+		return page.getType() == PageType.Image || page.getType() == PageType.File || page.getType() == PageType.Media;
 	}
 }
