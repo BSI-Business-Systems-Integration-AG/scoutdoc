@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Arrays;
@@ -143,7 +144,7 @@ public class ScoutDocFetch {
 		
 		if(PageUtility.isImage(page)) {
 			String value = ApiFileUtility.readValue(file, "//imageinfo/ii/@url");
-			if(value == null) {
+			if(value != null) {
 				downloadImage(page, value);
 			}
 		}
@@ -169,19 +170,24 @@ public class ScoutDocFetch {
 			fullUrl = ProjectProperties.getWikiServerUrl() + imageServerPath;						
 		}
 		
-		String content = downlaod(fullUrl);
-		writeContentToFile(file, content);
+		InputSupplier<InputStream> inputSupplier = createInputSupplier(fullUrl);
+		Files.createParentDirs(file);
+		Files.copy(inputSupplier, file);
+		
 		return file;
 	}
 
 	private static String downlaod(String fullUrl) throws IOException, TransformerException {
+		InputSupplier<InputStream> inputSupplier = createInputSupplier(fullUrl);
+		InputSupplier<InputStreamReader> readerSupplier = CharStreams.newReaderSupplier(inputSupplier, Charsets.UTF_8);
+		return CharStreams.toString(readerSupplier);
+	}
+
+	private static InputSupplier<InputStream> createInputSupplier(String fullUrl) throws MalformedURLException {
 		System.out.println(fullUrl);
 
 		InputSupplier<InputStream> inputSupplier = Resources.newInputStreamSupplier(new URL(fullUrl));
-		
-		InputSupplier<InputStreamReader> readerSupplier = CharStreams.newReaderSupplier(inputSupplier, Charsets.UTF_8);
-		String content = CharStreams.toString(readerSupplier);
-		return content;
+		return inputSupplier;
 	}
 	
 	private static void writeContentToFile(File file, String content) throws IOException {
