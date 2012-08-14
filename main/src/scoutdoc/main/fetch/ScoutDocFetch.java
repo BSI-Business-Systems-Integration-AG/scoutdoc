@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -104,7 +105,7 @@ public class ScoutDocFetch {
 		
 		Map<String, String> parameters = new LinkedHashMap<String, String>();
 		parameters.put("action", "raw");
-		parameters.put("title", PageUtility.toFullPageNamee(page));
+		parameters.put("title", URLEncoder.encode(PageUtility.toFullPageNamee(page), "UTF-8"));
 //		parameters.put("templates", "expand");
 
 		String fullUrl = createFullUrl(url, parameters);
@@ -132,6 +133,11 @@ public class ScoutDocFetch {
 		
 		String fullUrl = createFullUrl(url, parameters);
 		String content = downlaod(fullUrl);
+		
+		List<String> invalidTags = ApiFileUtility.readValues(content, "//page[@invalid]");
+		if(invalidTags.size()>0) {
+			throw new IllegalStateException("Got an invalid api file for url: "+fullUrl);
+		}
 		
 		long revisionId = ApiFileUtility.readRevisionId(content);
 		if(revisionId <= lastRevisionId) {

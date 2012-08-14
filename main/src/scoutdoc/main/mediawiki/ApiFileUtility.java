@@ -131,6 +131,13 @@ public class ApiFileUtility {
 	public static String readValue(String content, String xpathQuery) {
 		return readValue(createInputSource(content), xpathQuery);
 	}
+	
+	public static List<String> readValues(File file, String xpathQuery) {
+		return readValues(createInputSource(file), xpathQuery);
+	}
+	public static List<String> readValues(String content, String xpathQuery) {
+		return readValues(createInputSource(content), xpathQuery);
+	}
 
 	private static String readValue(InputSource inputSource, String xpathQuery) {
 		List<String> values = readValues(inputSource, xpathQuery);
@@ -172,7 +179,7 @@ public class ApiFileUtility {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return result;
+		return Collections.unmodifiableList(result);
 	}
 	
 	private static InputSource createInputSource(String content) {

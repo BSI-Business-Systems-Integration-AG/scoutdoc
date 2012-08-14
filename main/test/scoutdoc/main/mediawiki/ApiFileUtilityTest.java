@@ -13,6 +13,7 @@ package scoutdoc.main.mediawiki;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
 
 import junit.framework.Assert;
 
@@ -119,6 +120,17 @@ public class ApiFileUtilityTest {
 				Assert.fail("Unknown page: "+page.getName());
 			}
 		}
+	}
+	
+	@Test
+	public void testParseInvalidValue() {
+		String content = "<?xml version=\"1.0\"?><api><query><pages><page title=\"Page1%2F\" invalid=\"\" /></pages></query></api>";
+		List<String> values1 = ApiFileUtility.readValues(content, "//page[@invalid]");
+		Assert.assertEquals("values size", 1, values1.size());
+
+		File file = initAndGetApiFile();
+		List<String> values2 = ApiFileUtility.readValues(file, "//page[@invalid]");
+		Assert.assertEquals("values size", 0, values2.size());
 	}
 
 	private File initAndGetApiFile() {

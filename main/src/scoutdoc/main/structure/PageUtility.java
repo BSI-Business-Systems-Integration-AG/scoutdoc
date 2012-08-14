@@ -20,6 +20,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 
 public class PageUtility {
+	private static final String SLASH = "/";
 	private static final String TRAILING_SLASH_REPLACEMENT = "%2F";
 
 	/**
@@ -38,7 +39,9 @@ public class PageUtility {
 		} else {
 			namespace = page.getType()+":";
 		}
-		return convertToInternalName(namespace + page.getName());
+		String pageName = namespace + page.getName();
+		pageName = decodeTrailingSlash(pageName);
+		return convertToInternalName(pageName);
 	}
 	
 	public static String /*pageNamee*/ toPageNamee(Page page) {
@@ -84,6 +87,7 @@ public class PageUtility {
 	
 	private static String toFilePath(PageType type, String fileName, String fileExtension) {
 		String filePath = ProjectProperties.getFolderWikiSource() + ProjectProperties.getFileSeparator() + type.name() + ProjectProperties.getFileSeparator() + fileName;
+		filePath = codeTrailingSlash(filePath);
 		filePath = Joiner.on('.').skipNulls().join(filePath, fileExtension);
 		return convertToInternalName(filePath);
 	}
@@ -115,9 +119,7 @@ public class PageUtility {
 			type = PageType.Article;
 			name = fullPageNamee;
 		}
-		if(name.endsWith("/")) {
-			name = name.substring(0, name.length() - 1) + TRAILING_SLASH_REPLACEMENT;
-		}
+		name = codeTrailingSlash(name);
 		Page page = new Page();
 		page.setName(name);	
 		page.setType(type);
@@ -134,5 +136,19 @@ public class PageUtility {
 	
 	public static boolean isImage(Page page) {
 		return page.getType() == PageType.Image || page.getType() == PageType.File || page.getType() == PageType.Media;
+	}
+	
+	private static String codeTrailingSlash(String filePath) {
+		if(filePath.endsWith(SLASH)) {
+			filePath = filePath.substring(0, filePath.length() - SLASH.length()) + TRAILING_SLASH_REPLACEMENT;
+		}
+		return filePath;
+	}
+	
+	private static String decodeTrailingSlash(String filePath) {
+		if(filePath.endsWith(TRAILING_SLASH_REPLACEMENT)) {
+			filePath = filePath.substring(0, filePath.length() - TRAILING_SLASH_REPLACEMENT.length()) + SLASH;
+		}
+		return filePath;
 	}
 }

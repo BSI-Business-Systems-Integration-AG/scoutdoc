@@ -31,6 +31,9 @@ public class PageUtilityTest {
 		Assert.assertEquals("Template:Root/MyPage", PageUtility.toFullPageNamee(TU.createPage(PageType.Template, "Root/MyPage")));
 		Assert.assertEquals("Template:MyPage_Foo", PageUtility.toFullPageNamee(TU.createPage(PageType.Template, "MyPage_Foo")));
 		Assert.assertEquals("Template:Root/MyPage_Foo", PageUtility.toFullPageNamee(TU.createPage(PageType.Template, "Root/MyPage_Foo")));
+		Assert.assertEquals("Template:Root/MyPage_Foo/", PageUtility.toFullPageNamee(TU.createPage(PageType.Template, "Root/MyPage_Foo/")));
+		Assert.assertEquals("Root/MyPage_Foo/", PageUtility.toFullPageNamee(TU.createPage(PageType.Article, "Root/MyPage_Foo%2F")));
+		Assert.assertEquals("Template:Root/MyPage_Foo/", PageUtility.toFullPageNamee(PageUtility.toPage("Template:Root/MyPage_Foo/")));
 	}
 
 	@Test
@@ -59,13 +62,14 @@ public class PageUtilityTest {
 
 	@Test
 	public void testToFilePath() {
-		runToFilePath(TU.createPage(PageType.Article, "Root/MyPage"));
-		runToFilePath(TU.createPage(PageType.Image, "Img1.png"));
-		runToFilePath(TU.createPage(PageType.Article, "My/Page%2F"));
+		runToFilePath("Article/Root/MyPage",TU.createPage(PageType.Article, "Root/MyPage"));
+		runToFilePath("Image/Img1.png",TU.createPage(PageType.Image, "Img1.png"));
+		runToFilePath("Article/My/Page%2F",TU.createPage(PageType.Article, "My/Page%2F"));
+		runToFilePath("Article/My/Page%2F",TU.createPage(PageType.Article, "My/Page/"));
 	}
 
-	private void runToFilePath(Page page) {
-		String root = ProjectProperties.getFolderWikiSource() + ProjectProperties.getFileSeparator() + page.getType() + ProjectProperties.getFileSeparator() + page.getName();
+	private void runToFilePath(String expectedPageName, Page page) {
+		String root = ProjectProperties.getFolderWikiSource() + ProjectProperties.getFileSeparator() + expectedPageName;
 		Assert.assertEquals(root + ".mediawiki", PageUtility.toFilePath(page));
 		Assert.assertEquals(root + ".txt", PageUtility.toFilePath(page,"txt"));
 	}
