@@ -66,9 +66,9 @@ public class RedirectionCheckerTest {
 	public void testCircularRedirection() {
 		TU.initProperties();
 
-		runCircularRedirection("'Test RedCirc1' => 'Test RedCirc2' => 'Test RedCirc1'", PageUtility.toPage("Test_RedCirc1"));
-		runCircularRedirection("'Test RedCirc2' => 'Test RedCirc1' => 'Test RedCirc2'", PageUtility.toPage("Test_RedCirc2"));
-		runCircularRedirection("'Test RedCirc3' => 'Test RedCirc2' => 'Test RedCirc1' => 'Test RedCirc2'", PageUtility.toPage("Test_RedCirc3"));
+		runCircularRedirection("'Test RedCirc1' => 'Test RedCirc2' => 'Test RedCirc1'", TU.RED_CIRC_1);
+		runCircularRedirection("'Test RedCirc2' => 'Test RedCirc1' => 'Test RedCirc2'", TU.RED_CIRC_2);
+		runCircularRedirection("'Test RedCirc3' => 'Test RedCirc2' => 'Test RedCirc1' => 'Test RedCirc2'", TU.RED_CIRC_3);
 	}
 	
 	private void runCircularRedirection(String expectedMessagePath, Page page) {

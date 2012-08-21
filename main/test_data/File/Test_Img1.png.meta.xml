@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api>
+  <query>
+    <pages>
+      <page pageid="128" ns="6" title="File:Test_Img1.png" imagerepository="local">
+        <images>
+          <im ns="6" title="File:Test_Img2.png"/>
+          <im ns="6" title="File:Test_Img3.png"/>
+        </images>
+        <templates>
+          <tl ns="10" title="Template:Test_Dolore"/>
+        </templates>
+        <revisions>
+          <rev revid="252" parentid="251" user="Admin" timestamp="2012-08-12T16:50:50Z" comment="uploaded a new version of &amp;quot;[[File:Test Img1.png]]&amp;quot;"/>
+        </revisions>
+        <imageinfo>
+          <ii timestamp="2012-08-12T16:50:50Z" user="Admin" url="http://my.mediawiki.com/images/4/4b/Img1.png" descriptionurl="http://my.mediawiki.com/index.php/File:Test_Img1.png">
+            <metadata>
+              <metadata name="frameCount" value="0"/>
+              <metadata name="loopCount" value="1"/>
+              <metadata name="duration" value="0"/>
+            </metadata>
+          </ii>
+        </imageinfo>
+      </page>
+    </pages>
+  </query>
+  <query-continue>
+    <imageinfo iistart="2012-08-12T16:47:52Z"/>
+  </query-continue>
+</api>

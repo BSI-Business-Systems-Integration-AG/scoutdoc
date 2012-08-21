@@ -26,15 +26,6 @@ import scoutdoc.main.structure.PageUtility;
 
 public class ApiFileUtilityTest {
 
-	private static final Page CAT1 = PageUtility.toPage("Category:Cat1");
-	private static final Page CAT2 = PageUtility.toPage("Category:Cat2");
-	private static final Page IMG1 = PageUtility.toPage("File:Img1.png");
-	private static final Page TMP1 = PageUtility.toPage("Template:Ipsum");
-	private static final Page TMP2 = PageUtility.toPage("Template:Lorem");
-	private static final Page PAGE2 = PageUtility.toPage("Page2");
-	private static final Page PAGE3 = PageUtility.toPage("Page3");
-	private static final Page RED1 = PageUtility.toPage("Red1");
-
 	@Test
 	public void testReadRecisionId() {
 		runReadRecisionId(245, "<rev revid=\"245\" parentid=\"243\" user=\"Admin\" timestamp=\"2012-08-10T16:59:40Z\" comment=\"\"/>");
@@ -61,65 +52,33 @@ public class ApiFileUtilityTest {
 	@Test
 	public void testParseCategories() {
 		Collection<Page> categories = ApiFileUtility.parseCategories(initAndGetApiFile());
-		Assert.assertEquals("size", 2, categories.size());
-        
-        for (Page page : categories) {
-			if(page.equals(CAT1)) {
-				TU.assertPageEquals(CAT1, page);
-			} else if(page.equals(CAT2)) {
-				TU.assertPageEquals(CAT2, page);			
-			} else {
-				Assert.fail("Unknown page: "+page.getName());
-			}
-		}
+		Assert.assertEquals("size", 2, categories.size());        
+		TU.assertPageIsContained(TU.CAT_1, categories);
+		TU.assertPageIsContained(TU.CAT_2, categories);			
 	}
 	
 	@Test
 	public void testParseImages() {
 		Collection<Page> images = ApiFileUtility.parseImages(initAndGetApiFile());
 		Assert.assertEquals("size", 1, images.size());
-		
-        for (Page page : images) {
-			if(page.equals(IMG1)) {
-				TU.assertPageEquals(IMG1, page);
-			} else {
-				Assert.fail("Unknown page: "+page.getName());
-			}
-		}
+		TU.assertPageIsContained(TU.IMG_1, images);
 	}
 	
 	@Test
 	public void testParseLinks() {
 		Collection<Page> links = ApiFileUtility.parseLinks(initAndGetApiFile());
 		Assert.assertEquals("size", 3, links.size());
-		
-        for (Page page : links) {
-			if(page.equals(PAGE2)) {
-				TU.assertPageEquals(PAGE2, page);
-			} else if(page.equals(PAGE3)) {
-				TU.assertPageEquals(PAGE3, page);			
-			} else if(page.equals(RED1)) {
-				TU.assertPageEquals(RED1, page);			
-			} else {
-				Assert.fail("Unknown page: "+page.getName());
-			}
-		}
+		TU.assertPageIsContained(TU.PAGE_2, links);
+		TU.assertPageIsContained(TU.PAGE_3, links);			
+		TU.assertPageIsContained(TU.RED_1, links);			
 	}
 	
 	@Test
 	public void testParseTemplates() {
-		Collection<Page> templates = ApiFileUtility.parseTemplate(initAndGetApiFile());
+		Collection<Page> templates = ApiFileUtility.parseTemplates(initAndGetApiFile());
 		Assert.assertEquals("size", 2, templates.size());
-        
-        for (Page page : templates) {
-			if(page.equals(TMP1)) {
-				TU.assertPageEquals(TMP1, page);
-			} else if(page.equals(TMP2)) {
-				TU.assertPageEquals(TMP2, page);			
-			} else {
-				Assert.fail("Unknown page: "+page.getName());
-			}
-		}
+		TU.assertPageIsContained(TU.TMP_1, templates);
+		TU.assertPageIsContained(TU.TMP_2, templates);			
 	}
 	
 	@Test

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api>
+  <query>
+    <pages>
+      <page pageid="134" ns="0" title="Test_Page3">
+        <revisions>
+          <rev revid="244" parentid="0" user="Admin" timestamp="2012-08-10T13:51:56Z" comment="Created page with &quot;Senga velen sen mi, mon unaua finyuri ri, senga hamen itisini tu sin. Con zu ruba lasin, zofi aruka co via. Mon pani sucon anitayo in, bia pe iraxin gisone, game hara on abu. Je ...&quot;"/>
+        </revisions>
+      </page>
+    </pages>
+  </query>
+</api>

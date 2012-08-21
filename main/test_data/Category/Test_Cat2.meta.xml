@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api>
+  <query>
+    <pages>
+      <page pageid="136" ns="14" title="Category:Test_Cat2">
+        <revisions>
+          <rev revid="248" parentid="0" user="Admin" timestamp="2012-08-10T17:00:32Z" comment="Created page with &quot;Zi abuni kizinda ite, mon lindi meseda mi, jesio manze si iso. Ipe zina ninna umidi di, kora imaji royale pe men, hu coni alkohol sen. Vi duna dite ino. Mendi mandi dilakada uci zn.&quot;"/>
+        </revisions>
+      </page>
+    </pages>
+  </query>
+</api>

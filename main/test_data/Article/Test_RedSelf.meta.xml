@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api>
+  <query>
+    <pages>
+      <page pageid="139" ns="0" title="Test_RedSelf">
+        <revisions>
+          <rev revid="256" parentid="0" user="Admin" timestamp="2012-08-20T16:12:13Z" comment="Redirected page to [[Test_RedSelf]]"/>
+        </revisions>
+      </page>
+    </pages>
+  </query>
+</api>

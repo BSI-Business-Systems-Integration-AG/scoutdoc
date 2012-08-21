@@ -9,17 +9,17 @@
  *     BSI Business Systems Integration AG - initial API and implementation
  ******************************************************************************/
 
-package scoutdoc.main.structure;
+package scoutdoc.main.mediawiki;
 
 /**
  * Types of object available in the API File 
  *
  */
-public enum ContentType {
+public enum ApiFileContentType {
 	/**
 	 * Pages referenced between the <code>categories</code> tag.
 	 */
-	Category,
+	Categories,
 	/**
 	 * Pages referenced between the <code>images</code> tag.
 	 */
@@ -31,5 +31,5 @@ public enum ContentType {
 	/**
 	 * Pages referenced between the <code>templates</code> tag.
 	 */
-	Template
+	Templates
 }

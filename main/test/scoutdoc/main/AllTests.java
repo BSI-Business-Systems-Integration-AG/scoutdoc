@@ -27,6 +27,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	scoutdoc.main.mediawiki.ApiFileUtilityTest.class,
 	scoutdoc.main.mediawiki.ContentFileUtilityTest.class,
 	scoutdoc.main.structure.PageUtilityTest.class,
+	scoutdoc.main.structure.RelatedPagesStrategyTest.class,
 	scoutdoc.main.structure.TaskUtilityTest.class,
 })
 public class AllTests {

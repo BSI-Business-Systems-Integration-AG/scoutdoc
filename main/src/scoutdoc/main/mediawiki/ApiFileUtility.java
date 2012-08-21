@@ -34,7 +34,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import scoutdoc.main.structure.ContentType;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageUtility;
 
@@ -42,13 +41,15 @@ import com.google.common.base.Charsets;
 
 public class ApiFileUtility {
 	
-	public static final Collection<ContentType> ALL = Arrays.asList(ContentType.values());
+	public static final Collection<ApiFileContentType> ALL = Arrays.asList(ApiFileContentType.values());
+	public static final Collection<ApiFileContentType> IMAGES_AND_TEMPLATES = Arrays.asList(ApiFileContentType.Images, ApiFileContentType.Templates);
+	public static final Collection<ApiFileContentType> IMAGES_TEMPLATES_AND_LINKS =  Arrays.asList(ApiFileContentType.Images, ApiFileContentType.Links, ApiFileContentType.Templates);
 
-	public static Collection<Page> parseContent(File apiFile, Collection<ContentType> types) {
+	public static Collection<Page> parseContent(File apiFile, Collection<ApiFileContentType> types) {
 		Set<Page> pages = new HashSet<Page>();
-		for (ContentType t : types) {
+		for (ApiFileContentType t : types) {
 			switch (t) {
-			case Category:
+			case Categories:
 				pages.addAll(parseCategories(apiFile));				
 				break;
 			case Images:
@@ -57,8 +58,8 @@ public class ApiFileUtility {
 			case Links:
 				pages.addAll(parseLinks(apiFile));
 				break;
-			case Template:
-				pages.addAll(parseTemplate(apiFile));
+			case Templates:
+				pages.addAll(parseTemplates(apiFile));
 				break;
 			default:
 				throw new IllegalStateException("Unexpected type "+t);
@@ -100,7 +101,7 @@ public class ApiFileUtility {
 	 * @param apiFile the API File
 	 * @return templates
 	 */
-	public static Collection<Page> parseTemplate(File apiFile) {
+	public static Collection<Page> parseTemplates(File apiFile) {
 		return parseApiFile(apiFile, "//tl/@title");
 	}
 	

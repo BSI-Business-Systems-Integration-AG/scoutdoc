@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api>
+  <query>
+    <pages>
+      <page pageid="130" ns="6" title="File:Test_Img3.png" imagerepository="local">
+        <revisions>
+          <rev revid="234" parentid="0" user="Admin" timestamp="2012-08-08T15:59:26Z" comment=""/>
+        </revisions>
+        <imageinfo>
+          <ii timestamp="2012-08-08T15:59:26Z" user="Admin" url="http://my.mediawiki.com/images/8/81/Img3.png" descriptionurl="http://my.mediawiki.com/index.php/File:Test_Img3.png">
+            <metadata>
+              <metadata name="frameCount" value="0"/>
+              <metadata name="loopCount" value="1"/>
+              <metadata name="duration" value="0"/>
+            </metadata>
+          </ii>
+        </imageinfo>
+      </page>
+    </pages>
+  </query>
+</api>

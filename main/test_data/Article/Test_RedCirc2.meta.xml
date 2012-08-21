@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api>
+  <query>
+    <pages>
+      <page pageid="137" ns="0" title="Test_RedCirc2">
+        <links>
+          <pl ns="0" title="Test_RedCirc1"/>
+        </links>
+        <revisions>
+          <rev revid="28" parentid="0" user="Admin" timestamp="2012-01-13T07:15:18Z"/>
+        </revisions>
+      </page>
+    </pages>
+  </query>
+</api>

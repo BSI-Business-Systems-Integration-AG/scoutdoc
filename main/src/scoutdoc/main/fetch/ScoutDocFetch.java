@@ -20,7 +20,6 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -38,9 +37,9 @@ import javax.xml.transform.stream.StreamSource;
 
 import scoutdoc.main.ProjectProperties;
 import scoutdoc.main.mediawiki.ApiFileUtility;
-import scoutdoc.main.structure.ContentType;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageUtility;
+import scoutdoc.main.structure.RelatedPagesStrategy;
 import scoutdoc.main.structure.Task;
 
 import com.google.common.base.Charsets;
@@ -52,16 +51,15 @@ import com.google.common.io.InputSupplier;
 import com.google.common.io.Resources;
 
 public class ScoutDocFetch {
-	
 	public void execute(Task t) {
-		execute(t.getInputPages(), Arrays.asList(ContentType.Images, ContentType.Template));
+		execute(t.getInputPages(), RelatedPagesStrategy.IMAGES_TEMPLATES_AND_LINKS);
 	}
 	
 	/**
 	 * @param inputPages
 	 * @param relatedTypes also download the 
 	 */
-	public void execute(Collection<Page> inputPages, Collection<ContentType> relatedTypes) {
+	public void execute(Collection<Page> inputPages, RelatedPagesStrategy strategy) {
 		Set<Page> pages = new HashSet<Page>();
 		Set<Page> pagesToDownload = new HashSet<Page>();
 		pages.addAll(inputPages);
@@ -70,7 +68,11 @@ public class ScoutDocFetch {
 		while (pagesToDownload.size() > 0) {
 			Set<Page> pagesAdditional = new HashSet<Page>(); 
 			
-			downloadPages(pagesToDownload, pagesAdditional, relatedTypes);
+			for (Page page : pagesToDownload) {
+				downloadPage(page);
+				//Read the API Page to related content to the set. 
+				pagesAdditional.addAll(strategy.findNextRelatedPages(page, inputPages.contains(page)));
+			}
 			
 			pagesToDownload = new HashSet<Page>();
 			for (Page page : pagesAdditional) {
@@ -82,21 +84,16 @@ public class ScoutDocFetch {
 		}
 	}
 
-	private static void downloadPages(Collection<Page> pages, Set<Page> relatedPages, Collection<ContentType> relatedTypes) {
-		for (Page page : pages) {
-			try {
-				String filePath = PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_META);
-				long lastRevisionId = ApiFileUtility.readRevisionId(new File(filePath));
-				File apiFile = downloadApiPage(page, lastRevisionId);
-				if(apiFile != null) {
-					downloadMediaWikiPage(page);
-					
-					//Read the API Page to related content to the set. 
-					relatedPages.addAll(ApiFileUtility.parseContent(apiFile, relatedTypes));
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
+	private static void downloadPage(Page page) {
+		try {
+			String filePath = PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_META);
+			long lastRevisionId = ApiFileUtility.readRevisionId(new File(filePath));
+			File apiFile = downloadApiPage(page, lastRevisionId);
+			if(apiFile != null) {
+				downloadMediaWikiPage(page);
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
