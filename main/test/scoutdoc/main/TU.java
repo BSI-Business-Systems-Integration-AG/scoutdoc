@@ -21,13 +21,14 @@ public class TU {
 	public static final Page PAGE_3 = PageUtility.toPage("Test Page3");
 	public static final Page RED_1 = createPage(PageType.Article, "Test_Red1");
 	public static final Page RED_2 = createPage(PageType.Article, "Test_Red2");
+	public static final Page RED_3 = PageUtility.toPage("Test_Red3");
 	public static final Page RED_SELF = createPage(PageType.Article, "Test_RedSelf");
 	public static final Page RED_CIRC_1 = PageUtility.toPage("Test RedCirc1");
 	public static final Page RED_CIRC_2 = PageUtility.toPage("Test_RedCirc2");;
 	public static final Page RED_CIRC_3 = PageUtility.toPage("Test_RedCirc3");;
 	public static final Page TMP_1 = PageUtility.toPage("Template:Test Ipsum");
 	public static final Page TMP_2 = PageUtility.toPage("Template:Test Lorem");
-	public static final Page TMP_3 = PageUtility.toPage("Template:Test Dolore");;
+	public static final Page TMP_3 = PageUtility.toPage("Template:Test Dolore");
 	
 	public static Page createPage(PageType type, String name) {
 		Page page = new Page();

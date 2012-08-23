@@ -24,9 +24,10 @@ import scoutdoc.main.structure.PageUtility;
 /**
  * Check if a redirection links to an other redirection (warning or error in case of circular redirection).
  */
-public class RedirectionChecker {
+public class RedirectionChecker implements IChecker {
 
-	public static List<Check> check(Page page) {
+	@Override
+	public List<Check> check(Page page) {
 		Page firstRedirection = ContentFileUtility.checkRedirection(page, true);
 		if(firstRedirection != null) {
 			Page redirection = ContentFileUtility.checkRedirection(firstRedirection, true);
@@ -57,7 +58,7 @@ public class RedirectionChecker {
 				check.setLine(1);
 				check.setColumn(1);
 				check.setSeverity(Severity.warning);
-				check.setMessage("DOUBLE REDIRECTION: " + getRedirectionsPath(redirections));
+				check.setMessage("MULTIPLE REDIRECTION: " + getRedirectionsPath(redirections));
 				return Collections.singletonList(check);				
 
 			}

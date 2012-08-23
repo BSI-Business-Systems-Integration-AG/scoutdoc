@@ -11,19 +11,16 @@
 
 package scoutdoc.main.check;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-import scoutdoc.main.ProjectProperties;
-import scoutdoc.main.mediawiki.ApiFileUtility;
-import scoutdoc.main.mediawiki.ContentFileUtility;
 import scoutdoc.main.structure.Page;
-import scoutdoc.main.structure.PageUtility;
+import scoutdoc.main.structure.RelatedPagesStrategy;
 import scoutdoc.main.structure.Task;
 
 /**
@@ -33,32 +30,35 @@ public class ScoutDocCheck {
 
 	public void execute(Task t) {
 		HashSet<Page> pages = new HashSet<Page>();
-		pages.addAll(pages);
 		for (Page page : t.getInputPages()) {
-			Collection<Page> links = ApiFileUtility.parseLinks(new File(PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_META)));
-			pages.addAll(links);
-			for (Page p : links) {
-				Page redirection = ContentFileUtility.checkRedirection(p);
-				while(redirection != null) {
-					pages.add(redirection);
-					redirection = ContentFileUtility.checkRedirection(redirection);
-				}
-			}
+			pages.addAll(RelatedPagesStrategy.findRelatedPages(page, RelatedPagesStrategy.IMAGES_TEMPLATES_AND_LINKS));
 		}
-		execute(pages);
+		execute(pages, t.getOutputCheckFile());
 	}
 
-	public void execute(Collection<Page> pages) {
+	public void execute(Collection<Page> pages, String fileName) {
 		List<Check> list = new ArrayList<Check>();
 		
-		for (Page page : pages) {
-			System.out.println(page.toString());
-			list.addAll(RedirectionChecker.check(page));
+		List<IChecker> checkers = Arrays.asList(
+				new LinkToRedirectionChecker(),
+				new RedirectionChecker()
+				);
+		
+		for (IChecker c : checkers) {
+			for (Page page : pages) {
+				list.addAll(c.check(page));
+			}
 		}
 
 		PrintWriter pw = null;
 		try {
-			pw = new PrintWriter("Checkstyle.xml");
+			String f;
+			if(fileName == null || fileName.isEmpty()) {
+				f = "Checkstyle.xml";
+			} else {
+				f = fileName;
+			}
+			pw = new PrintWriter(f);
 			Writer.write(list, pw);
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -27,6 +27,7 @@ public class TaskUtility {
 	private static final String PROP_OUTPUT_FOLDER = "output.folder";
 	private static final String PROP_OUTPUT_TITLE = "output.title";
 	private static final String PROP_OUTPUT_TOC_FILE = "output.toc.file";
+	private static final String PROP_OUTPUT_CHECK_FILE = "output.check.file";
 	private static final String PAGES_PREFIX = "input.pages.";
 
 	public static Task toTask(String filename) throws FileNotFoundException, IOException {
@@ -45,6 +46,8 @@ public class TaskUtility {
 				t.setOutputTitle(value);
 			} else if(PROP_OUTPUT_TOC_FILE.equals(key)) {
 				t.setOutputTocFile(value);
+			} else if(PROP_OUTPUT_CHECK_FILE.equals(key)) {
+				t.setOutputCheckFile(value);
 			} else if(key.startsWith(PAGES_PREFIX)) {
 				pages.put(key, PageUtility.toPage(value));
 			} else {
@@ -61,6 +64,7 @@ public class TaskUtility {
 		properties.put(PROP_OUTPUT_FOLDER, task.getOutputFolder());
 		properties.put(PROP_OUTPUT_TITLE, task.getOutputTitle());
 		properties.put(PROP_OUTPUT_TOC_FILE, task.getOutputTocFile());
+		properties.put(PROP_OUTPUT_CHECK_FILE, task.getOutputCheckFile());
 		
 		int i = 1;
 		for (Page p : task.getInputPages()) {

@@ -17,6 +17,7 @@ public class Task {
 	private String outputFolder;
 	private String outputTocFile;
 	private String outputTitle;
+	private String outputCheckFile;
 	private List<Page> inputPages;
 	
 	public String getOutputFolder() {
@@ -42,5 +43,11 @@ public class Task {
 	}
 	public void setInputPages(List<Page> otherInputFiles) {
 		this.inputPages = otherInputFiles;
+	}
+	public String getOutputCheckFile() {
+		return outputCheckFile;
+	}
+	public void setOutputCheckFile(String outputCheckFile) {
+		this.outputCheckFile = outputCheckFile;
 	}
 }
