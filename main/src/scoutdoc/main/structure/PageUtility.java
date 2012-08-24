@@ -12,12 +12,18 @@
 package scoutdoc.main.structure;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import scoutdoc.main.ProjectProperties;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.io.Files;
 
 public class PageUtility {
 	private static final String SLASH = "/";
@@ -138,6 +144,91 @@ public class PageUtility {
 		return page.getType() == PageType.Image || page.getType() == PageType.File || page.getType() == PageType.Media;
 	}
 	
+	public static List<Page> loadPages(String sourceFolder) {
+		File f = new File(sourceFolder);
+		return loadPages(f);
+	}
+
+	public static List<Page> loadPages(File folder) {
+		Preconditions.checkArgument(folder.isDirectory(), "should be a directory: "+folder.getPath());
+		Preconditions.checkArgument(isInSourceFolder(folder), "the directory should be included in ProjectProperties.getFolderWikiSource().");
+
+		List<Page> result = new ArrayList<Page>();
+		
+		File[] childContentFiles = folder.listFiles(new FileFilter() {
+			@Override
+			public boolean accept(File f) {
+				return f.getName().endsWith("."+ProjectProperties.FILE_EXTENTION_CONTENT);
+			}
+		});
+		for (File contentFile : childContentFiles) {
+			//To page:
+			Page page = toPage(contentFile); //TODO: devrait plut™t tre getAbsolute - get Absolute par raport au base folder (PP)
+			
+			//To api File
+			File apiFile = new File(toFilePath(page, ProjectProperties.FILE_EXTENTION_META));
+			if(apiFile.exists()) {
+				result.add(page);
+			}
+		}
+		
+		File[] childFolder = folder.listFiles(new FileFilter() {
+			@Override
+			public boolean accept(File f) {
+				return f.isDirectory();
+			}
+		});
+		
+		for (File f : childFolder) {
+			result.addAll(loadPages(f));
+		}
+			
+		return Collections.unmodifiableList(result);
+	}
+	
+	public static Page toPage(File file) {
+			try {
+				String path = file.getCanonicalPath();
+				boolean isContentFile = path.endsWith("."+ProjectProperties.FILE_EXTENTION_CONTENT);
+				boolean isApiFile = path.endsWith("."+ProjectProperties.FILE_EXTENTION_META);
+				if(!isContentFile && !isApiFile) {
+					return null;
+				}
+				
+				if(isContentFile) {
+					path = path.substring(0, path.length() - ProjectProperties.FILE_EXTENTION_CONTENT.length() - 1);
+				}				
+				if(isApiFile) {
+					path = path.substring(0, path.length() - ProjectProperties.FILE_EXTENTION_META.length() - 1);
+				}
+				
+				String sourcePath = new File(ProjectProperties.getFolderWikiSource()).getCanonicalPath();
+				if(path.startsWith(sourcePath)) {
+					path = path.substring(sourcePath.length() + ProjectProperties.getFileSeparator().length());
+					int i = path.indexOf(ProjectProperties.getFileSeparator());
+					if(i > 0) {
+						path = path.substring(0, i) + ":" + path.substring(i + ProjectProperties.getFileSeparator().length());
+						return toPage(path);
+					}
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		return null;
+	}
+
+	private static boolean isInSourceFolder(File folder) {
+		File wikiSource = new File(ProjectProperties.getFolderWikiSource());
+		File parent = folder;
+		while (parent != null) {
+			if(parent.equals(wikiSource)) {
+				return true;
+			}
+			parent = parent.getParentFile();
+		}
+		return false;
+	}
+
 	private static String codeTrailingSlash(String filePath) {
 		if(filePath.endsWith(SLASH)) {
 			filePath = filePath.substring(0, filePath.length() - SLASH.length()) + TRAILING_SLASH_REPLACEMENT;

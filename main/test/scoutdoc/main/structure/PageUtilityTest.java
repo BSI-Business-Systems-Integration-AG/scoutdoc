@@ -12,9 +12,12 @@
 package scoutdoc.main.structure;
 
 import java.io.File;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.common.io.Files;
 
 import scoutdoc.main.ProjectProperties;
 import scoutdoc.main.TU;
@@ -75,7 +78,7 @@ public class PageUtilityTest {
 	}
 
 	@Test
-	public void testToPage() {
+	public void testToPageString() {
 		TU.assertPageEquals(PageType.Template, "Root/MyPage_Foo", PageUtility.toPage("Template:Root/MyPage_Foo"));
 		TU.assertPageEquals(PageType.File, "This/MyPage_Foo", PageUtility.toPage("File:This/MyPage_Foo"));
 		TU.assertPageEquals(PageType.Article, "My/Page", PageUtility.toPage("My/Page"));
@@ -99,5 +102,68 @@ public class PageUtilityTest {
 		File expected = new File(root + expectedFileName);
 		File actual = PageUtility.toFile(page);
 		Assert.assertEquals("AbsolutePath", expected.getAbsolutePath(), actual.getAbsolutePath());
+	}
+	
+	@Test
+	public void testToPageFile() throws Exception {
+		TU.initProperties();
+		runToPageFile(TU.PAGE_1);
+		runToPageFile(TU.createPage(PageType.Article, "Root/MyPage"));
+		runToPageFile(TU.createPage(PageType.File, "My/File%2F"));
+		runToPageFile(TU.CAT_1);
+		runToPageFile(TU.IMG_1);
+		runToPageFile(TU.TMP_1);
+	}
+
+	private void runToPageFile(Page page) {
+		String contentFilePath = PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_CONTENT);
+		File contentFile = new File(contentFilePath);
+		Assert.assertEquals(page, PageUtility.toPage(contentFile));
+		
+		String apiFilePath = PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_META);
+		File apiFile = new File(apiFilePath);
+		Assert.assertEquals(page, PageUtility.toPage(apiFile));
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void testLoadPagesIllegalBecauseNotAFolder() throws Exception {
+		TU.initProperties();
+		PageUtility.loadPages(File.createTempFile("Test", "mediawiki"));
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void testLoadPagesIllegalBecauseNotInSource() throws Exception {
+		TU.initProperties();
+		PageUtility.loadPages(Files.createTempDir());
+	}
+	
+	@Test
+	public void testLoadPages() throws Exception {
+		TU.initProperties();
+		List<Page> pages1 = PageUtility.loadPages(new File(ProjectProperties.getFolderWikiSource()));
+		Assert.assertEquals("size", 18, pages1.size());
+		TU.assertPageIsContained(TU.CAT_1, pages1);	
+		TU.assertPageIsContained(TU.CAT_2, pages1);	
+		TU.assertPageIsContained(TU.IMG_1, pages1);	
+		TU.assertPageIsContained(TU.IMG_2, pages1);	
+		TU.assertPageIsContained(TU.IMG_3, pages1);	
+		TU.assertPageIsContained(TU.PAGE_1, pages1);
+		TU.assertPageIsContained(TU.PAGE_2, pages1);			
+		TU.assertPageIsContained(TU.PAGE_3, pages1);	
+		TU.assertPageIsContained(TU.RED_1, pages1);	
+		TU.assertPageIsContained(TU.RED_2, pages1);	
+		TU.assertPageIsContained(TU.RED_3, pages1);	
+		TU.assertPageIsContained(TU.RED_CIRC_1, pages1);	
+		TU.assertPageIsContained(TU.RED_CIRC_2, pages1);	
+		TU.assertPageIsContained(TU.RED_CIRC_3, pages1);	
+		TU.assertPageIsContained(TU.RED_SELF, pages1);	
+		TU.assertPageIsContained(TU.TMP_1, pages1);	
+		TU.assertPageIsContained(TU.TMP_2, pages1);
+		TU.assertPageIsContained(TU.TMP_3, pages1);	
+		
+		List<Page> pages2 = PageUtility.loadPages(new File(ProjectProperties.getFolderWikiSource(), "Category"));
+		Assert.assertEquals("size", 2, pages2.size());
+		TU.assertPageIsContained(TU.CAT_1, pages2);	
+		TU.assertPageIsContained(TU.CAT_2, pages2);	
 	}
 }

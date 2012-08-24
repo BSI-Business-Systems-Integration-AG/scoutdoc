@@ -90,11 +90,17 @@ This allows to verify whether the content match the guideline or not.
 Output format: checkstyle xml.
 
 Implemented checks:
-* Double redirection: Check if a redirection links to an other redirection (warning or error in case of circular redirection).
+* Double redirection: Check if a redirection links to an other redirection (warning or error in case of circular redirection). Solution: it is better to redirect to the target page directly.
+* Link to a redirection: Check if a link of a page links to a redirection page (warning). Solution: it is better to link the page directly.
+
+Java main class: @MainCheckAll@ to check all pages of the @wiki_src@ directories
+* First parameter (optional): the project properties file.
+* Second parameter (optional): the name of the output file (default: Checkstyle.xml) 
 
 Java main class: @MainCheck@
-* First parameter: the task properties file.
+* First parameter: the task properties file. (It is possible to provide the name of the outfile in the task)
 * Second parameter (optional): the project properties file.
+
 
 The tool will check all pages of the task and their links (inclusive redirection).
 
