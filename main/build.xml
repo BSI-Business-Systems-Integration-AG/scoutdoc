@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="ScoutDoc Project">
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+	
+    <path id="main.classpath">
+        <pathelement location="bin"/>
+        <fileset dir="lib">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+	
+    <target name="build-clean">
+        <delete dir="bin"/>
+    </target>
+    	
+    <target name="build-init" depends="build-clean">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+	
+    <target name="build" depends="build-init">
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="main.classpath"/>
+        </javac>
+    </target>
+	
+    <target name="FetchAll">
+        <java classname="scoutdoc.main.MainFetch" failonerror="true" fork="yes">
+        	<arg value="tasks/tutorial_helloworld.properties"/>
+        	<arg value="scoutdoc.properties"/>
+            <classpath refid="main.classpath"/>
+        </java>
+
+    	<java classname="scoutdoc.main.MainFetch" failonerror="true" fork="yes">
+        	<arg value="tasks/tutorial_deploy2tomcat.properties"/>
+        	<arg value="scoutdoc.properties"/>
+            <classpath refid="main.classpath"/>
+        </java>
+	
+        <java classname="scoutdoc.main.MainFetch" failonerror="true" fork="yes">
+        	<arg value="tasks/tutorial_minicrm.properties"/>
+        	<arg value="scoutdoc.properties"/>
+            <classpath refid="main.classpath"/>
+        </java>
+    </target>
+	
+    <target name="CheckAll">
+        <java classname="scoutdoc.main.MainCheckAll" failonerror="true" fork="yes">
+        	<arg value="scoutdoc.properties"/>
+        	<arg value="Checkstyle-all.xml"/>
+            <classpath refid="main.classpath"/>
+        </java>
+    </target>
+	
+    <target name="Convert-HelloWorld">
+        <java classname="scoutdoc.main.MainConverter" failonerror="true" fork="yes">
+        	<arg value="tasks/tutorial_helloworld.properties"/>
+        	<arg value="scoutdoc.properties"/>
+            <classpath refid="main.classpath"/>
+        </java>
+    </target>
+	
+    <target name="Convert-DeployToTomcat">
+        <java classname="scoutdoc.main.MainConverter" failonerror="true" fork="yes">
+        	<arg value="tasks/tutorial_deploy2tomcat.properties"/>
+        	<arg value="scoutdoc.properties"/>
+            <classpath refid="main.classpath"/>
+        </java>
+    </target>
+	
+    <target name="Convert-MiniCRM">
+        <java classname="scoutdoc.main.MainConverter" failonerror="true" fork="yes">
+        	<arg value="tasks/tutorial_minicrm.properties"/>
+        	<arg value="scoutdoc.properties"/>
+            <classpath refid="main.classpath"/>
+        </java>
+    </target>
+	
+    <target name="ConvertAll" depends="Convert-HelloWorld, Convert-DeployToTomcat, Convert-MiniCRM" >
+    </target>
+</project>
