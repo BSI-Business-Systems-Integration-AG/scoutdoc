@@ -44,7 +44,6 @@ public class FilesTemplateProvider extends TemplateResolver {
 				return template;
 				
 			} catch (IOException e) {
-				//TODO: handle this Exception.
 				e.printStackTrace();
 			}
 		}

@@ -166,4 +166,30 @@ public class PageUtilityTest {
 		TU.assertPageIsContained(TU.CAT_1, pages2);	
 		TU.assertPageIsContained(TU.CAT_2, pages2);	
 	}
+	
+	public void testExists() throws Exception {
+		TU.initProperties();
+
+		Assert.assertEquals(true, PageUtility.exists(TU.CAT_1));	
+		Assert.assertEquals(true, PageUtility.exists(TU.CAT_2));	
+		Assert.assertEquals(true, PageUtility.exists(TU.IMG_1));	
+		Assert.assertEquals(true, PageUtility.exists(TU.IMG_2));	
+		Assert.assertEquals(true, PageUtility.exists(TU.IMG_3));	
+		Assert.assertEquals(true, PageUtility.exists(TU.PAGE_1));
+		Assert.assertEquals(true, PageUtility.exists(TU.PAGE_2));			
+		Assert.assertEquals(true, PageUtility.exists(TU.PAGE_3));	
+		Assert.assertEquals(true, PageUtility.exists(TU.RED_1));	
+		Assert.assertEquals(true, PageUtility.exists(TU.RED_2));	
+		Assert.assertEquals(true, PageUtility.exists(TU.RED_3));	
+		Assert.assertEquals(true, PageUtility.exists(TU.RED_CIRC_1));	
+		Assert.assertEquals(true, PageUtility.exists(TU.RED_CIRC_2));	
+		Assert.assertEquals(true, PageUtility.exists(TU.RED_CIRC_3));	
+		Assert.assertEquals(true, PageUtility.exists(TU.RED_SELF));	
+		Assert.assertEquals(true, PageUtility.exists(TU.TMP_1));	
+		Assert.assertEquals(true, PageUtility.exists(TU.TMP_2));
+		Assert.assertEquals(true, PageUtility.exists(TU.TMP_3));	
+		
+		Assert.assertEquals(false, PageUtility.exists(TU.createPage(PageType.Article, "My/Page")));
+		Assert.assertEquals(false, PageUtility.exists(TU.createPage(PageType.Article, "Test Cat1")));
+	}
 }

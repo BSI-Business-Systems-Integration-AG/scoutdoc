@@ -110,8 +110,12 @@ public class RelatedPagesStrategyTest {
 		TU.assertPageIsContained(TU.IMG_1, pages);
 		TU.assertPageIsContained(TU.IMG_2, pages);
 		TU.assertPageIsContained(TU.IMG_3, pages);
+		TU.assertPageIsContained(TU.RED_1, pages);
 		TU.assertPageIsContained(TU.RED_2, pages);
 		TU.assertPageIsContained(TU.PAGE_2, pages);
+		TU.assertPageIsContained(TU.PAGE_3, pages);
+		TU.assertPageIsContained(TU.TMP_1, pages);
+		TU.assertPageIsContained(TU.TMP_2, pages);
 		TU.assertPageIsContained(TU.TMP_3, pages);
 		
 		pages = RelatedPagesStrategy.findRelatedPages(TU.RED_1, RelatedPagesStrategy.ALL);

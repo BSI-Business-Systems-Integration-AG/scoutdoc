@@ -105,7 +105,7 @@ public class ScoutDocFetch {
 		parameters.put("title", URLEncoder.encode(PageUtility.toFullPageNamee(page), "UTF-8"));
 //		parameters.put("templates", "expand");
 
-		String fullUrl = createFullUrl(url, parameters);
+		String fullUrl = UrlUtility.createFullUrl(url, parameters);
 		String content = downlaod(fullUrl);
 		
 		File file = new File(PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_CONTENT));
@@ -128,7 +128,7 @@ public class ScoutDocFetch {
 		}
 		parameters.put("titles", URLEncoder.encode(PageUtility.toFullPageNamee(page), "UTF-8"));
 		
-		String fullUrl = createFullUrl(url, parameters);
+		String fullUrl = UrlUtility.createFullUrl(url, parameters);
 		String content = downlaod(fullUrl);
 		
 		List<String> invalidTags = ApiFileUtility.readValues(content, "//page[@invalid]");
@@ -152,12 +152,6 @@ public class ScoutDocFetch {
 			}
 		}
 		return file;
-	}
-
-	private static String createFullUrl(String url, Map<String, String> parameters) {
-		String fullUrl = Joiner.on("?").join(url, Joiner.on("&").withKeyValueSeparator("=").join(parameters));
-		fullUrl = fullUrl.replaceAll(" ", "%20");
-		return fullUrl;
 	}
 	
 	private static File downloadImage(Page imagePage, String imageServerPath) throws IOException, TransformerException {

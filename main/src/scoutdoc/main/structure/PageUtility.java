@@ -23,7 +23,6 @@ import scoutdoc.main.ProjectProperties;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import com.google.common.io.Files;
 
 public class PageUtility {
 	private static final String SLASH = "/";
@@ -163,7 +162,7 @@ public class PageUtility {
 		});
 		for (File contentFile : childContentFiles) {
 			//To page:
-			Page page = toPage(contentFile); //TODO: devrait plut™t tre getAbsolute - get Absolute par raport au base folder (PP)
+			Page page = toPage(contentFile);
 			
 			//To api File
 			File apiFile = new File(toFilePath(page, ProjectProperties.FILE_EXTENTION_META));
@@ -187,34 +186,39 @@ public class PageUtility {
 	}
 	
 	public static Page toPage(File file) {
-			try {
-				String path = file.getCanonicalPath();
-				boolean isContentFile = path.endsWith("."+ProjectProperties.FILE_EXTENTION_CONTENT);
-				boolean isApiFile = path.endsWith("."+ProjectProperties.FILE_EXTENTION_META);
-				if(!isContentFile && !isApiFile) {
-					return null;
-				}
-				
-				if(isContentFile) {
-					path = path.substring(0, path.length() - ProjectProperties.FILE_EXTENTION_CONTENT.length() - 1);
-				}				
-				if(isApiFile) {
-					path = path.substring(0, path.length() - ProjectProperties.FILE_EXTENTION_META.length() - 1);
-				}
-				
-				String sourcePath = new File(ProjectProperties.getFolderWikiSource()).getCanonicalPath();
-				if(path.startsWith(sourcePath)) {
-					path = path.substring(sourcePath.length() + ProjectProperties.getFileSeparator().length());
-					int i = path.indexOf(ProjectProperties.getFileSeparator());
-					if(i > 0) {
-						path = path.substring(0, i) + ":" + path.substring(i + ProjectProperties.getFileSeparator().length());
-						return toPage(path);
-					}
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
+		try {
+			String path = file.getCanonicalPath();
+			boolean isContentFile = path.endsWith("."+ProjectProperties.FILE_EXTENTION_CONTENT);
+			boolean isApiFile = path.endsWith("."+ProjectProperties.FILE_EXTENTION_META);
+			if(!isContentFile && !isApiFile) {
+				return null;
 			}
+			
+			if(isContentFile) {
+				path = path.substring(0, path.length() - ProjectProperties.FILE_EXTENTION_CONTENT.length() - 1);
+			}				
+			if(isApiFile) {
+				path = path.substring(0, path.length() - ProjectProperties.FILE_EXTENTION_META.length() - 1);
+			}
+			
+			String sourcePath = new File(ProjectProperties.getFolderWikiSource()).getCanonicalPath();
+			if(path.startsWith(sourcePath)) {
+				path = path.substring(sourcePath.length() + ProjectProperties.getFileSeparator().length());
+				int i = path.indexOf(ProjectProperties.getFileSeparator());
+				if(i > 0) {
+					path = path.substring(0, i) + ":" + path.substring(i + ProjectProperties.getFileSeparator().length());
+					return toPage(path);
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return null;
+	}
+	
+	public static boolean exists(Page page) {
+		File file = toFile(page);
+		return file.exists();
 	}
 
 	private static boolean isInSourceFolder(File folder) {

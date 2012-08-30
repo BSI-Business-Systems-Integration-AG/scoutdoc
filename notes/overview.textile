@@ -40,22 +40,29 @@ h2. Fetch
 
 Download the eclipsepedia content in a local directory (pages, pages meta-information, images, templates, ...) for a specific task.
 
-Java main class: @MainFetch@
+There are different Main class to fetch pages:
+
+@MainFetch@: with this task you can download pages for a specific task.
 * First parameter: the task properties file.
 * Second parameter (optional): the project properties file.
+
+@MainFetchRSS@: with this task you can download pages from the RSS Feed (Special:RecentChanges) of the MediaWiki Instance. Because this feed provide information on the revisionId of the change, only newer page are considered.
+* First parameter (optional): the project properties file.
+
 
 Organization of the files on the disk:
 
 First level (MediaWiki namespace):
 * Article
+* Category
 * Image
 * Template
 
 For each page:
-* @*.mediawiki@ File: source of the page (media wiki)
-* @*.meta.xml@ File: meta information provided by MediaWiki.
+* @*.mediawiki@ file: source of the page (content of the page, using the mediawiki Markup)
+* @*.meta.xml@ file: meta information provided by MediaWiki.
 
-Here an example:
+Here an example of how the pages are organized on the disk:
 
 bc. 
   wiki_src

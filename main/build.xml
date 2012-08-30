@@ -32,6 +32,13 @@
         </javac>
     </target>
 	
+    <target name="FetchRss">
+        <java classname="scoutdoc.main.MainFetchRss" failonerror="true" fork="yes">
+        	<arg value="scoutdoc.properties"/>
+            <classpath refid="main.classpath"/>
+        </java>    	
+    </target>
+	
     <target name="FetchAll">
         <java classname="scoutdoc.main.MainFetch" failonerror="true" fork="yes">
         	<arg value="tasks/tutorial_helloworld.properties"/>
