@@ -16,10 +16,14 @@ For the moment those files are just *.properties files.
 The project properties define some properties that are use by the different tools (MediaWiki url, local wiki sources directory, ...) 
 
 bc. 
+folder.wiki.source=../source
+folder.wiki.dist=../dist
+folder.navigation.images.source=nav_images
+relative.path.images.dist=../../Images
 wiki.server.url=http://wiki.eclipse.org
+wiki.server.internal.link.pattern=http://wiki.eclipse.org/{0}
 wiki.index.url=http://wiki.eclipse.org/index.php
 wiki.api.url=http://wiki.eclipse.org/api.php
-folder.wiki.source=../wiki_source
 
 See "ProjectProperties.java":../main/src/scoutdoc/main/ProjectProperties.java for all supported values. 
 
@@ -42,13 +46,16 @@ Download the eclipsepedia content in a local directory (pages, pages meta-inform
 
 There are different Main class to fetch pages:
 
-@MainFetch@: with this task you can download pages for a specific task.
+@MainFetch@: with this class you can download pages for a specific task.
 * First parameter: the task properties file.
 * Second parameter (optional): the project properties file.
 
-@MainFetchRSS@: with this task you can download pages from the RSS Feed (Special:RecentChanges) of the MediaWiki Instance. Because this feed provide information on the revisionId of the change, only newer page are considered.
+@MainFetchRSS@: with this class you can download pages from the RSS Feed (Special:RecentChanges) of the MediaWiki Instance. Because this feed provide information on the revisionId of the change, only newer page are considered.
 * First parameter (optional): the project properties file.
 
+@MainFetchAll@: with this class you can download a list of pages (provided in a txt file) or refresh all pages you have in the source folder. 
+* First parameter (optional): the project properties file.
+* Second parameter (optional): the list of pages. (if not provided, the page list is computed from the source folder).
 
 Organization of the files on the disk:
 

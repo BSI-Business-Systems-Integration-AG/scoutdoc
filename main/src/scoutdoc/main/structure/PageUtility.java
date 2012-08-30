@@ -15,14 +15,18 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import scoutdoc.main.ProjectProperties;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 
 public class PageUtility {
 	private static final String SLASH = "/";
@@ -220,7 +224,47 @@ public class PageUtility {
 		File file = toFile(page);
 		return file.exists();
 	}
+	
+	
+	public static void writeList(Collection<Page> pages, String listFilePath) {
+		ArrayList<Page> p = Lists.newArrayList(pages);
+		
+		Collections.sort(p);
+		StringBuffer sb = new StringBuffer();
+		
+		boolean isFirst = true;
+		for (Page e : p) {
+			if(!isFirst) {
+				sb.append("\n");				
+			} else {
+				isFirst = false;
+			}
+			sb.append(toFullPageNamee(e));
+		}
+		
+		File file = new File(listFilePath);
+		try {
+			Files.write(sb.toString(), file, Charsets.UTF_8);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
 
+	public static List<Page> readList(String listFilePath) {
+		ArrayList<Page> pages = Lists.newArrayList();
+
+		File file = new File(listFilePath);
+	    try {
+			List<String> lines = Files.readLines(file, Charsets.UTF_8);
+			for (String l : lines) {
+				pages.add(toPage(l));
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return Collections.unmodifiableList(pages);
+	}
+	
 	private static boolean isInSourceFolder(File folder) {
 		File wikiSource = new File(ProjectProperties.getFolderWikiSource());
 		File parent = folder;

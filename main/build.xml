@@ -40,21 +40,9 @@
     </target>
 	
     <target name="FetchAll">
-        <java classname="scoutdoc.main.MainFetch" failonerror="true" fork="yes">
-        	<arg value="tasks/tutorial_helloworld.properties"/>
+        <java classname="scoutdoc.main.MainFetchAll" failonerror="true" fork="yes">
         	<arg value="scoutdoc.properties"/>
-            <classpath refid="main.classpath"/>
-        </java>
-
-    	<java classname="scoutdoc.main.MainFetch" failonerror="true" fork="yes">
-        	<arg value="tasks/tutorial_deploy2tomcat.properties"/>
-        	<arg value="scoutdoc.properties"/>
-            <classpath refid="main.classpath"/>
-        </java>
-	
-        <java classname="scoutdoc.main.MainFetch" failonerror="true" fork="yes">
-        	<arg value="tasks/tutorial_minicrm.properties"/>
-        	<arg value="scoutdoc.properties"/>
+        	<arg value="scout_pages.txt"/>
             <classpath refid="main.classpath"/>
         </java>
     </target>

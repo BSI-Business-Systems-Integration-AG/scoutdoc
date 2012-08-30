@@ -12,15 +12,18 @@
 package scoutdoc.main.structure;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.common.io.Files;
-
 import scoutdoc.main.ProjectProperties;
 import scoutdoc.main.TU;
+
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 
 public class PageUtilityTest {
 
@@ -191,5 +194,53 @@ public class PageUtilityTest {
 		
 		Assert.assertEquals(false, PageUtility.exists(TU.createPage(PageType.Article, "My/Page")));
 		Assert.assertEquals(false, PageUtility.exists(TU.createPage(PageType.Article, "Test Cat1")));
+	}
+	
+	@Test
+	public void testWriteList() throws Exception {
+		File f = File.createTempFile("list", "txt");
+		Collection<Page> pages = Arrays.asList(
+				TU.TMP_2,
+				TU.PAGE_3,
+				TU.PAGE_1,
+				TU.PAGE_2,
+				TU.CAT_1,
+				TU.TMP_3
+				);
+		PageUtility.writeList(pages , f.getAbsolutePath());
+		
+		List<String> actual = Files.readLines(f, Charsets.UTF_8);
+		Assert.assertEquals("lines count", 6, actual.size());
+		Assert.assertEquals("line 1", "Test_Page1", actual.get(0));
+		Assert.assertEquals("line 2", "Test_Page2", actual.get(1));
+		Assert.assertEquals("line 3", "Test_Page3", actual.get(2));
+		Assert.assertEquals("line 4", "Category:Test_Cat1", actual.get(3));
+		Assert.assertEquals("line 5", "Template:Test_Dolore", actual.get(4));
+		Assert.assertEquals("line 6", "Template:Test_Lorem", actual.get(5));
+	}
+	
+	@Test
+	public void testReadList() throws Exception {
+		File f = File.createTempFile("list", "txt");
+		Collection<Page> pages = Arrays.asList(
+				TU.TMP_2,
+				TU.TMP_1,
+				TU.CAT_2,
+				TU.PAGE_1,
+				TU.PAGE_2,
+				TU.CAT_1,
+				TU.TMP_3
+				);
+		String listFilePath = f.getAbsolutePath();
+		PageUtility.writeList(pages, listFilePath);
+		List<Page> actual = PageUtility.readList(listFilePath);
+		Assert.assertEquals("pages list count", 7, actual.size());
+		TU.assertPageEquals(TU.PAGE_1, actual.get(0));
+		TU.assertPageEquals(TU.PAGE_2, actual.get(1));
+		TU.assertPageEquals(TU.CAT_1, actual.get(2));
+		TU.assertPageEquals(TU.CAT_2, actual.get(3));
+		TU.assertPageEquals(TU.TMP_3, actual.get(4));
+		TU.assertPageEquals(TU.TMP_1, actual.get(5));
+		TU.assertPageEquals(TU.TMP_2, actual.get(6));
 	}
 }

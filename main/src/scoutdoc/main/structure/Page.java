@@ -11,7 +11,7 @@
 
 package scoutdoc.main.structure;
 
-public class Page {
+public class Page implements Comparable<Page> {
 	private String name;
 	private PageType type;
 	
@@ -59,5 +59,14 @@ public class Page {
 	@Override
 	public String toString() {
 		return "Page [name=" + name + ", type=" + type + "]";
+	}
+	@Override
+	public int compareTo(Page other) {
+		int i = this.type.compareTo(other.type);
+		if(i == 0) {
+			return this.name.compareTo(other.name);
+		} else {
+			return i;
+		}
 	}	
 }
