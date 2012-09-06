@@ -17,5 +17,7 @@ public enum PageType {
 	File,
 	Image,
 	Media,
-	Template
+	Talk,
+	Template,
+	Template_talk
 }

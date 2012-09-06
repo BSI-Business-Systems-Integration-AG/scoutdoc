@@ -86,6 +86,8 @@ public class PageUtilityTest {
 		TU.assertPageEquals(PageType.File, "This/MyPage_Foo", PageUtility.toPage("File:This/MyPage_Foo"));
 		TU.assertPageEquals(PageType.Article, "My/Page", PageUtility.toPage("My/Page"));
 		TU.assertPageEquals(PageType.Article, "My/Page%2F", PageUtility.toPage("My/Page/"));
+		TU.assertPageEquals(PageType.Talk, "My/Page", PageUtility.toPage("Talk:My/Page"));
+		TU.assertPageEquals(PageType.Template_talk, "ThisPage", PageUtility.toPage("Template talk:ThisPage"));
 	}
 
 	@Test
