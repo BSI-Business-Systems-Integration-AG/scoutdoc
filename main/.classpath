@@ -6,6 +6,7 @@
 	<classpathentry kind="lib" path="lib/com.google.guava_10.0.1.v201203051515.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.mylyn.wikitext.core_1.8.0.I20120907-2057.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.mylyn.wikitext.mediawiki.core_1.8.0.I20120907-2057.jar"/>
+	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

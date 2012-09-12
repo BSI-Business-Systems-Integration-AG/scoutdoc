@@ -13,6 +13,7 @@ package scoutdoc.main.structure;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -250,17 +251,16 @@ public class PageUtility {
 		}
 	}
 
-	public static List<Page> readList(String listFilePath) {
+	public static List<Page> readList(String listFilePath) throws IOException {
+		if(listFilePath==null || listFilePath.isEmpty()) {
+			throw new FileNotFoundException("file path is null or empty");
+		}
 		ArrayList<Page> pages = Lists.newArrayList();
 
 		File file = new File(listFilePath);
-	    try {
-			List<String> lines = Files.readLines(file, Charsets.UTF_8);
-			for (String l : lines) {
-				pages.add(toPage(l));
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+		List<String> lines = Files.readLines(file, Charsets.UTF_8);
+		for (String l : lines) {
+			pages.add(toPage(l));
 		}
 		return Collections.unmodifiableList(pages);
 	}

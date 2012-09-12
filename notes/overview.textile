@@ -7,11 +7,13 @@ The "Eclipse Scout":http://www.eclipse.org/scout project has started to create d
 This project prepares the infrastructure to achieve these two goals (monitoring and conversion). 
 
 
-h2. Data structure 
+h2. Files and data structure
 
 The different tools need to store informations for the configuration of the tool (project properties) and the definition of each task (task properties).
 
 For the moment those files are just *.properties files.
+
+h3. Project properties
 
 The project properties define some properties that are use by the different tools (MediaWiki url, local wiki sources directory, ...) 
 
@@ -27,7 +29,9 @@ wiki.api.url=http://wiki.eclipse.org/api.php
 
 See "ProjectProperties.java":../main/src/scoutdoc/main/ProjectProperties.java for all supported values. 
 
-The task project properties define some configuration specific to a task. Example:
+h3. Task
+
+The task properties file define some configuration specific to a task. Example:
 
 bc. 
 # Task for the "Mini CRM" tutorial
@@ -40,24 +44,9 @@ input.pages.page02=Scout/Tutorial/3.8/Minicrm/New_Eclipse_Scout_Project
 input.pages.page03=Scout/Tutorial/3.8/Minicrm/Get_example_database
 
 
-h2. Fetch
+h3. MediaWiki content organization
 
-Download the eclipsepedia content in a local directory (pages, pages meta-information, images, templates, ...) for a specific task.
-
-There are different Main class to fetch pages:
-
-@MainFetch@: with this class you can download pages for a specific task.
-* First parameter: the task properties file.
-* Second parameter (optional): the project properties file.
-
-@MainFetchRSS@: with this class you can download pages from the RSS Feed (Special:RecentChanges) of the MediaWiki Instance. Because this feed provide information on the revisionId of the change, only newer page are considered.
-* First parameter (optional): the project properties file.
-
-@MainFetchAll@: with this class you can download a list of pages (provided in a txt file) or refresh all pages you have in the source folder. 
-* First parameter (optional): the project properties file.
-* Second parameter (optional): the list of pages. (if not provided, the page list is computed from the source folder).
-
-Organization of the files on the disk:
+Here some input on how the MediaWiki content is stored on the disk (in the @folder.wiki.source@ folder):
 
 First level (MediaWiki namespace):
 * Article
@@ -96,7 +85,74 @@ bc.
        ...
 
 
-h2. Check
+h2. Usage
+
+There is a single entry point: @scoutdoc.main.Main@ class.
+
+bc. 
+usage: scoutdoc.main.Main
+ -h,--help                           print this message
+ -c,--config <file>                  configuration file
+ -t,--task <files>                   (source) one or many task files
+ -p,--pages                          (source) use the pages contained in the source folder
+ -l,--list <file>                    (source) list of pages contained in the file
+ -r,--rss                            (source) use the pages from the rss file
+ -o,--operation <operations>         operation: FETCH, CHECK, CONVERT
+ -x,--output-checkstyle <filename>   (CHECK output) create a xml checkstyle file (<filename> is optional. Default: Checkstyle.xml)
+
+Usage examples can be found in the next section.
+
+The targets in the ant file @build.xml@ use this main class. Other usage examples can be found there.
+
+
+h2. Operations and examples
+
+This section describes the different operation with command line usage example.
+
+h3. Operation: FETCH
+
+Download the MediaWiki content in a local directory (pages, pages meta-information, images, templates, ...).
+
+**Fetch content for a task:**
+
+bc. 
+scoutdoc.main.Main -o FETCH -c <config_file.properties> -t <task.properties>
+
+With this command line you download pages for a specific task.
+* @-c <config_file.properties>@: the project properties file (optional).
+* @-t <task.properties>@: the task properties files (1..n).
+
+
+**Fetch newer pages (based on RSS file):**
+
+bc. 
+scoutdoc.main.Main -o FETCH -c <config_file.properties> -r
+
+With this command line you download pages from the RSS Feed (Special:RecentChanges) of the MediaWiki Instance. From the RSS feed, only pages with a newer __revision id__ than what is on the disk are considered.
+* @-c <config_file.properties>@: the project properties file (optional).
+
+
+**Fetch a list of pages:**
+
+bc. 
+scoutdoc.main.Main -o FETCH -c <config_file.properties> -l <list.txt>
+
+With this command line you download a list of pages (provided in a txt file).
+* @-c <config_file.properties>@: the project properties file (optional).
+* @-l <list.txt>@: the list of pages.
+
+
+**Refresh the pages of the disk:**
+
+bc. 
+scoutdoc.main.Main -o FETCH -c <config_file.properties> -p
+
+With this command line you download all pages you have in the source folder (This is like a refresh).
+* @-c <config_file.properties>@: the project properties file (optional).
+* @-p@: use the pages of the source folder to create the list of pages that are fetched.
+
+
+h3. Operation: CHECK
 
 The check tool perform some checks over the MediaWiki content.
 This allows to verify whether the content match the guideline or not.
@@ -107,26 +163,39 @@ Implemented checks:
 * Double redirection: Check if a redirection links to an other redirection (warning or error in case of circular redirection). Solution: it is better to redirect to the target page directly.
 * Link to a redirection: Check if a link of a page links to a redirection page (warning). Solution: it is better to link the page directly.
 
-Java main class: @MainCheckAll@ to check all pages of the @wiki_src@ directories
-* First parameter (optional): the project properties file.
-* Second parameter (optional): the name of the output file (default: Checkstyle.xml) 
+**Check all pages:**
 
-Java main class: @MainCheck@
-* First parameter: the task properties file. (It is possible to provide the name of the outfile in the task)
-* Second parameter (optional): the project properties file.
+bc. 
+scoutdoc.main.Main -o CHECK -c <config_file.properties> -p -x <filename.xml>
 
+With this command line you check all pages of the @wiki_src@ directory.
+* @-c <config_file.properties>@: the project properties file (optional).
+* @-p@: use the pages of the source folder to create the list of pages that are fetched.
+* @-x <filename.xml>@: the name of the output file (default: Checkstyle.xml)
+
+
+**Check pages of a task:**
+
+bc. 
+scoutdoc.main.Main -o CHECK -c <config_file.properties> -t <task.properties>
+
+With this command line you check all pages of the @wiki_src@ directory.
+* @-c <config_file.properties>@: the project properties file (optional).
+* @-t <task.properties>@: the task properties files (1..n). (It is possible to provide the name of the output file in the task with @output.check.file@)
 
 The tool will check all pages of the task and their links (inclusive redirection).
 
 
-h2. Converter
+h3. Operation: CONVERT
 
-Use WikiText to create the content.
+**Convert a task:**
 
-Java main class: @MainConverter@
-* First parameter: the task properties file.
-* Second parameter (optional): the project properties file.
+bc. 
+scoutdoc.main.Main -o CONVERT -c <config_file.properties> -t <task.properties>
 
+With this command line you convert a task to help file content.
+* @-c <config_file.properties>@: the project properties file (optional).
+* @-t <task.properties>@: the task properties files (1..n).
 
 
 

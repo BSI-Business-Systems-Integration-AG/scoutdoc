@@ -61,17 +61,23 @@ public class TaskUtility {
 
 	public static void toFile(Task task, String filename) throws FileNotFoundException, IOException {
 		Properties properties = new Properties();
-		properties.put(PROP_OUTPUT_FOLDER, task.getOutputFolder());
-		properties.put(PROP_OUTPUT_TITLE, task.getOutputTitle());
-		properties.put(PROP_OUTPUT_TOC_FILE, task.getOutputTocFile());
-		properties.put(PROP_OUTPUT_CHECK_FILE, task.getOutputCheckFile());
+		addToProperties(properties, PROP_OUTPUT_FOLDER, task.getOutputFolder());
+		addToProperties(properties, PROP_OUTPUT_TITLE, task.getOutputTitle());
+		addToProperties(properties, PROP_OUTPUT_TOC_FILE, task.getOutputTocFile());
+		addToProperties(properties, PROP_OUTPUT_CHECK_FILE, task.getOutputCheckFile());
 		
 		int i = 1;
 		for (Page p : task.getInputPages()) {
-			properties.put(PAGES_PREFIX+"page"+String.format("%02d", i), PageUtility.toFullPageNamee(p));
+			addToProperties(properties, PAGES_PREFIX+"page"+String.format("%02d", i), PageUtility.toFullPageNamee(p));
 			i++;
 		}
 		properties.store(new FileOutputStream(filename), null);
+	}
+
+	private static void addToProperties(Properties properties, String key, String value) {
+		if(value != null) {
+			properties.put(key, value);
+		}
 	}
 	
 	

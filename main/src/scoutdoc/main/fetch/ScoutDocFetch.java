@@ -55,6 +55,21 @@ public class ScoutDocFetch {
 		execute(t.getInputPages(), RelatedPagesStrategy.IMAGES_TEMPLATES_AND_LINKS);
 	}
 	
+	public void executeRss() {
+		Map<String, String> parameters = new LinkedHashMap<String, String>();
+		parameters.put("title", "Special:RecentChanges");
+		parameters.put("feed", "rss");
+
+		String rssUrl = UrlUtility.createFullUrl(ProjectProperties.getWikiIndexUrl(), parameters);
+
+		//Find Pages:
+		List<Page> pages = RssUtility.parseRss(rssUrl);
+		System.out.println("found " + pages.size() + " pages with changes");
+
+		//Download this pages, and the related items:
+		execute(pages, RelatedPagesStrategy.IMAGES_TEMPLATES_AND_LINKS);
+	}
+	
 	/**
 	 * @param inputPages
 	 * @param relatedTypes also download the 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project basedir="." default="build" name="ScoutDoc Project">
+    <property name="mainclass" value="scoutdoc.main.Main"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
@@ -33,48 +34,56 @@
     </target>
 	
     <target name="FetchRss">
-        <java classname="scoutdoc.main.MainFetchRss" failonerror="true" fork="yes">
-        	<arg value="scoutdoc.properties"/>
+        <java classname="${mainclass}" failonerror="true" fork="yes">
+        	<arg value="--config"/><arg value="scoutdoc.properties"/>
+        	<arg value="--operation"/><arg value="FETCH"/>
+        	<arg value="--rss"/>
             <classpath refid="main.classpath"/>
         </java>    	
     </target>
 	
     <target name="FetchAll">
-        <java classname="scoutdoc.main.MainFetchAll" failonerror="true" fork="yes">
-        	<arg value="scoutdoc.properties"/>
-        	<arg value="scout_pages.txt"/>
+        <java classname="${mainclass}" failonerror="true" fork="yes">
+        	<arg value="--config"/><arg value="scoutdoc.properties"/>
+        	<arg value="--operation"/><arg value="FETCH"/>
+        	<arg value="--list"/><arg value="scout_pages.txt"/>
             <classpath refid="main.classpath"/>
         </java>
     </target>
 	
     <target name="CheckAll">
-        <java classname="scoutdoc.main.MainCheckAll" failonerror="true" fork="yes">
-        	<arg value="scoutdoc.properties"/>
-        	<arg value="Checkstyle-all.xml"/>
+        <java classname="${mainclass}" failonerror="true" fork="yes">
+        	<arg value="--config"/><arg value="scoutdoc.properties"/>
+        	<arg value="--operation"/><arg value="CHECK"/>
+        	<arg value="--pages"/>
+        	<arg value="--output-checkstyle"/><arg value="Checkstyle-all.xml"/>
             <classpath refid="main.classpath"/>
         </java>
     </target>
 	
     <target name="Convert-HelloWorld">
-        <java classname="scoutdoc.main.MainConverter" failonerror="true" fork="yes">
-        	<arg value="tasks/tutorial_helloworld.properties"/>
-        	<arg value="scoutdoc.properties"/>
+        <java classname="${mainclass}" failonerror="true" fork="yes">
+        	<arg value="--config"/><arg value="scoutdoc.properties"/>
+            <arg value="--operation"/><arg value="CONVERT"/>
+        	<arg value="--task"/><arg value="tasks/tutorial_helloworld.properties"/>
             <classpath refid="main.classpath"/>
         </java>
     </target>
 	
     <target name="Convert-DeployToTomcat">
-        <java classname="scoutdoc.main.MainConverter" failonerror="true" fork="yes">
-        	<arg value="tasks/tutorial_deploy2tomcat.properties"/>
-        	<arg value="scoutdoc.properties"/>
+        <java classname="${mainclass}" failonerror="true" fork="yes">
+        	<arg value="--config"/><arg value="scoutdoc.properties"/>
+            <arg value="--operation"/><arg value="CONVERT"/>
+        	<arg value="--task"/><arg value="tasks/tutorial_deploy2tomcat.properties"/>
             <classpath refid="main.classpath"/>
         </java>
     </target>
 	
     <target name="Convert-MiniCRM">
-        <java classname="scoutdoc.main.MainConverter" failonerror="true" fork="yes">
-        	<arg value="tasks/tutorial_minicrm.properties"/>
-        	<arg value="scoutdoc.properties"/>
+        <java classname="${mainclass}" failonerror="true" fork="yes">
+        	<arg value="--config"/><arg value="scoutdoc.properties"/>
+            <arg value="--operation"/><arg value="CONVERT"/>
+        	<arg value="--task"/><arg value="tasks/tutorial_minicrm.properties"/>
             <classpath refid="main.classpath"/>
         </java>
     </target>
