@@ -15,7 +15,7 @@ package scoutdoc.main.check;
  * Enum to represent the level of severity in {@link Check}
  */
 public enum Severity {
-	error,
-	warning,
-	info
+  error,
+  warning,
+  info
 }

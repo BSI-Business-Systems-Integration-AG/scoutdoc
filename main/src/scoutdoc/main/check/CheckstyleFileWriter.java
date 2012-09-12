@@ -23,37 +23,35 @@ import com.google.common.collect.Multimap;
  * Write list of Check into a PrintWriter
  */
 public class CheckstyleFileWriter {
-	private static final String XML_VERSION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-	private static final String CHECKSTYLE_OPEN = "<checkstyle version=\"5.5\">";
-	private static final String CHECKSTYLE_CLOSE = "</checkstyle>";
-	private static final String FILE_CLOSE = "</file>";
-	
-	public static void write(List<Check> list, PrintWriter w) {
-		w.println(XML_VERSION);
-		w.println(CHECKSTYLE_OPEN);
-		
-		Multimap<String, Check> multimap = ArrayListMultimap.create();
-		
-		for (Check check : list) {
-			multimap.put(check.getFileName(), check);
-		}
-		
-		for (String file : multimap.keySet()) {
-			w.println("<file name=\""+file+"\">");
-			for (Check check : multimap.get(file)) {
-				w.print("<error"); 
-				w.print(" line=\"" + check.getLine() + "\""); 
-				w.print(" column=\"" + check.getColumn() + "\""); 
-				w.print(" severity=\"" + Objects.firstNonNull(check.getSeverity(), "") + "\""); 
-				w.print(" message=\"" + Strings.nullToEmpty(check.getMessage()) + "\""); 
-				w.print(" source=\"" + Strings.nullToEmpty(check.getSource()) + "\""); 
-				w.println("/>");
-			}
-			w.println(FILE_CLOSE);
-		}
-		w.println(CHECKSTYLE_CLOSE);
-	}
+  private static final String XML_VERSION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+  private static final String CHECKSTYLE_OPEN = "<checkstyle version=\"5.5\">";
+  private static final String CHECKSTYLE_CLOSE = "</checkstyle>";
+  private static final String FILE_CLOSE = "</file>";
 
-	
-	
+  public static void write(List<Check> list, PrintWriter w) {
+    w.println(XML_VERSION);
+    w.println(CHECKSTYLE_OPEN);
+
+    Multimap<String, Check> multimap = ArrayListMultimap.create();
+
+    for (Check check : list) {
+      multimap.put(check.getFileName(), check);
+    }
+
+    for (String file : multimap.keySet()) {
+      w.println("<file name=\"" + file + "\">");
+      for (Check check : multimap.get(file)) {
+        w.print("<error");
+        w.print(" line=\"" + check.getLine() + "\"");
+        w.print(" column=\"" + check.getColumn() + "\"");
+        w.print(" severity=\"" + Objects.firstNonNull(check.getSeverity(), "") + "\"");
+        w.print(" message=\"" + Strings.nullToEmpty(check.getMessage()) + "\"");
+        w.print(" source=\"" + Strings.nullToEmpty(check.getSource()) + "\"");
+        w.println("/>");
+      }
+      w.println(FILE_CLOSE);
+    }
+    w.println(CHECKSTYLE_CLOSE);
+  }
+
 }

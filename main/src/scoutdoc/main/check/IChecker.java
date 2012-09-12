@@ -17,6 +17,6 @@ import scoutdoc.main.structure.Page;
 
 public interface IChecker {
 
-	List<Check> check(Page page);
+  List<Check> check(Page page);
 
 }

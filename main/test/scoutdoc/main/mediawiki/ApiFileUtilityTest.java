@@ -26,79 +26,78 @@ import scoutdoc.main.structure.PageUtility;
 
 public class ApiFileUtilityTest {
 
-	@Test
-	public void testReadRecisionId() {
-		runReadRecisionId(245, "<rev revid=\"245\" parentid=\"243\" user=\"Admin\" timestamp=\"2012-08-10T16:59:40Z\" comment=\"\"/>");
-		runReadRecisionId(5, "<rev revid=\"5\" />");
-		runReadRecisionId(0, "");
-	}
+  @Test
+  public void testReadRecisionId() {
+    runReadRecisionId(245, "<rev revid=\"245\" parentid=\"243\" user=\"Admin\" timestamp=\"2012-08-10T16:59:40Z\" comment=\"\"/>");
+    runReadRecisionId(5, "<rev revid=\"5\" />");
+    runReadRecisionId(0, "");
+  }
 
-	private void runReadRecisionId(int expected, String content) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("<api><query><pages><page><revisions>");
-		sb.append(content);
-		sb.append("</revisions></page></pages></query></api>");
-		
-		long actual = ApiFileUtility.readRevisionId(sb.toString());
-		Assert.assertEquals(expected, actual);
-	}
-	
-	@Test
-	public void testReadRecisionIdApiFile() {
-		long actual = ApiFileUtility.readRevisionId(initAndGetApiFile());
-		Assert.assertEquals(245, actual);
-	}
-	
-	@Test
-	public void testParseCategories() {
-		Collection<Page> categories = ApiFileUtility.parseCategories(initAndGetApiFile());
-		Assert.assertEquals("size", 2, categories.size());        
-		TU.assertPageIsContained(TU.CAT_1, categories);
-		TU.assertPageIsContained(TU.CAT_2, categories);			
-	}
-	
-	@Test
-	public void testParseImages() {
-		Collection<Page> images = ApiFileUtility.parseImages(initAndGetApiFile());
-		Assert.assertEquals("size", 1, images.size());
-		TU.assertPageIsContained(TU.IMG_1, images);
-	}
-	
-	@Test
-	public void testParseLinks() {
-		Collection<Page> links = ApiFileUtility.parseLinks(initAndGetApiFile());
-		Assert.assertEquals("size", 3, links.size());
-		TU.assertPageIsContained(TU.PAGE_2, links);
-		TU.assertPageIsContained(TU.PAGE_3, links);			
-		TU.assertPageIsContained(TU.RED_1, links);			
-	}
-	
-	@Test
-	public void testParseTemplates() {
-		Collection<Page> templates = ApiFileUtility.parseTemplates(initAndGetApiFile());
-		Assert.assertEquals("size", 2, templates.size());
-		TU.assertPageIsContained(TU.TMP_1, templates);
-		TU.assertPageIsContained(TU.TMP_2, templates);			
-	}
-	
-	@Test
-	public void testParseInvalidValue() {
-		String content = "<?xml version=\"1.0\"?><api><query><pages><page title=\"Page1%2F\" invalid=\"\" /></pages></query></api>";
-		List<String> values1 = ApiFileUtility.readValues(content, "//page[@invalid]");
-		Assert.assertEquals("values size", 1, values1.size());
+  private void runReadRecisionId(int expected, String content) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("<api><query><pages><page><revisions>");
+    sb.append(content);
+    sb.append("</revisions></page></pages></query></api>");
 
-		File file = initAndGetApiFile();
-		List<String> values2 = ApiFileUtility.readValues(file, "//page[@invalid]");
-		Assert.assertEquals("values size", 0, values2.size());
-	}
+    long actual = ApiFileUtility.readRevisionId(sb.toString());
+    Assert.assertEquals(expected, actual);
+  }
 
-	private File initAndGetApiFile() {
-		TU.initProperties();
-		Page page = PageUtility.toPage("Test_Page1");
-		String filePath = PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_META);
-		File file = new File(filePath);
-		return file;
-	}
+  @Test
+  public void testReadRecisionIdApiFile() {
+    long actual = ApiFileUtility.readRevisionId(initAndGetApiFile());
+    Assert.assertEquals(245, actual);
+  }
 
+  @Test
+  public void testParseCategories() {
+    Collection<Page> categories = ApiFileUtility.parseCategories(initAndGetApiFile());
+    Assert.assertEquals("size", 2, categories.size());
+    TU.assertPageIsContained(TU.CAT_1, categories);
+    TU.assertPageIsContained(TU.CAT_2, categories);
+  }
+
+  @Test
+  public void testParseImages() {
+    Collection<Page> images = ApiFileUtility.parseImages(initAndGetApiFile());
+    Assert.assertEquals("size", 1, images.size());
+    TU.assertPageIsContained(TU.IMG_1, images);
+  }
+
+  @Test
+  public void testParseLinks() {
+    Collection<Page> links = ApiFileUtility.parseLinks(initAndGetApiFile());
+    Assert.assertEquals("size", 3, links.size());
+    TU.assertPageIsContained(TU.PAGE_2, links);
+    TU.assertPageIsContained(TU.PAGE_3, links);
+    TU.assertPageIsContained(TU.RED_1, links);
+  }
+
+  @Test
+  public void testParseTemplates() {
+    Collection<Page> templates = ApiFileUtility.parseTemplates(initAndGetApiFile());
+    Assert.assertEquals("size", 2, templates.size());
+    TU.assertPageIsContained(TU.TMP_1, templates);
+    TU.assertPageIsContained(TU.TMP_2, templates);
+  }
+
+  @Test
+  public void testParseInvalidValue() {
+    String content = "<?xml version=\"1.0\"?><api><query><pages><page title=\"Page1%2F\" invalid=\"\" /></pages></query></api>";
+    List<String> values1 = ApiFileUtility.readValues(content, "//page[@invalid]");
+    Assert.assertEquals("values size", 1, values1.size());
+
+    File file = initAndGetApiFile();
+    List<String> values2 = ApiFileUtility.readValues(file, "//page[@invalid]");
+    Assert.assertEquals("values size", 0, values2.size());
+  }
+
+  private File initAndGetApiFile() {
+    TU.initProperties();
+    Page page = PageUtility.toPage("Test_Page1");
+    String filePath = PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_META);
+    File file = new File(filePath);
+    return file;
+  }
 
 }

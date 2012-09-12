@@ -17,18 +17,18 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	scoutdoc.main.check.RedirectionCheckerTest.class,
-	scoutdoc.main.check.CheckstyleFileWriterTest.class,
-	scoutdoc.main.check.dashboard.OutputElementComparatorTest.class,
-	scoutdoc.main.converter.PageMapperTest.class,
-	scoutdoc.main.converter.TemplateProcessorExtTest.class,
-	scoutdoc.main.converter.finder.PositionFinderTest.class,
-	scoutdoc.main.converter.finder.SubstringFinderTest.class,
-	scoutdoc.main.mediawiki.ApiFileUtilityTest.class,
-	scoutdoc.main.mediawiki.ContentFileUtilityTest.class,
-	scoutdoc.main.structure.PageUtilityTest.class,
-	scoutdoc.main.structure.RelatedPagesStrategyTest.class,
-	scoutdoc.main.structure.TaskUtilityTest.class,
+    scoutdoc.main.check.RedirectionCheckerTest.class,
+    scoutdoc.main.check.CheckstyleFileWriterTest.class,
+    scoutdoc.main.check.dashboard.OutputElementComparatorTest.class,
+    scoutdoc.main.converter.PageMapperTest.class,
+    scoutdoc.main.converter.TemplateProcessorExtTest.class,
+    scoutdoc.main.converter.finder.PositionFinderTest.class,
+    scoutdoc.main.converter.finder.SubstringFinderTest.class,
+    scoutdoc.main.mediawiki.ApiFileUtilityTest.class,
+    scoutdoc.main.mediawiki.ContentFileUtilityTest.class,
+    scoutdoc.main.structure.PageUtilityTest.class,
+    scoutdoc.main.structure.RelatedPagesStrategyTest.class,
+    scoutdoc.main.structure.TaskUtilityTest.class,
 })
 public class AllTests {
 }

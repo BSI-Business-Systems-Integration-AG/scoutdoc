@@ -14,33 +14,33 @@ package scoutdoc.main.check.dashboard;
 import scoutdoc.main.check.Check;
 
 class OutputElement {
-	private Check check;
-	private int id;
-	private String pageOutput;
-	
-	public OutputElement(Check check, int id) {
-		this.check = check;
-		this.id = id;
-	}
-	
-	public Check getCheck() {
-		return check;
-	}
-	
-	public void setCheck(Check check) {
-		this.check = check;
-	}
-	
-	public int getId() {
-		return id;
-	}
+  private Check check;
+  private int id;
+  private String pageOutput;
 
-	public String getPageOutput() {
-		return pageOutput;
-	}
-	
-	public void setPageOutput(String pageOutput) {
-		this.pageOutput = pageOutput;
-	}
-	
+  public OutputElement(Check check, int id) {
+    this.check = check;
+    this.id = id;
+  }
+
+  public Check getCheck() {
+    return check;
+  }
+
+  public void setCheck(Check check) {
+    this.check = check;
+  }
+
+  public int getId() {
+    return id;
+  }
+
+  public String getPageOutput() {
+    return pageOutput;
+  }
+
+  public void setPageOutput(String pageOutput) {
+    this.pageOutput = pageOutput;
+  }
+
 }

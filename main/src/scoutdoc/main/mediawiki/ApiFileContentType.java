@@ -12,24 +12,23 @@
 package scoutdoc.main.mediawiki;
 
 /**
- * Types of object available in the API File 
- *
+ * Types of object available in the API File
  */
 public enum ApiFileContentType {
-	/**
-	 * Pages referenced between the <code>categories</code> tag.
-	 */
-	Categories,
-	/**
-	 * Pages referenced between the <code>images</code> tag.
-	 */
-	Images,
-	/**
-	 * Pages referenced between the <code>links</code> tag.
-	 */
-	Links,
-	/**
-	 * Pages referenced between the <code>templates</code> tag.
-	 */
-	Templates
+  /**
+   * Pages referenced between the <code>categories</code> tag.
+   */
+  Categories,
+  /**
+   * Pages referenced between the <code>images</code> tag.
+   */
+  Images,
+  /**
+   * Pages referenced between the <code>links</code> tag.
+   */
+  Links,
+  /**
+   * Pages referenced between the <code>templates</code> tag.
+   */
+  Templates
 }

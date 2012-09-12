@@ -20,42 +20,42 @@ import org.junit.Test;
 
 public class TaskUtilityTest {
 
-	@Test
-	public void test() throws Exception {
-		File f = File.createTempFile("test", "properties");
-		
-		Task t = new Task();
-		t.setOutputFolder("html/folder/test");
-		t.setOutputTocFile("test_toc.xml");
-		t.setOutputTitle("Test Title");
-		t.setOutputCheckstyleFile("My-checkstyle-file.xml");
-		t.setInputPages(Arrays.<Page>asList(
-				PageUtility.toPage("Name/OfPage/3.7/in_the_wiki1"),
-				PageUtility.toPage("Name/OfPage/3.7/in_the_wiki2"),
-				PageUtility.toPage("Name/OfPage/3.7/in_the_wiki3")
-				));
-		
-		System.out.println(f.getAbsolutePath());
-		
-		TaskUtility.toFile(t, f.getAbsolutePath());
-		Task a = TaskUtility.toTask(f.getAbsolutePath());
-		
-		assertTaskEquals(t, a);
-	}
+  @Test
+  public void test() throws Exception {
+    File f = File.createTempFile("test", "properties");
 
-	private static void assertTaskEquals(Task expected, Task actual) {
-		assertEquals("OutputFolder", expected.getOutputFolder(), actual.getOutputFolder());
-		assertEquals("OutputTitle", expected.getOutputTitle(), actual.getOutputTitle());
-		assertEquals("OutputTocFile", expected.getOutputTocFile(), actual.getOutputTocFile());
-		assertEquals("OutputCheckFile", expected.getOutputCheckstyleFile(), actual.getOutputCheckstyleFile());
-		
-		assertEquals("InputPages().size()", expected.getInputPages().size(), expected.getInputPages().size());
-		
-		for (int i = 0; i < expected.getInputPages().size(); i++) {
-			Page expectedPage = expected.getInputPages().get(i);
-			Page acutualPage = actual.getInputPages().get(i);
-			assertEquals("Page " + (i+1), expectedPage, acutualPage);
-		}
-	}
+    Task t = new Task();
+    t.setOutputFolder("html/folder/test");
+    t.setOutputTocFile("test_toc.xml");
+    t.setOutputTitle("Test Title");
+    t.setOutputCheckstyleFile("My-checkstyle-file.xml");
+    t.setInputPages(Arrays.<Page> asList(
+        PageUtility.toPage("Name/OfPage/3.7/in_the_wiki1"),
+        PageUtility.toPage("Name/OfPage/3.7/in_the_wiki2"),
+        PageUtility.toPage("Name/OfPage/3.7/in_the_wiki3")
+        ));
+
+    System.out.println(f.getAbsolutePath());
+
+    TaskUtility.toFile(t, f.getAbsolutePath());
+    Task a = TaskUtility.toTask(f.getAbsolutePath());
+
+    assertTaskEquals(t, a);
+  }
+
+  private static void assertTaskEquals(Task expected, Task actual) {
+    assertEquals("OutputFolder", expected.getOutputFolder(), actual.getOutputFolder());
+    assertEquals("OutputTitle", expected.getOutputTitle(), actual.getOutputTitle());
+    assertEquals("OutputTocFile", expected.getOutputTocFile(), actual.getOutputTocFile());
+    assertEquals("OutputCheckFile", expected.getOutputCheckstyleFile(), actual.getOutputCheckstyleFile());
+
+    assertEquals("InputPages().size()", expected.getInputPages().size(), expected.getInputPages().size());
+
+    for (int i = 0; i < expected.getInputPages().size(); i++) {
+      Page expectedPage = expected.getInputPages().get(i);
+      Page acutualPage = actual.getInputPages().get(i);
+      assertEquals("Page " + (i + 1), expectedPage, acutualPage);
+    }
+  }
 
 }

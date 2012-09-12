@@ -14,6 +14,6 @@ package scoutdoc.main.check.dashboard;
 import com.google.common.collect.Multimap;
 
 class Context {
-	int distributionMax;
-	Multimap<OutputElement, OutputElement> content;
+  int distributionMax;
+  Multimap<OutputElement, OutputElement> content;
 }

@@ -14,19 +14,19 @@ package scoutdoc.main.converter;
 import org.eclipse.mylyn.wikitext.mediawiki.core.Template;
 
 public class PlaceHolderTemplate extends Template {
-	public static PlaceHolderTemplate ScoutLink = new PlaceHolderTemplate("ScoutLink", "");
-	public static PlaceHolderTemplate NAMESPACE = new PlaceHolderTemplate("NAMESPACE", "");
-	public static PlaceHolderTemplate PAGENAME = new PlaceHolderTemplate("PAGENAME", "");
-	public static PlaceHolderTemplate BASEPAGENAME = new PlaceHolderTemplate("BASEPAGENAME", "");
-	public static PlaceHolderTemplate BASEPAGENAMEE = new PlaceHolderTemplate("BASEPAGENAMEE", "");
-	public static PlaceHolderTemplate SUBPAGENAME = new PlaceHolderTemplate("SUBPAGENAME", "");
-	public static PlaceHolderTemplate SUBPAGENAMEE = new PlaceHolderTemplate("SUBPAGENAMEE", "");
-	public static PlaceHolderTemplate FULLPAGENAME = new PlaceHolderTemplate("FULLPAGENAME", "");
-	public static PlaceHolderTemplate note = new PlaceHolderTemplate("note", "");
-	public static PlaceHolderTemplate tip = new PlaceHolderTemplate("tip", "");
-	public static PlaceHolderTemplate warning = new PlaceHolderTemplate("warning", "");
-	
-	private PlaceHolderTemplate(String name, String markup) {
-		super(name, markup);
-	}
+  public static PlaceHolderTemplate ScoutLink = new PlaceHolderTemplate("ScoutLink", "");
+  public static PlaceHolderTemplate NAMESPACE = new PlaceHolderTemplate("NAMESPACE", "");
+  public static PlaceHolderTemplate PAGENAME = new PlaceHolderTemplate("PAGENAME", "");
+  public static PlaceHolderTemplate BASEPAGENAME = new PlaceHolderTemplate("BASEPAGENAME", "");
+  public static PlaceHolderTemplate BASEPAGENAMEE = new PlaceHolderTemplate("BASEPAGENAMEE", "");
+  public static PlaceHolderTemplate SUBPAGENAME = new PlaceHolderTemplate("SUBPAGENAME", "");
+  public static PlaceHolderTemplate SUBPAGENAMEE = new PlaceHolderTemplate("SUBPAGENAMEE", "");
+  public static PlaceHolderTemplate FULLPAGENAME = new PlaceHolderTemplate("FULLPAGENAME", "");
+  public static PlaceHolderTemplate note = new PlaceHolderTemplate("note", "");
+  public static PlaceHolderTemplate tip = new PlaceHolderTemplate("tip", "");
+  public static PlaceHolderTemplate warning = new PlaceHolderTemplate("warning", "");
+
+  private PlaceHolderTemplate(String name, String markup) {
+    super(name, markup);
+  }
 }

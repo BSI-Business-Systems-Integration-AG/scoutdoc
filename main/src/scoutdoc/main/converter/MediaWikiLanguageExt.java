@@ -19,29 +19,29 @@ import org.eclipse.mylyn.wikitext.mediawiki.core.MediaWikiLanguage;
  * Extension of the WikiText MediaWikiLanguage to add some features.
  */
 public class MediaWikiLanguageExt extends MediaWikiLanguage {
-	
-	private String pageName;
 
-	@Override
-	public void processContent(MarkupParser parser, String markupContent, boolean asDocument) {
-		if (isEnableMacros()) {
-			markupContent = preprocessContent(markupContent, pageName);
-		}
-		super.processContent(parser, markupContent, asDocument);
-	}
+  private String pageName;
 
-	/**
-	 * preprocess content, which involves template substitution.
-	 */
-	private String preprocessContent(String markupContent, String markupPageName) {
-		return new TemplateProcessorExt(this).processTemplates(markupContent, markupPageName);
-	}
+  @Override
+  public void processContent(MarkupParser parser, String markupContent, boolean asDocument) {
+    if (isEnableMacros()) {
+      markupContent = preprocessContent(markupContent, pageName);
+    }
+    super.processContent(parser, markupContent, asDocument);
+  }
 
-	public String getPageName() {
-		return pageName;
-	}
-	
-	public void setPageName(String pageName) {
-		this.pageName = pageName;
-	}
+  /**
+   * preprocess content, which involves template substitution.
+   */
+  private String preprocessContent(String markupContent, String markupPageName) {
+    return new TemplateProcessorExt(this).processTemplates(markupContent, markupPageName);
+  }
+
+  public String getPageName() {
+    return pageName;
+  }
+
+  public void setPageName(String pageName) {
+    this.pageName = pageName;
+  }
 }

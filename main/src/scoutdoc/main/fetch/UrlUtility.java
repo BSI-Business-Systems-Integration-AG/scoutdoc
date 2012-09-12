@@ -17,10 +17,10 @@ import com.google.common.base.Joiner;
 
 public class UrlUtility {
 
-	public static String createFullUrl(String url, Map<String, String> parameters) {
-		String fullUrl = Joiner.on("?").join(url, Joiner.on("&").withKeyValueSeparator("=").join(parameters));
-		fullUrl = fullUrl.replaceAll(" ", "%20");
-		return fullUrl;
-	}
-	
+  public static String createFullUrl(String url, Map<String, String> parameters) {
+    String fullUrl = Joiner.on("?").join(url, Joiner.on("&").withKeyValueSeparator("=").join(parameters));
+    fullUrl = fullUrl.replaceAll(" ", "%20");
+    return fullUrl;
+  }
+
 }

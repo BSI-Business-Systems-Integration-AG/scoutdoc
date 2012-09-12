@@ -14,40 +14,49 @@ package scoutdoc.main.structure;
 import java.util.List;
 
 public class Task {
-	private String outputFolder;
-	private String outputTocFile;
-	private String outputTitle;
-	private String outputCheckstyleFile;
-	private List<Page> inputPages;
-	
-	public String getOutputFolder() {
-		return outputFolder;
-	}
-	public void setOutputFolder(String outputFolder) {
-		this.outputFolder = outputFolder;
-	}
-	public String getOutputTocFile() {
-		return outputTocFile;
-	}
-	public void setOutputTocFile(String outputTocFile) {
-		this.outputTocFile = outputTocFile;
-	}
-	public String getOutputTitle() {
-		return outputTitle;
-	}
-	public void setOutputTitle(String outputTitle) {
-		this.outputTitle = outputTitle;
-	}
-	public List<Page> getInputPages() {
-		return inputPages;
-	}
-	public void setInputPages(List<Page> otherInputFiles) {
-		this.inputPages = otherInputFiles;
-	}
-	public String getOutputCheckstyleFile() {
-		return outputCheckstyleFile;
-	}
-	public void setOutputCheckstyleFile(String outputCheckstyleFile) {
-		this.outputCheckstyleFile = outputCheckstyleFile;
-	}
+  private String outputFolder;
+  private String outputTocFile;
+  private String outputTitle;
+  private String outputCheckstyleFile;
+  private List<Page> inputPages;
+
+  public String getOutputFolder() {
+    return outputFolder;
+  }
+
+  public void setOutputFolder(String outputFolder) {
+    this.outputFolder = outputFolder;
+  }
+
+  public String getOutputTocFile() {
+    return outputTocFile;
+  }
+
+  public void setOutputTocFile(String outputTocFile) {
+    this.outputTocFile = outputTocFile;
+  }
+
+  public String getOutputTitle() {
+    return outputTitle;
+  }
+
+  public void setOutputTitle(String outputTitle) {
+    this.outputTitle = outputTitle;
+  }
+
+  public List<Page> getInputPages() {
+    return inputPages;
+  }
+
+  public void setInputPages(List<Page> otherInputFiles) {
+    this.inputPages = otherInputFiles;
+  }
+
+  public String getOutputCheckstyleFile() {
+    return outputCheckstyleFile;
+  }
+
+  public void setOutputCheckstyleFile(String outputCheckstyleFile) {
+    this.outputCheckstyleFile = outputCheckstyleFile;
+  }
 }

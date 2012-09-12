@@ -20,76 +20,75 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import scoutdoc.main.converter.finder.PositionFinder;
-
 public class PositionFinderTest {
 
-	@Test
-	public void testFindIn1() {
-		PositionFinder finder = PositionFinder.define("|", "{{", "}}");
-		Collection<Integer> expected = Arrays.<Integer>asList(
-				Integer.valueOf(5),
-				Integer.valueOf(13)
-				);
-		assertListEquals(expected, finder.indexesOf("foooo|baaaaar|baz"));
-		assertListEquals(expected, finder.indexesOf("foooo|b{{a}}r|baz"));
-		assertListEquals(expected, finder.indexesOf("f{{}}|baaaaar|baz"));
-		assertListEquals(expected, finder.indexesOf("f{{}}|b{{a}}r|baz"));
-		assertListEquals(expected, finder.indexesOf("f{{}}|{{a|x}}|baz"));
-		assertListEquals(expected, finder.indexesOf("foooo|{{a|x}}|baz{{zz{{a|b}}zzz|x}}"));
-		assertListEquals(Collections.singletonList(Integer.valueOf(3)), finder.indexesOf("foo|b{{ar|ba}}z"));
-		assertListEquals(Collections.singletonList(Integer.valueOf(3)), finder.indexesOf("foo|b{{ar|bax|x}}xxx"));
-		Collection<Integer> expected2 = Arrays.<Integer>asList(
-				Integer.valueOf(3),
-				Integer.valueOf(20)
-				);
-		assertListEquals(expected2, finder.indexesOf("foo|b{{ar|bax|e}}xxx|xx"));
-		assertListEquals(expected2, finder.indexesOf("foo|b{{ar|bax|e}}xxx|xx{{aa{{r|b}}ax|e}}"));
-	}
-	
-	@Test
-	public void testFindInSingle() {
-		singeltonFind("|foobaz");
-		singeltonFind("foobaz|");
-		singeltonFind("foo|baz");
-		singeltonFind("{{foo|baz");
-		singeltonFind("fo{{o|baz");
-		singeltonFind("}}foo|baz");
-		singeltonFind("fo}}o|baz");
-		singeltonFind("foo|baz}}");
-		singeltonFind("foo|b}}az");
-		singeltonFind("foo|baz{{");
-		singeltonFind("foo|b{{az");
-	}
+  @Test
+  public void testFindIn1() {
+    PositionFinder finder = PositionFinder.define("|", "{{", "}}");
+    Collection<Integer> expected = Arrays.<Integer> asList(
+        Integer.valueOf(5),
+        Integer.valueOf(13)
+        );
+    assertListEquals(expected, finder.indexesOf("foooo|baaaaar|baz"));
+    assertListEquals(expected, finder.indexesOf("foooo|b{{a}}r|baz"));
+    assertListEquals(expected, finder.indexesOf("f{{}}|baaaaar|baz"));
+    assertListEquals(expected, finder.indexesOf("f{{}}|b{{a}}r|baz"));
+    assertListEquals(expected, finder.indexesOf("f{{}}|{{a|x}}|baz"));
+    assertListEquals(expected, finder.indexesOf("foooo|{{a|x}}|baz{{zz{{a|b}}zzz|x}}"));
+    assertListEquals(Collections.singletonList(Integer.valueOf(3)), finder.indexesOf("foo|b{{ar|ba}}z"));
+    assertListEquals(Collections.singletonList(Integer.valueOf(3)), finder.indexesOf("foo|b{{ar|bax|x}}xxx"));
+    Collection<Integer> expected2 = Arrays.<Integer> asList(
+        Integer.valueOf(3),
+        Integer.valueOf(20)
+        );
+    assertListEquals(expected2, finder.indexesOf("foo|b{{ar|bax|e}}xxx|xx"));
+    assertListEquals(expected2, finder.indexesOf("foo|b{{ar|bax|e}}xxx|xx{{aa{{r|b}}ax|e}}"));
+  }
 
-	private void singeltonFind(String input) {
-		PositionFinder finder = PositionFinder.define("|", "{{", "}}");
-		Collection<Integer> positions = finder.indexesOf(input);
-		List<Integer> expected = Collections.singletonList(Integer.valueOf(input.indexOf("|")));
-		assertListEquals(expected, positions);
-	}
+  @Test
+  public void testFindInSingle() {
+    singeltonFind("|foobaz");
+    singeltonFind("foobaz|");
+    singeltonFind("foo|baz");
+    singeltonFind("{{foo|baz");
+    singeltonFind("fo{{o|baz");
+    singeltonFind("}}foo|baz");
+    singeltonFind("fo}}o|baz");
+    singeltonFind("foo|baz}}");
+    singeltonFind("foo|b}}az");
+    singeltonFind("foo|baz{{");
+    singeltonFind("foo|b{{az");
+  }
 
-	private static void assertListEquals(Collection<Integer> expected, Collection<Integer> actual) {
-		Assert.assertEquals("size", expected.size(), actual.size());
-		assertIteratorEquals(expected.iterator(), actual.iterator());
-	}
-	
-	private static void assertIteratorEquals(Iterator<?> iteratorExpected, Iterator<?> iteratorActual) {
-		int i = 0;
-		while (iteratorExpected.hasNext()) {
-			Object e = iteratorExpected.next();
-			if(iteratorActual.hasNext()) {
-				Object a = iteratorActual.next();
-				Assert.assertEquals("element (" + i + ")", e, a);
-			} else {
-				Assert.fail("Expected element (" + i + ") not found:"+ e);
-			}
-			i++;
-		}
-		
-		if(iteratorActual.hasNext()) {
-			Object a = iteratorActual.next();
-			Assert.fail("Additional element (" + i + ") found:"+ a);
-		}
-	}
+  private void singeltonFind(String input) {
+    PositionFinder finder = PositionFinder.define("|", "{{", "}}");
+    Collection<Integer> positions = finder.indexesOf(input);
+    List<Integer> expected = Collections.singletonList(Integer.valueOf(input.indexOf("|")));
+    assertListEquals(expected, positions);
+  }
+
+  private static void assertListEquals(Collection<Integer> expected, Collection<Integer> actual) {
+    Assert.assertEquals("size", expected.size(), actual.size());
+    assertIteratorEquals(expected.iterator(), actual.iterator());
+  }
+
+  private static void assertIteratorEquals(Iterator<?> iteratorExpected, Iterator<?> iteratorActual) {
+    int i = 0;
+    while (iteratorExpected.hasNext()) {
+      Object e = iteratorExpected.next();
+      if (iteratorActual.hasNext()) {
+        Object a = iteratorActual.next();
+        Assert.assertEquals("element (" + i + ")", e, a);
+      }
+      else {
+        Assert.fail("Expected element (" + i + ") not found:" + e);
+      }
+      i++;
+    }
+
+    if (iteratorActual.hasNext()) {
+      Object a = iteratorActual.next();
+      Assert.fail("Additional element (" + i + ") found:" + a);
+    }
+  }
 }

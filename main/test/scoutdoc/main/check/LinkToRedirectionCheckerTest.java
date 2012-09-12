@@ -22,30 +22,31 @@ import scoutdoc.main.structure.PageUtility;
 
 public class LinkToRedirectionCheckerTest {
 
-	@Test
-	public void testCheckNotMatch() {
-		TU.initProperties();
-		
-		runNotMatch(TU.PAGE_2);
-		runNotMatch(TU.RED_1);
-		runNotMatch(TU.RED_2);
-		runNotMatch(TU.RED_3);
-	}
+  @Test
+  public void testCheckNotMatch() {
+    TU.initProperties();
 
-	private void runNotMatch(Page page) {
-		List<Check> actual = new LinkToRedirectionChecker().check(page);
-		Assert.assertEquals("size", 0, actual.size());
-	}
-	@Test
-	public void testCheck() {
-		List<Check> actual = new LinkToRedirectionChecker().check(TU.PAGE_1);
-		Assert.assertEquals("size", 1, actual.size());
+    runNotMatch(TU.PAGE_2);
+    runNotMatch(TU.RED_1);
+    runNotMatch(TU.RED_2);
+    runNotMatch(TU.RED_3);
+  }
 
-		Assert.assertEquals("check file name", PageUtility.toFilePath(TU.PAGE_1), actual.get(0).getFileName());
-		Assert.assertEquals("check line", 1, actual.get(0).getLine());
-		Assert.assertEquals("check column", 1, actual.get(0).getColumn());
-		Assert.assertEquals("check message", "LINK to 'Test Red1' redirects to 'Test Red2'", actual.get(0).getMessage());
-		Assert.assertEquals("check severity", Severity.warning, actual.get(0).getSeverity());
-	}
+  private void runNotMatch(Page page) {
+    List<Check> actual = new LinkToRedirectionChecker().check(page);
+    Assert.assertEquals("size", 0, actual.size());
+  }
+
+  @Test
+  public void testCheck() {
+    List<Check> actual = new LinkToRedirectionChecker().check(TU.PAGE_1);
+    Assert.assertEquals("size", 1, actual.size());
+
+    Assert.assertEquals("check file name", PageUtility.toFilePath(TU.PAGE_1), actual.get(0).getFileName());
+    Assert.assertEquals("check line", 1, actual.get(0).getLine());
+    Assert.assertEquals("check column", 1, actual.get(0).getColumn());
+    Assert.assertEquals("check message", "LINK to 'Test Red1' redirects to 'Test Red2'", actual.get(0).getMessage());
+    Assert.assertEquals("check severity", Severity.warning, actual.get(0).getSeverity());
+  }
 
 }

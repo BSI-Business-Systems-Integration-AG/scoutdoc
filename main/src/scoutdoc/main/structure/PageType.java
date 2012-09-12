@@ -12,12 +12,12 @@
 package scoutdoc.main.structure;
 
 public enum PageType {
-	Article,
-	Category,
-	File,
-	Image,
-	Media,
-	Talk,
-	Template,
-	Template_talk
+  Article,
+  Category,
+  File,
+  Image,
+  Media,
+  Talk,
+  Template,
+  Template_talk
 }

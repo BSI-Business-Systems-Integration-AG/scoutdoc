@@ -21,38 +21,37 @@ import scoutdoc.main.mediawiki.ContentFileUtility;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageUtility;
 
-
 public class PageMapper implements PageMapping {
-	private Map<String, String> pageToHrefMap;
+  private Map<String, String> pageToHrefMap;
 
-	public PageMapper(List<ConversionItem> items) {
-		pageToHrefMap = new HashMap<String, String>();
-		
-		for (ConversionItem item : items) {
-			pageToHrefMap.put(PageUtility.toFullPageNamee(item.inputPage), item.outputFileName);
-		}
-	}
+  public PageMapper(List<ConversionItem> items) {
+    pageToHrefMap = new HashMap<String, String>();
 
-	@Override
-	public String mapPageNameToHref(String pageName) {
-		String pageNamee = PageUtility.convertToInternalName(pageName);
-		if(!pageToHrefMap.containsKey(pageNamee)) {
-			//New pageName, check if it is a redirection:
-			Page page = PageUtility.toPage(pageNamee);
-			while(page != null) {
-				String newPageNamee = PageUtility.toFullPageNamee(page);
-				if(pageToHrefMap.containsKey(newPageNamee)) {
-					String href = pageToHrefMap.get(newPageNamee);
-					pageToHrefMap.put(pageNamee, href);
-					return href;
-				}
-				page = ContentFileUtility.checkRedirection(page);
-			}
-			//Is not a redirection, but it do not exisits
-			return null;
-		}
-		//pageName already exists => return Href.
-		return pageToHrefMap.get(pageNamee);
-	}
+    for (ConversionItem item : items) {
+      pageToHrefMap.put(PageUtility.toFullPageNamee(item.inputPage), item.outputFileName);
+    }
+  }
+
+  @Override
+  public String mapPageNameToHref(String pageName) {
+    String pageNamee = PageUtility.convertToInternalName(pageName);
+    if (!pageToHrefMap.containsKey(pageNamee)) {
+      //New pageName, check if it is a redirection:
+      Page page = PageUtility.toPage(pageNamee);
+      while (page != null) {
+        String newPageNamee = PageUtility.toFullPageNamee(page);
+        if (pageToHrefMap.containsKey(newPageNamee)) {
+          String href = pageToHrefMap.get(newPageNamee);
+          pageToHrefMap.put(pageNamee, href);
+          return href;
+        }
+        page = ContentFileUtility.checkRedirection(page);
+      }
+      //Is not a redirection, but it do not exisits
+      return null;
+    }
+    //pageName already exists => return Href.
+    return pageToHrefMap.get(pageNamee);
+  }
 
 }

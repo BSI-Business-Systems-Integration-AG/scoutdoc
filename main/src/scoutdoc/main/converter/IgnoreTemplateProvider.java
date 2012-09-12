@@ -19,22 +19,22 @@ import org.eclipse.mylyn.wikitext.mediawiki.core.TemplateResolver;
 
 public class IgnoreTemplateProvider extends TemplateResolver {
 
-	private List<String> namesList;
+  private List<String> namesList;
 
-	public IgnoreTemplateProvider() {
-		this(new String[]{});
-	}
-	
-	public IgnoreTemplateProvider(String... names) {
-		namesList = Arrays.asList(names);
-	}
-	
-	@Override
-	public Template resolveTemplate(String templateName) {
-		if(namesList.contains(templateName)) {
-			return new Template(templateName, "");
-		}
-		return null;			
-	}
+  public IgnoreTemplateProvider() {
+    this(new String[]{});
+  }
+
+  public IgnoreTemplateProvider(String... names) {
+    namesList = Arrays.asList(names);
+  }
+
+  @Override
+  public Template resolveTemplate(String templateName) {
+    if (namesList.contains(templateName)) {
+      return new Template(templateName, "");
+    }
+    return null;
+  }
 
 }

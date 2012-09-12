@@ -21,33 +21,34 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
 public class FilesTemplateProvider extends TemplateResolver {
-	private static final String FILE_EXTENSION = ".mediawiki";
-	private File folder;
-	
-	public FilesTemplateProvider(File folder) {
-		super();
-		this.folder = folder;
-	}
+  private static final String FILE_EXTENSION = ".mediawiki";
+  private File folder;
 
-	@Override
-	public Template resolveTemplate(String templateName) {
-		String basicName = templateName.toLowerCase().startsWith("template:") ? templateName.substring(templateName.lastIndexOf(':') + 1) : templateName;
+  public FilesTemplateProvider(File folder) {
+    super();
+    this.folder = folder;
+  }
 
-		File file = new File(folder, basicName + FILE_EXTENSION);
-		if(file.exists()) {
-			try {
-				String content = Files.toString(file, Charsets.UTF_8);
-				
-				Template template = new Template();
-				template.setName(basicName);
-				template.setTemplateMarkup(content);
-				return template;
-				
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return null;
-	}
+  @Override
+  public Template resolveTemplate(String templateName) {
+    String basicName = templateName.toLowerCase().startsWith("template:") ? templateName.substring(templateName.lastIndexOf(':') + 1) : templateName;
+
+    File file = new File(folder, basicName + FILE_EXTENSION);
+    if (file.exists()) {
+      try {
+        String content = Files.toString(file, Charsets.UTF_8);
+
+        Template template = new Template();
+        template.setName(basicName);
+        template.setTemplateMarkup(content);
+        return template;
+
+      }
+      catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    return null;
+  }
 
 }

@@ -17,14 +17,13 @@ import org.eclipse.mylyn.wikitext.core.parser.outline.OutlineItem;
 
 import scoutdoc.main.structure.Page;
 
-
 public class ConversionItem {
-	public OutlineItem outlineItem;
-	public String outputTitle;
-	public Page inputPage;
-	public String inputContent;
-	public String outputFileName;
-	public File outputFile;
-	public boolean includeToc;
-	public boolean firstLevel;
+  public OutlineItem outlineItem;
+  public String outputTitle;
+  public Page inputPage;
+  public String inputContent;
+  public String outputFileName;
+  public File outputFile;
+  public boolean includeToc;
+  public boolean firstLevel;
 }
