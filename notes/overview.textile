@@ -99,6 +99,7 @@ usage: scoutdoc.main.Main
  -r,--rss                            (source) use the pages from the rss file
  -o,--operation <operations>         operation: FETCH, CHECK, CONVERT
  -x,--output-checkstyle <filename>   (CHECK output) create a xml checkstyle file (<filename> is optional. Default: Checkstyle.xml)
+ -d,--output-dashboard <folder>      (CHECK output) create an html dashboard (<folder> is optional. Default: dashboard)
 
 Usage examples can be found in the next section.
 
@@ -157,7 +158,9 @@ h3. Operation: CHECK
 The check tool perform some checks over the MediaWiki content.
 This allows to verify whether the content match the guideline or not.
 
-Output format: checkstyle xml.
+There is tow output possibilities:
+* Checkstyle xml: a single XML file that is more or less compatible with the official output of the "Java Checkstyle":http://checkstyle.sourceforge.net/ library. 
+* Dashboard: a collection of HTML files representing the checks in several tables (like what Hudson do with the Checkstyle result).
 
 Implemented checks:
 * Double redirection: Check if a redirection links to an other redirection (warning or error in case of circular redirection). Solution: it is better to redirect to the target page directly.
@@ -166,12 +169,15 @@ Implemented checks:
 **Check all pages:**
 
 bc. 
-scoutdoc.main.Main -o CHECK -c <config_file.properties> -p -x <filename.xml>
+scoutdoc.main.Main -o CHECK -c <config_file.properties> -p -x <filename.xml> -d <folder>
 
 With this command line you check all pages of the @wiki_src@ directory.
 * @-c <config_file.properties>@: the project properties file (optional).
 * @-p@: use the pages of the source folder to create the list of pages that are fetched.
-* @-x <filename.xml>@: the name of the output file (default: Checkstyle.xml)
+* @-x <filename.xml>@: the name of the output file for checkstyle output (default when no argument: Checkstyle.xml)
+* @-d <folder>@: the name of the output folder for dashboard output (default when no argument: dashboard)
+
+If no output is set (@-x@ or @-d@) the analyze result will be lost.
 
 
 **Check pages of a task:**
@@ -181,9 +187,11 @@ scoutdoc.main.Main -o CHECK -c <config_file.properties> -t <task.properties>
 
 With this command line you check all pages of the @wiki_src@ directory.
 * @-c <config_file.properties>@: the project properties file (optional).
-* @-t <task.properties>@: the task properties files (1..n). (It is possible to provide the name of the output file in the task with @output.check.file@)
+* @-t <task.properties>@: the task properties files (1..n). (It is possible to provide the name of the output file in the task with @output.check.file@. If not specified, there is no output for the task).
 
 The tool will check all pages of the task and their links (inclusive redirection).
+
+It is also possible to use @-x@ and @-d@ options. In this case, the checks created by the analyze of each task will be be in the output (as checkstyle result file or as dashboard).
 
 
 h3. Operation: CONVERT

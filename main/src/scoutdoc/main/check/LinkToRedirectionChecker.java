@@ -45,7 +45,9 @@ public class LinkToRedirectionChecker implements IChecker {
 			Page redirection = ContentFileUtility.checkRedirection(link, true);
 			if(redirection != null) {
 				Check check = new Check();
+				check.setType("Link to redirection");
 				check.setFileName(PageUtility.toFilePath(page));
+				check.setPage(page);
 				check.setLine(1);
 				check.setColumn(1);
 				check.setSeverity(Severity.warning);

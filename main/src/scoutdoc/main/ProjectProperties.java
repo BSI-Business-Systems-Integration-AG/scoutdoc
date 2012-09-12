@@ -25,6 +25,7 @@ public class ProjectProperties {
 	private static final String PROP_FOLDER_WIKI_SOURCE = "folder.wiki.source";
 	private static final String PROP_FOLDER_WIKI_DIST = "folder.wiki.dist";
 	private static final String PROP_FOLDER_NAV_IMG_SOURCE = "folder.navigation.images.source";
+	private static final String PROP_FOLDER_DASHBOARD_CONTENT = "folder.dashboard.content";
 	private static final String PROP_REL_PATH_NAV_IMG_DIST = "relative.path.images.dist";
 	private static final String PROP_WIKI_API_URL = "wiki.api.url";
 	private static final String PROP_WIKI_INDEX_URL = "wiki.index.url";
@@ -35,6 +36,7 @@ public class ProjectProperties {
 	private static String folderWikiSource = "wiki_source";
 	private static String folderWikiDist = "wiki_dist";
 	private static String folderNavImagesSource = "nav_images";
+	private static String folderDashboardContent = "dashboard_content";
 	private static String relPathNavImagesDist = "../../Images";
 	private static String wikiServerUrl = "http://wiki.eclipse.org";
 	private static String wikiServerInternalLinkPattern = wikiServerUrl+ "/{0}";
@@ -65,6 +67,9 @@ public class ProjectProperties {
 	        }
 	        if (properties.containsKey(PROP_FOLDER_NAV_IMG_SOURCE)) {
 	        	folderNavImagesSource = (String) properties.get(PROP_FOLDER_NAV_IMG_SOURCE);
+	        }
+	        if (properties.containsKey(PROP_FOLDER_DASHBOARD_CONTENT)) {
+	        	folderDashboardContent = (String) properties.get(PROP_FOLDER_DASHBOARD_CONTENT);
 	        }
 	        if (properties.containsKey(PROP_REL_PATH_NAV_IMG_DIST)) {
 	        	relPathNavImagesDist = (String) properties.get(PROP_REL_PATH_NAV_IMG_DIST);
@@ -104,6 +109,10 @@ public class ProjectProperties {
 
 	public static String getFolderNavImagesSource() {
 		return folderNavImagesSource;
+	}
+	
+	public static String getFolderDashboardContent() {
+		return folderDashboardContent;
 	}
 	
 	public static String getRelPathNavImagesDist() {

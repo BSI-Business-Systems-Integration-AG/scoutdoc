@@ -16,9 +16,11 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import scoutdoc.main.check.dashboard.DashboardWriter;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.RelatedPagesStrategy;
 import scoutdoc.main.structure.Task;
@@ -28,15 +30,20 @@ import scoutdoc.main.structure.Task;
  */
 public class ScoutDocCheck {
 
-	public void execute(Task t) {
+	public List<Check> execute(Task t) {
 		HashSet<Page> pages = new HashSet<Page>();
 		for (Page page : t.getInputPages()) {
 			pages.addAll(RelatedPagesStrategy.findRelatedPages(page, RelatedPagesStrategy.IMAGES_TEMPLATES_AND_LINKS));
 		}
-		execute(pages, t.getOutputCheckFile());
+		List<Check> list = analysePages(pages);
+		String checkstyleFileName = t.getOutputCheckstyleFile();
+		if(checkstyleFileName != null && !checkstyleFileName.isEmpty()) {
+			writeCheckstyleFile(list, checkstyleFileName);
+		}
+		return list;
 	}
 
-	public void execute(Collection<Page> pages, String fileName) {
+	public List<Check> analysePages(Collection<Page> pages) {
 		List<Check> list = new ArrayList<Check>();
 		
 		List<IChecker> checkers = Arrays.asList(
@@ -49,7 +56,10 @@ public class ScoutDocCheck {
 				list.addAll(c.check(page));
 			}
 		}
-
+		return Collections.unmodifiableList(list);
+	}
+	
+	public void writeCheckstyleFile(List<Check> list, String fileName) {
 		PrintWriter pw = null;
 		try {
 			String f;
@@ -59,13 +69,21 @@ public class ScoutDocCheck {
 				f = fileName;
 			}
 			pw = new PrintWriter(f);
-			Writer.write(list, pw);
+			CheckstyleFileWriter.write(list, pw);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
 			if(pw !=null) {
 				pw.close();				
 			}
+		}
+	}
+	
+	public void writeDashboardFiles(List<Check> list, String dashboardName) {
+		try {
+			new DashboardWriter().write(list, dashboardName);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 

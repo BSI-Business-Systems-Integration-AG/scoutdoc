@@ -23,12 +23,12 @@ import org.junit.Test;
 
 import scoutdoc.main.check.Check;
 import scoutdoc.main.check.Severity;
-import scoutdoc.main.check.Writer;
+import scoutdoc.main.check.CheckstyleFileWriter;
 
 /**
- * Tests for {@link Writer}
+ * Tests for {@link CheckstyleFileWriter}
  */
-public class WriterTest {
+public class CheckstyleFileWriterTest {
 	private static final String FILE_1 = "C:/my_file.txt";
 	private static final String FILE_2 = "C:/my_file2.txt";
 	private static final String MESSAGE_1 = "This is the message";
@@ -159,7 +159,7 @@ public class WriterTest {
 	private StringWriter runWrite(List<Check> list) {
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
-		Writer.write(list, pw);
+		CheckstyleFileWriter.write(list, pw);
 		return sw;
 	}
 	

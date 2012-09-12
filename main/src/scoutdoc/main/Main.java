@@ -28,6 +28,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
+import scoutdoc.main.check.Check;
 import scoutdoc.main.check.ScoutDocCheck;
 import scoutdoc.main.converter.ScoutDocConverter;
 import scoutdoc.main.fetch.ScoutDocFetch;
@@ -38,11 +39,14 @@ import scoutdoc.main.structure.Task;
 import scoutdoc.main.structure.TaskUtility;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 
 public class Main {
 
 	private static final String DEFAULT_CHECKSTYLE_NAME = "Checkstyle.xml";
+	private static final String DEFAULT_DASHBOARD_NAME = "dashboard";
 	private static final String HELP_ID = "h";
 	private static final String PROP_ID = "c";
 	private static final String SOURCE_TASKS_ID = "t";
@@ -51,6 +55,7 @@ public class Main {
 	private static final String SOURCE_RSS_ID = "r";
 	private static final String OPERATION_ID = "o";
 	private static final String OUTPUT_CHECKSTYLE_ID = "x";
+	private static final String OUTPUT_DASHBOARD_ID = "d";
 
 	/**
 	 * @param args
@@ -92,12 +97,16 @@ public class Main {
 		Option optOutputCheckstyle = new Option(OUTPUT_CHECKSTYLE_ID, "output-checkstyle", true, "(CHECK output) create a xml checkstyle file (<filename> is optional. Default: "+ DEFAULT_CHECKSTYLE_NAME + ")");
 		optOutputCheckstyle.setArgName("filename");
 		
+		Option optOutputDashboard = new Option(OUTPUT_DASHBOARD_ID, "output-dashboard", true, "(CHECK output) create an html dashboard (<folder> is optional. Default: "+ DEFAULT_DASHBOARD_NAME + ")");
+		optOutputDashboard.setArgName("folder");
+		
 		Options options = new Options();
 		options.addOption(optHelp);
 		options.addOption(optProp);
 		options.addOptionGroup(sourceGroup);
 		options.addOption(optOperation);
 		options.addOption(optOutputCheckstyle);
+		options.addOption(optOutputDashboard);
 
 		try {
 			CommandLineParser parser = new GnuParser();
@@ -154,19 +163,28 @@ public class Main {
 			}
 			
 			if(operations.contains(Operation.CHECK)) {
+				ScoutDocCheck sdc = new ScoutDocCheck();
+				List<Check> checks = Lists.newArrayList();
 				if(cmd.hasOption(SOURCE_RSS_ID)) {
 					throw new MissingArgumentException("Source <"+optRss.getLongOpt()+"> is not allowed for the <CHECK> operation.");
 				} else if(pages.size() > 0) {
-					ScoutDocCheck sdc = new ScoutDocCheck();
-					String fileName = cmd.getOptionValue(OUTPUT_CHECKSTYLE_ID, DEFAULT_CHECKSTYLE_NAME);
-					sdc.execute(pages, fileName);
+					checks = sdc.analysePages(pages);
 				} else if(tasks.size() > 0) {
 					for (Task task : tasks) {
-						ScoutDocCheck sdc = new ScoutDocCheck();
-						sdc.execute(task);
+						ScoutDocCheck sdcForTask = new ScoutDocCheck();
+						checks.addAll(sdcForTask.execute(task));
 					}
 				} else {
 					throw new MissingArgumentException("Missing a source");
+				}
+				//output:
+				if(cmd.hasOption(OUTPUT_CHECKSTYLE_ID)) {
+					String fileName = cmd.getOptionValue(OUTPUT_CHECKSTYLE_ID, DEFAULT_CHECKSTYLE_NAME);
+					sdc.writeCheckstyleFile(checks, fileName);
+				}
+				if(cmd.hasOption(OUTPUT_DASHBOARD_ID)) {
+					String folderName = cmd.getOptionValue(OUTPUT_DASHBOARD_ID, DEFAULT_DASHBOARD_NAME);
+					sdc.writeDashboardFiles(checks, folderName);
 				}
 			}
 			
@@ -252,34 +270,19 @@ public class Main {
 			
 			@Override
 			public int compare(Option opt1, Option opt2) {
-				String key1 = opt1.getOpt();
-				String key2 = opt2.getOpt();
-				int r = 0;
-				r = compare(r, HELP_ID, key1, key2);
-				r = compare(r, PROP_ID, key1, key2);
-				r = compare(r, SOURCE_TASKS_ID, key1, key2);
-				r = compare(r, SOURCE_ALL_PAGES_ID, key1, key2);
-				r = compare(r, SOURCE_LIST_ID, key1, key2);
-				r = compare(r, SOURCE_RSS_ID, key1, key2);
-				r = compare(r, OPERATION_ID, key1, key2);
-				r = compare(r, OUTPUT_CHECKSTYLE_ID, key1, key2);
-				return r;
+				return ComparisonChain.start()
+				.compare(opt1.getOpt(), opt2.getOpt(), Ordering.explicit(
+						HELP_ID,
+						PROP_ID,
+						SOURCE_TASKS_ID,
+						SOURCE_ALL_PAGES_ID,
+						SOURCE_LIST_ID,
+						SOURCE_RSS_ID,
+						OPERATION_ID,
+						OUTPUT_CHECKSTYLE_ID,
+						OUTPUT_DASHBOARD_ID
+				)).result();
 			}
-
-			private int compare(int r, String id, String key1, String key2) {
-				if(r != 0) {
-					return r;
-				} else if(key1.equals(key2)) {
-					return 0;
-				} else if(id.equals(key1)) {
-					return -1;
-				} else if(id.equals(key2)) {
-					return 1;
-				} else {
-					return 0;
-				}
-			}
-			
 		});
 		helpFormatter.printHelp("scoutdoc.main.Main", options);
 		System.exit(1);

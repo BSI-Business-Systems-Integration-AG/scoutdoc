@@ -47,7 +47,7 @@ public class TaskUtility {
 			} else if(PROP_OUTPUT_TOC_FILE.equals(key)) {
 				t.setOutputTocFile(value);
 			} else if(PROP_OUTPUT_CHECK_FILE.equals(key)) {
-				t.setOutputCheckFile(value);
+				t.setOutputCheckstyleFile(value);
 			} else if(key.startsWith(PAGES_PREFIX)) {
 				pages.put(key, PageUtility.toPage(value));
 			} else {
@@ -64,7 +64,7 @@ public class TaskUtility {
 		addToProperties(properties, PROP_OUTPUT_FOLDER, task.getOutputFolder());
 		addToProperties(properties, PROP_OUTPUT_TITLE, task.getOutputTitle());
 		addToProperties(properties, PROP_OUTPUT_TOC_FILE, task.getOutputTocFile());
-		addToProperties(properties, PROP_OUTPUT_CHECK_FILE, task.getOutputCheckFile());
+		addToProperties(properties, PROP_OUTPUT_CHECK_FILE, task.getOutputCheckstyleFile());
 		
 		int i = 1;
 		for (Page p : task.getInputPages()) {

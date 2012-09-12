@@ -1,0 +1,42 @@
+h1, p, td, th {
+	font-family: arial;
+}
+table {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	width: 100%;
+	background-color: #bbb;
+}
+td, th {
+	padding: 2px;
+	font-size: 0.8em;
+}
+th {
+	background-color: #f0f0f0;
+	text-align: left;
+}
+td {
+	background-color: #FFF;
+}
+a:hover {
+	color: red;
+}
+a.view, a.history, a.edit {
+	padding-left: 20px;
+	padding-top: 1px;
+	padding-bottom: 1px;
+	padding-right: 2px;
+	background-repeat: no-repeat;
+}
+a.history {
+	background-image: url(history.gif);
+}
+
+a.edit {
+	background-image: url(edit.gif);
+}
+
+a.view {
+	background-image: url(view.gif);
+}
+

@@ -52,7 +52,7 @@ public class RedirectionCheckerTest {
 		Assert.assertEquals("check file name", PageUtility.toFilePath(page), actual.get(0).getFileName());
 		Assert.assertEquals("check line", 1, actual.get(0).getLine());
 		Assert.assertEquals("check column", 1, actual.get(0).getColumn());
-		Assert.assertEquals("check message", "DOUBLE REDIRECTION: 'Test Red1' => 'Test Red2' => 'Test Page2'", actual.get(0).getMessage());
+		Assert.assertEquals("check message", "MULTIPLE REDIRECTION: 'Test Red1' => 'Test Red2' => 'Test Page2'", actual.get(0).getMessage());
 		Assert.assertEquals("check severity", Severity.warning, actual.get(0).getSeverity());
 	}
 	

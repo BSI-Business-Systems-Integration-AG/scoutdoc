@@ -15,11 +15,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-
 @RunWith(Suite.class)
 @SuiteClasses({
 	scoutdoc.main.check.RedirectionCheckerTest.class,
-	scoutdoc.main.check.WriterTest.class,
+	scoutdoc.main.check.CheckstyleFileWriterTest.class,
+	scoutdoc.main.check.dashboard.OutputElementComparatorTest.class,
 	scoutdoc.main.converter.PageMapperTest.class,
 	scoutdoc.main.converter.TemplateProcessorExtTest.class,
 	scoutdoc.main.converter.finder.PositionFinderTest.class,

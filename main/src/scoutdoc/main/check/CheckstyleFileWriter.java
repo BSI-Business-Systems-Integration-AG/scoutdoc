@@ -22,7 +22,7 @@ import com.google.common.collect.Multimap;
 /**
  * Write list of Check into a PrintWriter
  */
-public class Writer {
+public class CheckstyleFileWriter {
 	private static final String XML_VERSION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 	private static final String CHECKSTYLE_OPEN = "<checkstyle version=\"5.5\">";
 	private static final String CHECKSTYLE_CLOSE = "</checkstyle>";

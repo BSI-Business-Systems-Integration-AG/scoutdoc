@@ -57,6 +57,7 @@
         	<arg value="--operation"/><arg value="CHECK"/>
         	<arg value="--pages"/>
         	<arg value="--output-checkstyle"/><arg value="Checkstyle-all.xml"/>
+        	<arg value="--output-dashboard"/><arg value="dashboard-all"/>
             <classpath refid="main.classpath"/>
         </java>
     </target>

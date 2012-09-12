@@ -28,7 +28,7 @@ public class TaskUtilityTest {
 		t.setOutputFolder("html/folder/test");
 		t.setOutputTocFile("test_toc.xml");
 		t.setOutputTitle("Test Title");
-		t.setOutputCheckFile("My-checkstyle-file.xml");
+		t.setOutputCheckstyleFile("My-checkstyle-file.xml");
 		t.setInputPages(Arrays.<Page>asList(
 				PageUtility.toPage("Name/OfPage/3.7/in_the_wiki1"),
 				PageUtility.toPage("Name/OfPage/3.7/in_the_wiki2"),
@@ -47,7 +47,7 @@ public class TaskUtilityTest {
 		assertEquals("OutputFolder", expected.getOutputFolder(), actual.getOutputFolder());
 		assertEquals("OutputTitle", expected.getOutputTitle(), actual.getOutputTitle());
 		assertEquals("OutputTocFile", expected.getOutputTocFile(), actual.getOutputTocFile());
-		assertEquals("OutputCheckFile", expected.getOutputCheckFile(), actual.getOutputCheckFile());
+		assertEquals("OutputCheckFile", expected.getOutputCheckstyleFile(), actual.getOutputCheckstyleFile());
 		
 		assertEquals("InputPages().size()", expected.getInputPages().size(), expected.getInputPages().size());
 		
