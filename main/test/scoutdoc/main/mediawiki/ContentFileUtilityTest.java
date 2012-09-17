@@ -1,9 +1,21 @@
+/*******************************************************************************
+ * Copyright (c) 2012 BSI Business Systems Integration AG.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     BSI Business Systems Integration AG - initial API and implementation
+ ******************************************************************************/
+
 package scoutdoc.main.mediawiki;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 
+import scoutdoc.main.ProjectProperties;
 import scoutdoc.main.TU;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageType;
@@ -23,6 +35,8 @@ public class ContentFileUtilityTest {
     Page page1 = TU.createPage(PageType.Article, "Page1");
     TU.assertPageEquals(page1, ContentFileUtility.checkRedirection("#REDIRECT [[Page1]]"));
     TU.assertPageEquals(page1, ContentFileUtility.checkRedirection("#REDIRECT [[Page1]]\n"));
+    TU.assertPageEquals(page1, ContentFileUtility.checkRedirection("#REDIRECT[[Page1]]"));
+    TU.assertPageEquals(page1, ContentFileUtility.checkRedirection("#REDIRECT[[Page1]]\n"));
 
     Page myPage = TU.createPage(PageType.Article, "My_Page");
     TU.assertPageEquals(myPage, ContentFileUtility.checkRedirection("#REDIRECT [[My Page]]"));
@@ -37,6 +51,21 @@ public class ContentFileUtilityTest {
     Page category = TU.createPage(PageType.Category, "MyCategory");
     TU.assertPageEquals(category, ContentFileUtility.checkRedirection("#REDIRECT [[:Category:MyCategory]]"));
     TU.assertPageEquals(category, ContentFileUtility.checkRedirection("#REDIRECT [[:Category:MyCategory]]\n"));
+  }
+
+  @Test
+  public void testCheckRedirectionStringWithCustomPrefix() {
+    TU.initProperties();
+
+    //Precondition:
+    Assert.assertTrue(ProjectProperties.getMediaWikiConfiguration().getRedirectionPrefixes().contains("#CUSTOM_REDIRECTION"));
+
+    //Test:
+    Page page = TU.createPage(PageType.Article, "ThisPage");
+    TU.assertPageEquals(page, ContentFileUtility.checkRedirection("#CUSTOM_REDIRECTION [[ThisPage]]"));
+    TU.assertPageEquals(page, ContentFileUtility.checkRedirection("#CUSTOM_REDIRECTION [[ThisPage]]\n"));
+    TU.assertPageEquals(page, ContentFileUtility.checkRedirection("#CUSTOM_REDIRECTION[[ThisPage]]"));
+    TU.assertPageEquals(page, ContentFileUtility.checkRedirection("#CUSTOM_REDIRECTION[[ThisPage]]\n"));
   }
 
   @Test

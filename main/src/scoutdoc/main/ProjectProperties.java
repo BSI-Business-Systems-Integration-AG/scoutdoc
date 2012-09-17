@@ -15,6 +15,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import scoutdoc.main.mediawiki.DefaultMediaWikiConfiguration;
+import scoutdoc.main.mediawiki.IMediaWikiConfiguration;
+
 public class ProjectProperties {
   public static final String IMAGE_NEXT = "next.gif";
   public static final String IMAGE_HOME = "home.gif";
@@ -31,6 +34,7 @@ public class ProjectProperties {
   private static final String PROP_WIKI_INDEX_URL = "wiki.index.url";
   private static final String PROP_WIKI_SERVER_URL = "wiki.server.url";
   private static final String PROP_WIKI_SERVER_INTERNAL_LINK_PATTERN = "wiki.server.internal.link.pattern";
+  private static final String PROP_WIKI_CONFIG = "wiki.configuration.class";
 
   private static String fileSeparator = System.getProperty("file.separator");
   private static String folderWikiSource = "wiki_source";
@@ -42,6 +46,7 @@ public class ProjectProperties {
   private static String wikiServerInternalLinkPattern = wikiServerUrl + "/{0}";
   private static String wikiIndexUrl = wikiServerUrl + "/index.php";
   private static String wikiApiUrl = wikiServerUrl + "/api.php";
+  private static IMediaWikiConfiguration mediaWikiConfiguration = new DefaultMediaWikiConfiguration();
 
   public static void initProperties(String filename) {
     Properties properties = new Properties();
@@ -61,6 +66,26 @@ public class ProjectProperties {
       }
       if (properties.containsKey(PROP_WIKI_API_URL)) {
         wikiApiUrl = (String) properties.get(PROP_WIKI_API_URL);
+      }
+      if (properties.containsKey(PROP_WIKI_CONFIG)) {
+        String className = (String) properties.get(PROP_WIKI_CONFIG);
+        Class<?> cls;
+        try {
+          cls = Class.forName(className);
+          mediaWikiConfiguration = (IMediaWikiConfiguration) cls.newInstance();
+        }
+        catch (ClassNotFoundException e) {
+          e.printStackTrace();
+          mediaWikiConfiguration = new DefaultMediaWikiConfiguration();
+        }
+        catch (InstantiationException e) {
+          e.printStackTrace();
+          mediaWikiConfiguration = new DefaultMediaWikiConfiguration();
+        }
+        catch (IllegalAccessException e) {
+          e.printStackTrace();
+          mediaWikiConfiguration = new DefaultMediaWikiConfiguration();
+        }
       }
       if (properties.containsKey(PROP_FOLDER_WIKI_DIST)) {
         folderWikiDist = (String) properties.get(PROP_FOLDER_WIKI_DIST);
@@ -118,5 +143,9 @@ public class ProjectProperties {
 
   public static String getRelPathNavImagesDist() {
     return relPathNavImagesDist;
+  }
+
+  public static IMediaWikiConfiguration getMediaWikiConfiguration() {
+    return mediaWikiConfiguration;
   }
 }
