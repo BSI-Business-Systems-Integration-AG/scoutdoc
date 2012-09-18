@@ -104,9 +104,10 @@ public class RelatedPagesStrategyTest {
     TU.initProperties();
 
     pages = RelatedPagesStrategy.findRelatedPages(TU.PAGE_1, RelatedPagesStrategy.ALL);
-    Assert.assertEquals("size", 12, pages.size());
+    Assert.assertEquals("size", 13, pages.size());
     TU.assertPageIsContained(TU.CAT_1, pages);
     TU.assertPageIsContained(TU.CAT_2, pages);
+    TU.assertPageIsContained(TU.CAT_ROOT, pages);
     TU.assertPageIsContained(TU.IMG_1, pages);
     TU.assertPageIsContained(TU.IMG_2, pages);
     TU.assertPageIsContained(TU.IMG_3, pages);
@@ -119,8 +120,9 @@ public class RelatedPagesStrategyTest {
     TU.assertPageIsContained(TU.TMP_3, pages);
 
     pages = RelatedPagesStrategy.findRelatedPages(TU.RED_1, RelatedPagesStrategy.ALL);
-    Assert.assertEquals("size", 7, pages.size());
+    Assert.assertEquals("size", 8, pages.size());
     TU.assertPageIsContained(TU.CAT_1, pages);
+    TU.assertPageIsContained(TU.CAT_ROOT, pages);
     TU.assertPageIsContained(TU.IMG_1, pages);
     TU.assertPageIsContained(TU.IMG_2, pages);
     TU.assertPageIsContained(TU.IMG_3, pages);

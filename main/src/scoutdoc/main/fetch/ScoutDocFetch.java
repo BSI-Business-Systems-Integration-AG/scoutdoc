@@ -102,8 +102,7 @@ public class ScoutDocFetch {
 
   private static void downloadPage(Page page) {
     try {
-      String filePath = PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_META);
-      long lastRevisionId = ApiFileUtility.readRevisionId(new File(filePath));
+      long lastRevisionId = ApiFileUtility.readRevisionId(PageUtility.toApiFile(page));
       File apiFile = downloadApiPage(page, lastRevisionId);
       if (apiFile != null) {
         downloadMediaWikiPage(page);
@@ -160,7 +159,7 @@ public class ScoutDocFetch {
     }
     content = prettyFormat(content);
 
-    File file = new File(PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_META));
+    File file = PageUtility.toApiFile(page);
     writeContentToFile(file, content);
 
     if (PageUtility.isImage(page)) {

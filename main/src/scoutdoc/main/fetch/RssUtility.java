@@ -27,6 +27,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 import scoutdoc.main.ProjectProperties;
+import scoutdoc.main.eclipsescout.ScoutPages;
 import scoutdoc.main.mediawiki.ApiFileUtility;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageUtility;
@@ -109,7 +110,7 @@ public class RssUtility {
     if (PageUtility.exists(page)) {
       return page;
     }
-    if (page.getName().contains("Scout") || page.getName().contains("scout")) {
+    else if (ScoutPages.isScoutPage(page)) {
       return page;
     }
     return null;

@@ -124,9 +124,7 @@ public class PageUtilityTest {
     String contentFilePath = PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_CONTENT);
     File contentFile = new File(contentFilePath);
     Assert.assertEquals(page, PageUtility.toPage(contentFile));
-
-    String apiFilePath = PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_META);
-    File apiFile = new File(apiFilePath);
+    File apiFile = PageUtility.toApiFile(page);
     Assert.assertEquals(page, PageUtility.toPage(apiFile));
   }
 
@@ -146,9 +144,10 @@ public class PageUtilityTest {
   public void testLoadPages() throws Exception {
     TU.initProperties();
     List<Page> pages1 = PageUtility.loadPages(new File(ProjectProperties.getFolderWikiSource()));
-    Assert.assertEquals("size", 18, pages1.size());
+    Assert.assertEquals("size", 19, pages1.size());
     TU.assertPageIsContained(TU.CAT_1, pages1);
     TU.assertPageIsContained(TU.CAT_2, pages1);
+    TU.assertPageIsContained(TU.CAT_ROOT, pages1);
     TU.assertPageIsContained(TU.IMG_1, pages1);
     TU.assertPageIsContained(TU.IMG_2, pages1);
     TU.assertPageIsContained(TU.IMG_3, pages1);
@@ -167,16 +166,19 @@ public class PageUtilityTest {
     TU.assertPageIsContained(TU.TMP_3, pages1);
 
     List<Page> pages2 = PageUtility.loadPages(new File(ProjectProperties.getFolderWikiSource(), "Category"));
-    Assert.assertEquals("size", 2, pages2.size());
+    Assert.assertEquals("size", 3, pages2.size());
     TU.assertPageIsContained(TU.CAT_1, pages2);
     TU.assertPageIsContained(TU.CAT_2, pages2);
+    TU.assertPageIsContained(TU.CAT_ROOT, pages2);
   }
 
+  @Test
   public void testExists() throws Exception {
     TU.initProperties();
 
     Assert.assertEquals(true, PageUtility.exists(TU.CAT_1));
     Assert.assertEquals(true, PageUtility.exists(TU.CAT_2));
+    Assert.assertEquals(true, PageUtility.exists(TU.CAT_ROOT));
     Assert.assertEquals(true, PageUtility.exists(TU.IMG_1));
     Assert.assertEquals(true, PageUtility.exists(TU.IMG_2));
     Assert.assertEquals(true, PageUtility.exists(TU.IMG_3));

@@ -115,6 +115,10 @@ public class PageUtility {
     }
   }
 
+  public static File toApiFile(Page page) {
+    return new File(toFilePath(page, ProjectProperties.FILE_EXTENTION_META));
+  }
+
   public static Page /*page*/toPage(String fullPageName) {
     String fullPageNamee = convertToInternalName(fullPageName);
 

@@ -124,7 +124,7 @@ public class ScoutDocConverter {
         }
       }
 
-      File apiFile = new File(PageUtility.toFilePath(item.inputPage, ProjectProperties.FILE_EXTENTION_META));
+      File apiFile = PageUtility.toApiFile(item.inputPage);
       Collection<Page> images = ApiFileUtility.parseImages(apiFile);
 
       File toFolder = computeImagesFolder(t);

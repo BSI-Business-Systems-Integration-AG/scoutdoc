@@ -16,7 +16,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
-import scoutdoc.main.ProjectProperties;
 import scoutdoc.main.mediawiki.ApiFileUtility;
 import scoutdoc.main.mediawiki.ContentFileUtility;
 
@@ -30,14 +29,14 @@ public enum RelatedPagesStrategy {
   IMAGES_AND_TEMPLATES {
     @Override
     public Collection<Page> findNextRelatedPages(Page page, boolean mainPage) {
-      File apiFile = new File(PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_META));
+      File apiFile = PageUtility.toApiFile(page);
       return ApiFileUtility.parseContent(apiFile, ApiFileUtility.IMAGES_AND_TEMPLATES);
     }
   },
   IMAGES_TEMPLATES_AND_LINKS {
     @Override
     public Collection<Page> findNextRelatedPages(Page page, boolean mainPage) {
-      File apiFile = new File(PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_META));
+      File apiFile = PageUtility.toApiFile(page);
       if (mainPage || ContentFileUtility.checkRedirection(page) != null) {
         return ApiFileUtility.parseContent(apiFile, ApiFileUtility.IMAGES_TEMPLATES_AND_LINKS);
       }
@@ -46,10 +45,22 @@ public enum RelatedPagesStrategy {
       }
     }
   },
+  CATEGORIES_IMAGES_TEMPLATES_AND_LINKS {
+    @Override
+    public Collection<Page> findNextRelatedPages(Page page, boolean mainPage) {
+      File apiFile = PageUtility.toApiFile(page);
+      if (mainPage || ContentFileUtility.checkRedirection(page) != null) {
+        return ApiFileUtility.parseContent(apiFile, ApiFileUtility.ALL);
+      }
+      else {
+        return ApiFileUtility.parseContent(apiFile, ApiFileUtility.CATEGORIES_IMAGES_AND_TEMPLATES);
+      }
+    }
+  },
   ALL {
     @Override
     public Collection<Page> findNextRelatedPages(Page page, boolean mainPage) {
-      File apiFile = new File(PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_META));
+      File apiFile = PageUtility.toApiFile(page);
       return ApiFileUtility.parseContent(apiFile, ApiFileUtility.ALL);
     }
   };

@@ -19,6 +19,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
     scoutdoc.main.check.RedirectionCheckerTest.class,
     scoutdoc.main.check.CheckstyleFileWriterTest.class,
+    scoutdoc.main.check.LinkToRedirectionCheckerTest.class,
+    scoutdoc.main.check.RedirectionCheckerTest.class,
     scoutdoc.main.check.dashboard.OutputElementComparatorTest.class,
     scoutdoc.main.converter.PageMapperTest.class,
     scoutdoc.main.converter.TemplateProcessorExtTest.class,

@@ -19,7 +19,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import scoutdoc.main.ProjectProperties;
 import scoutdoc.main.TU;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageUtility;
@@ -92,12 +91,19 @@ public class ApiFileUtilityTest {
     Assert.assertEquals("values size", 0, values2.size());
   }
 
+  @Test
+  public void testIsParentCategory() throws Exception {
+    Assert.assertEquals("CAT1 is parent from CAT2", true, ApiFileUtility.isParentCategory(TU.CAT_2, TU.CAT_1));
+    Assert.assertEquals("CAT2 is parent from CAT1", false, ApiFileUtility.isParentCategory(TU.CAT_1, TU.CAT_2));
+    Assert.assertEquals("ROOT is parent from CAT2", true, ApiFileUtility.isParentCategory(TU.CAT_2, TU.CAT_ROOT));
+    Assert.assertEquals("CAT2 is parent from ROOT", false, ApiFileUtility.isParentCategory(TU.CAT_ROOT, TU.CAT_2));
+    Assert.assertEquals("CAT1 is parent from CAT1", false, ApiFileUtility.isParentCategory(TU.CAT_1, TU.CAT_1));
+  }
+
   private File initAndGetApiFile() {
     TU.initProperties();
-    Page page = PageUtility.toPage("Test_Page1");
-    String filePath = PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_META);
-    File file = new File(filePath);
-    return file;
+    Page page = TU.PAGE_1;
+    return PageUtility.toApiFile(page);
   }
 
 }

@@ -9,10 +9,12 @@
  *     BSI Business Systems Integration AG - initial API and implementation
  ******************************************************************************/
 
-package scoutdoc.main.mediawiki;
+package scoutdoc.main;
 
 import java.util.Arrays;
 import java.util.List;
+
+import scoutdoc.main.mediawiki.IMediaWikiConfiguration;
 
 /**
  * {@link IMediaWikiConfiguration} implementation for tests.

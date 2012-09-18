@@ -27,6 +27,11 @@ import com.google.common.base.Joiner;
 public class RedirectionChecker implements IChecker {
 
   @Override
+  public boolean shouldCheck(Page page) {
+    return true;
+  }
+
+  @Override
   public List<Check> check(Page page) {
     Page firstRedirection = ContentFileUtility.checkRedirection(page, true);
     if (firstRedirection != null) {
@@ -63,7 +68,6 @@ public class RedirectionChecker implements IChecker {
         check.setSeverity(Severity.warning);
         check.setMessage("MULTIPLE REDIRECTION: " + getRedirectionsPath(redirections));
         return Collections.singletonList(check);
-
       }
     }
     return Collections.emptyList();

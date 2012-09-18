@@ -3,8 +3,11 @@
   <query>
     <pages>
       <page pageid="136" ns="14" title="Category:Test_Cat2">
+        <categories>
+          <cl ns="14" title="Category:Test_Cat1"/>
+        </categories>
         <revisions>
-          <rev revid="248" parentid="0" user="Admin" timestamp="2012-08-10T17:00:32Z" comment="Created page with &quot;Zi abuni kizinda ite, mon lindi meseda mi, jesio manze si iso. Ipe zina ninna umidi di, kora imaji royale pe men, hu coni alkohol sen. Vi duna dite ino. Mendi mandi dilakada uci zn.&quot;"/>
+          <rev revid="264" parentid="248" user="Admin" timestamp="2012-08-31T05:08:31Z" comment=""/>
         </revisions>
       </page>
     </pages>

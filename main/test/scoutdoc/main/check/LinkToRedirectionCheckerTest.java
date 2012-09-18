@@ -42,11 +42,13 @@ public class LinkToRedirectionCheckerTest {
     List<Check> actual = new LinkToRedirectionChecker().check(TU.PAGE_1);
     Assert.assertEquals("size", 1, actual.size());
 
+    Assert.assertEquals("check type", "Link to redirection", actual.get(0).getType());
     Assert.assertEquals("check file name", PageUtility.toFilePath(TU.PAGE_1), actual.get(0).getFileName());
+    Assert.assertEquals("check page", TU.PAGE_1, actual.get(0).getPage());
     Assert.assertEquals("check line", 1, actual.get(0).getLine());
     Assert.assertEquals("check column", 1, actual.get(0).getColumn());
     Assert.assertEquals("check message", "LINK to 'Test Red1' redirects to 'Test Red2'", actual.get(0).getMessage());
-    Assert.assertEquals("check severity", Severity.warning, actual.get(0).getSeverity());
+    Assert.assertEquals("check severity", Severity.info, actual.get(0).getSeverity());
   }
 
 }

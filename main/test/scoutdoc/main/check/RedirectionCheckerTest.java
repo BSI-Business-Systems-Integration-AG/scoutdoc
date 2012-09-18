@@ -48,7 +48,9 @@ public class RedirectionCheckerTest {
     List<Check> actual = new RedirectionChecker().check(page);
     Assert.assertEquals("size", 1, actual.size());
 
+    Assert.assertEquals("check type", "Multiple redirection", actual.get(0).getType());
     Assert.assertEquals("check file name", PageUtility.toFilePath(page), actual.get(0).getFileName());
+    Assert.assertEquals("check page", page, actual.get(0).getPage());
     Assert.assertEquals("check line", 1, actual.get(0).getLine());
     Assert.assertEquals("check column", 1, actual.get(0).getColumn());
     Assert.assertEquals("check message", "MULTIPLE REDIRECTION: 'Test Red1' => 'Test Red2' => 'Test Page2'", actual.get(0).getMessage());
@@ -74,7 +76,9 @@ public class RedirectionCheckerTest {
     List<Check> actual = new RedirectionChecker().check(page);
     Assert.assertEquals("size", 1, actual.size());
 
+    Assert.assertEquals("check type", "Circular redirection", actual.get(0).getType());
     Assert.assertEquals("check file name", PageUtility.toFilePath(page), actual.get(0).getFileName());
+    Assert.assertEquals("check page", page, actual.get(0).getPage());
     Assert.assertEquals("check line", 1, actual.get(0).getLine());
     Assert.assertEquals("check column", 1, actual.get(0).getColumn());
     Assert.assertEquals("check column", "CIRCULAR REDIRECTION: " + expectedMessagePath, actual.get(0).getMessage());

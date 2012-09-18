@@ -21,6 +21,8 @@ import java.util.HashSet;
 import java.util.List;
 
 import scoutdoc.main.check.dashboard.DashboardWriter;
+import scoutdoc.main.eclipsescout.InScoutCategoryChecker;
+import scoutdoc.main.eclipsescout.UseScoutPageTemplateChecker;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.RelatedPagesStrategy;
 import scoutdoc.main.structure.Task;
@@ -48,12 +50,16 @@ public class ScoutDocCheck {
 
     List<IChecker> checkers = Arrays.asList(
         new LinkToRedirectionChecker(),
-        new RedirectionChecker()
+        new RedirectionChecker(),
+        new InScoutCategoryChecker(),
+        new UseScoutPageTemplateChecker()
         );
 
     for (IChecker c : checkers) {
       for (Page page : pages) {
-        list.addAll(c.check(page));
+        if (c.shouldCheck(page)) {
+          list.addAll(c.check(page));
+        }
       }
     }
     return Collections.unmodifiableList(list);

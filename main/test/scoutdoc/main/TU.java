@@ -13,6 +13,7 @@ import scoutdoc.main.structure.PageUtility;
 public class TU {
   public static final Page CAT_1 = PageUtility.toPage("Category:Test Cat1");
   public static final Page CAT_2 = PageUtility.toPage("Category:Test Cat2");
+  public static final Page CAT_ROOT = PageUtility.toPage("Category:Test_CRoot");
   public static final Page IMG_1 = PageUtility.toPage("File:Test Img1.png");
   public static final Page IMG_2 = PageUtility.toPage("File:Test Img2.png");
   public static final Page IMG_3 = PageUtility.toPage("File:Test Img3.png");

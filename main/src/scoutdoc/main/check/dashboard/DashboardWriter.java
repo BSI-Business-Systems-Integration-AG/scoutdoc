@@ -43,7 +43,7 @@ import com.google.common.io.Files;
  * Write list of Check into a PrintWriter
  */
 public class DashboardWriter {
-  private static final String FILE_NAME_FORMAT = "f%02d.html";
+  private static final String FILE_NAME_FORMAT = "f%06d.html";
   private static final String HTML_FILE_TOP = "<html>\n<head>";
   private static final String HTML_FILE_MIDLE = "</head>\n<body>\n";
   private static final String HTML_FILE_END = "</body>\n</html>";

@@ -35,15 +35,18 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import scoutdoc.main.structure.Page;
+import scoutdoc.main.structure.PageType;
 import scoutdoc.main.structure.PageUtility;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
 
 public class ApiFileUtility {
 
   public static final Collection<ApiFileContentType> ALL = Arrays.asList(ApiFileContentType.values());
   public static final Collection<ApiFileContentType> IMAGES_AND_TEMPLATES = Arrays.asList(ApiFileContentType.Images, ApiFileContentType.Templates);
   public static final Collection<ApiFileContentType> IMAGES_TEMPLATES_AND_LINKS = Arrays.asList(ApiFileContentType.Images, ApiFileContentType.Links, ApiFileContentType.Templates);
+  public static final Collection<ApiFileContentType> CATEGORIES_IMAGES_AND_TEMPLATES = Arrays.asList(ApiFileContentType.Categories, ApiFileContentType.Images, ApiFileContentType.Templates);
 
   public static Collection<Page> parseContent(File apiFile, Collection<ApiFileContentType> types) {
     Set<Page> pages = new HashSet<Page>();
@@ -103,6 +106,33 @@ public class ApiFileUtility {
    */
   public static Collection<Page> parseTemplates(File apiFile) {
     return parseApiFile(apiFile, "//tl/@title");
+  }
+
+  public static boolean isParentCategory(Page category, Page targetCategory) {
+    Preconditions.checkArgument(category.getType() == PageType.Category, "category should have the type PageType.Category");
+    Preconditions.checkArgument(targetCategory.getType() == PageType.Category, "targetCategory should have the type PageType.Category");
+    return containsTarget(category, targetCategory, ApiFileContentType.Categories, true);
+  }
+
+  public static boolean containsTarget(Page page, Page targetPage, ApiFileContentType targetType, boolean followContent) {
+    return containsTarget(page, targetPage, targetType, followContent, new HashSet<Page>());
+  }
+
+  private static boolean containsTarget(Page page, Page targetPage, ApiFileContentType targetType, boolean followContent, Set<Page> checkedPages) {
+    File apiFile = PageUtility.toApiFile(page);
+    Collection<Page> content = ApiFileUtility.parseContent(apiFile, Collections.singletonList(targetType));
+    if (content.contains(targetPage)) {
+      return true;
+    }
+    else if (followContent) {
+      checkedPages.add(page);
+      for (Page p : content) {
+        if (!checkedPages.contains(p) && containsTarget(p, targetPage, targetType, followContent, checkedPages)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   public static long readRevisionId(File file) {

@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import scoutdoc.main.ProjectProperties;
 import scoutdoc.main.mediawiki.ApiFileUtility;
 import scoutdoc.main.mediawiki.ContentFileUtility;
 import scoutdoc.main.structure.Page;
@@ -29,6 +28,11 @@ import scoutdoc.main.structure.PageUtility;
 public class LinkToRedirectionChecker implements IChecker {
 
   @Override
+  public boolean shouldCheck(Page page) {
+    return true;
+  }
+
+  @Override
   public List<Check> check(Page page) {
     if (ContentFileUtility.checkRedirection(page, true) != null) {
       //This page is a redirection, the link to an other redirection will create a Multiple Redirection
@@ -38,7 +42,8 @@ public class LinkToRedirectionChecker implements IChecker {
 
     List<Check> result = new ArrayList<Check>();
 
-    File apiFile = new File(PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_META));
+    File apiFile = PageUtility.toApiFile(page);
+
     Collection<Page> links = ApiFileUtility.parseLinks(apiFile);
 
     for (Page link : links) {
@@ -50,7 +55,7 @@ public class LinkToRedirectionChecker implements IChecker {
         check.setPage(page);
         check.setLine(1);
         check.setColumn(1);
-        check.setSeverity(Severity.warning);
+        check.setSeverity(Severity.info);
         check.setMessage("LINK to '" + PageUtility.toFullPageName(link) + "' redirects to '" + PageUtility.toFullPageName(redirection) + "'");
         result.add(check);
       }

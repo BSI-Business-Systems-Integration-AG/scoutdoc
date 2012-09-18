@@ -9,16 +9,17 @@
  *     BSI Business Systems Integration AG - initial API and implementation
  ******************************************************************************/
 
-package scoutdoc.main.check;
-
-import java.util.List;
+package scoutdoc.main.eclipsescout;
 
 import scoutdoc.main.structure.Page;
+import scoutdoc.main.structure.PageUtility;
 
-public interface IChecker {
+public class ScoutPages {
+  public static final Page MAIN_CATEGORY = PageUtility.toPage("Category:Scout");
+  public static final Page PAGE_TEMPLATE = PageUtility.toPage("Template:ScoutPage");
+  public static final Page MAIN_PAGE = PageUtility.toPage("Scout");
 
-  boolean shouldCheck(Page page);
-
-  List<Check> check(Page page);
-
+  public static boolean isScoutPage(Page page) {
+    return page.getName().contains("Scout") || page.getName().contains("scout");
+  }
 }

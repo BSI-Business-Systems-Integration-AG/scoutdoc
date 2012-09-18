@@ -165,6 +165,7 @@ There is tow output possibilities:
 Implemented checks:
 * Double redirection: Check if a redirection links to an other redirection (warning or error in case of circular redirection). Solution: it is better to redirect to the target page directly.
 * Link to a redirection: Check if a link of a page links to a redirection page (warning). Solution: it is better to link the page directly.
+* TODO: describe the new checks
 
 **Check all pages:**
 
