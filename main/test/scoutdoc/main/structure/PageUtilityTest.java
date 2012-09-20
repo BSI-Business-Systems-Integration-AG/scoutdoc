@@ -68,10 +68,11 @@ public class PageUtilityTest {
 
   @Test
   public void testToFilePath() {
-    runToFilePath("Article/Root/MyPage", TU.createPage(PageType.Article, "Root/MyPage"));
-    runToFilePath("Image/Img1.png", TU.createPage(PageType.Image, "Img1.png"));
-    runToFilePath("Article/My/Page%2F", TU.createPage(PageType.Article, "My/Page%2F"));
-    runToFilePath("Article/My/Page%2F", TU.createPage(PageType.Article, "My/Page/"));
+    String fs = ProjectProperties.getFileSeparator();
+    runToFilePath("Article" + fs + "Root" + fs + "MyPage", TU.createPage(PageType.Article, "Root/MyPage"));
+    runToFilePath("Image" + fs + "Img1.png", TU.createPage(PageType.Image, "Img1.png"));
+    runToFilePath("Article" + fs + "My" + fs + "Page%2F", TU.createPage(PageType.Article, "My/Page%2F"));
+    runToFilePath("Article" + fs + "My" + fs + "Page%2F", TU.createPage(PageType.Article, "My/Page/"));
   }
 
   private void runToFilePath(String expectedPageName, Page page) {

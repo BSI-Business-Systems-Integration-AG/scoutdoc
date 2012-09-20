@@ -96,9 +96,11 @@ public class Main {
 
     Option optOutputCheckstyle = new Option(OUTPUT_CHECKSTYLE_ID, "output-checkstyle", true, "(CHECK output) create a xml checkstyle file (<filename> is optional. Default: " + DEFAULT_CHECKSTYLE_NAME + ")");
     optOutputCheckstyle.setArgName("filename");
+    optOutputCheckstyle.setOptionalArg(true);
 
     Option optOutputDashboard = new Option(OUTPUT_DASHBOARD_ID, "output-dashboard", true, "(CHECK output) create an html dashboard (<folder> is optional. Default: " + DEFAULT_DASHBOARD_NAME + ")");
     optOutputDashboard.setArgName("folder");
+    optOutputDashboard.setOptionalArg(true);
 
     Options options = new Options();
     options.addOption(optHelp);
