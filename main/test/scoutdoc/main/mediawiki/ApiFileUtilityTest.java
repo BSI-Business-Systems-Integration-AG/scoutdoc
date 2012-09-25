@@ -49,6 +49,12 @@ public class ApiFileUtilityTest {
   }
 
   @Test
+  public void testReadTimestampApiFile() throws Exception {
+    String timestamp = ApiFileUtility.readTimestamp(initAndGetApiFile());
+    Assert.assertEquals("2012-08-10T16:59:40Z", timestamp);
+  }
+
+  @Test
   public void testParseCategories() {
     Collection<Page> categories = ApiFileUtility.parseCategories(initAndGetApiFile());
     Assert.assertEquals("size", 2, categories.size());
@@ -102,8 +108,7 @@ public class ApiFileUtilityTest {
 
   private File initAndGetApiFile() {
     TU.initProperties();
-    Page page = TU.PAGE_1;
-    return PageUtility.toApiFile(page);
+    return PageUtility.toApiFile(TU.PAGE_1);
   }
 
 }

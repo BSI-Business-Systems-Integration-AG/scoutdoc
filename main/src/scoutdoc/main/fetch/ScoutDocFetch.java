@@ -20,7 +20,9 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,6 +38,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import scoutdoc.main.ProjectProperties;
+import scoutdoc.main.filter.IPageFilter;
 import scoutdoc.main.mediawiki.ApiFileUtility;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageUtility;
@@ -52,10 +55,10 @@ import com.google.common.io.Resources;
 
 public class ScoutDocFetch {
   public void execute(Task t) {
-    execute(t.getInputPages(), RelatedPagesStrategy.IMAGES_TEMPLATES_AND_LINKS);
+    execute(t.getInputPages(), RelatedPagesStrategy.CATEGORIES_IMAGES_TEMPLATES_AND_LINKS);
   }
 
-  public void executeRss() {
+  public void executeRss(IPageFilter pageFilter) {
     Map<String, String> parameters = new LinkedHashMap<String, String>();
     parameters.put("title", "Special:RecentChanges");
     parameters.put("feed", "rss");
@@ -63,11 +66,85 @@ public class ScoutDocFetch {
     String rssUrl = UrlUtility.createFullUrl(ProjectProperties.getWikiIndexUrl(), parameters);
 
     //Find Pages:
-    List<Page> pages = RssUtility.parseRss(rssUrl);
+    List<Page> pages = RssUtility.parseRss(rssUrl, pageFilter);
     System.out.println("found " + pages.size() + " pages with changes");
 
     //Download this pages, and the related items:
-    execute(pages, RelatedPagesStrategy.IMAGES_TEMPLATES_AND_LINKS);
+    execute(pages, RelatedPagesStrategy.CATEGORIES_IMAGES_TEMPLATES_AND_LINKS);
+  }
+
+  public void executeRecentChanges(IPageFilter pageFilter) {
+    String lastTimestamp = null;
+    File f = new File(ProjectProperties.getFolderWikiSource(), "info.txt");
+    if (f.exists() && f.canRead()) {
+      try {
+        String line = Files.readFirstLine(f, Charsets.UTF_8);
+        lastTimestamp = line;
+      }
+      catch (IOException e) {
+        e.printStackTrace();
+      }
+      catch (NumberFormatException e) {
+        e.printStackTrace();
+      }
+    }
+    if (lastTimestamp == null) {
+      lastTimestamp = "0000-00-00T00:00:00Z";
+      List<Page> pages = PageUtility.loadPages(ProjectProperties.getFolderWikiSource());
+      for (Page page : pages) {
+        String timestamp = ApiFileUtility.readTimestamp(PageUtility.toApiFile(page));
+        if (timestamp.compareTo(lastTimestamp) > 0) {
+          lastTimestamp = timestamp;
+        }
+      }
+    }
+
+    List<Page> pages = new ArrayList<Page>();
+
+    String queryContinue = lastTimestamp;
+    while (queryContinue != null) {
+      Map<String, String> parameters = new LinkedHashMap<String, String>();
+      parameters.put("action", "query");
+      parameters.put("list", "recentchanges");
+      parameters.put("rcprop", Joiner.on("|").join("title", "timestamp", "ids"));
+      parameters.put("rcdir", "newer");
+      parameters.put("rclimit", "50");
+      parameters.put("rcstart", queryContinue);
+      parameters.put("format", "xml");
+
+      try {
+        String queryContent = downlaod(UrlUtility.createFullUrl(ProjectProperties.getWikiApiUrl(), parameters));
+        List<String> pageNames = ApiFileUtility.readValues(queryContent, "//recentchanges/rc/@title");
+        for (String pageName : pageNames) {
+          Page page = PageUtility.toPage(pageName);
+          if (pageFilter.keepPage(page)) {
+            pages.add(page);
+          }
+        }
+
+        List<String> pageTimestamps = ApiFileUtility.readValues(queryContent, "//recentchanges/rc/@timestamp");
+        lastTimestamp = Collections.max(pageTimestamps);
+
+        queryContinue = ApiFileUtility.readValue(queryContent, "//query-continue/recentchanges/@rcstart");
+      }
+      catch (IOException e) {
+        e.printStackTrace();
+        queryContinue = null;
+      }
+      catch (TransformerException e) {
+        e.printStackTrace();
+        queryContinue = null;
+      }
+    }
+
+    execute(pages, RelatedPagesStrategy.CATEGORIES_IMAGES_TEMPLATES_AND_LINKS);
+
+    try {
+      Files.write(lastTimestamp, f, Charsets.UTF_8);
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -119,7 +196,7 @@ public class ScoutDocFetch {
     Map<String, String> parameters = new LinkedHashMap<String, String>();
     parameters.put("action", "raw");
     parameters.put("title", URLEncoder.encode(PageUtility.toFullPageNamee(page), "UTF-8"));
-//		parameters.put("templates", "expand");
+//    parameters.put("templates", "expand");
 
     String fullUrl = UrlUtility.createFullUrl(url, parameters);
     String content = downlaod(fullUrl);

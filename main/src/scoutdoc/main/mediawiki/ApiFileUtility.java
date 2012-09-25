@@ -156,6 +156,10 @@ public class ApiFileUtility {
     }
   }
 
+  public static String readTimestamp(File apiFile) {
+    return readValue(createInputSource(apiFile), "//revisions/rev/@timestamp");
+  }
+
   public static String readValue(File file, String xpathQuery) {
     return readValue(createInputSource(file), xpathQuery);
   }

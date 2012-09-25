@@ -32,6 +32,8 @@ import scoutdoc.main.check.Check;
 import scoutdoc.main.check.ScoutDocCheck;
 import scoutdoc.main.converter.ScoutDocConverter;
 import scoutdoc.main.fetch.ScoutDocFetch;
+import scoutdoc.main.filter.AcceptAllPageFilter;
+import scoutdoc.main.filter.IPageFilter;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageUtility;
 import scoutdoc.main.structure.RelatedPagesStrategy;
@@ -53,6 +55,8 @@ public class Main {
   private static final String SOURCE_ALL_PAGES_ID = "p";
   private static final String SOURCE_LIST_ID = "l";
   private static final String SOURCE_RSS_ID = "r";
+  private static final String SOURCE_RECENT_CHANGES_ID = "g";
+  private static final String SOURCE_FILTER_ID = "f";
   private static final String OPERATION_ID = "o";
   private static final String OUTPUT_CHECKSTYLE_ID = "x";
   private static final String OUTPUT_DASHBOARD_ID = "d";
@@ -76,14 +80,20 @@ public class Main {
     Option optListPages = new Option(SOURCE_LIST_ID, "list", true, "(source) list of pages contained in the file");
     optListPages.setArgName("file");
 
-    Option optRss = new Option(SOURCE_RSS_ID, "rss", false, "(source) use the pages from the rss file");
+    Option optRecentChange = new Option(SOURCE_RECENT_CHANGES_ID, "recent-changes", false, "(source) use the pages from the wiki recent changes");
+
+    Option optRss = new Option(SOURCE_RSS_ID, "rss", false, "(source) use the pages from the rss feed of the wiki");
 
     OptionGroup sourceGroup = new OptionGroup();
     sourceGroup.setRequired(true);
     sourceGroup.addOption(optTask);
     sourceGroup.addOption(optAllPages);
     sourceGroup.addOption(optListPages);
+    sourceGroup.addOption(optRecentChange);
     sourceGroup.addOption(optRss);
+
+    Option optfilter = new Option(SOURCE_FILTER_ID, "filter", true, "Filter for list of pages used as source");
+    optfilter.setArgName("class");
 
     List<String> values = Lists.newArrayList();
     for (Operation o : Operation.values()) {
@@ -106,6 +116,7 @@ public class Main {
     options.addOption(optHelp);
     options.addOption(optProp);
     options.addOptionGroup(sourceGroup);
+    options.addOption(optfilter);
     options.addOption(optOperation);
     options.addOption(optOutputCheckstyle);
     options.addOption(optOutputDashboard);
@@ -125,21 +136,38 @@ public class Main {
       List<Operation> operations = readOptionEnum(cmd, optOperation, Operation.class);
       List<Task> tasks = readTasks(cmd, optTask);
 
-      List<Page> pages;
+      List<Page> pageList;
       if (cmd.hasOption(SOURCE_ALL_PAGES_ID)) {
-        pages = PageUtility.loadPages(ProjectProperties.getFolderWikiSource());
+        pageList = PageUtility.loadPages(ProjectProperties.getFolderWikiSource());
       }
       else if (cmd.hasOption(SOURCE_LIST_ID)) {
         String name = cmd.getOptionValue(SOURCE_LIST_ID);
         try {
-          pages = PageUtility.readList(name);
+          pageList = PageUtility.readList(name);
         }
         catch (IOException e) {
           throw new MissingArgumentException("IOException for file <" + name + "> for <" + optListPages.getLongOpt() + "> : " + e.getMessage());
         }
       }
       else {
-        pages = Collections.emptyList();
+        pageList = Collections.emptyList();
+      }
+
+      IPageFilter filter;
+      if (cmd.hasOption(SOURCE_FILTER_ID)) {
+        if (tasks.size() > 0) {
+          throw new MissingArgumentException("Filter <" + optfilter.getLongOpt() + "> is not allowed for source <" + optTask.getLongOpt() + ">.");
+        }
+        filter = newInstance(cmd.getOptionValue(SOURCE_FILTER_ID), IPageFilter.class, new AcceptAllPageFilter());
+      }
+      else {
+        filter = new AcceptAllPageFilter();
+      }
+      List<Page> pages = Lists.newArrayList();
+      for (Page page : pageList) {
+        if (filter.keepPage(page)) {
+          pages.add(page);
+        }
       }
 
       if (operations.contains(Operation.FETCH)) {
@@ -157,9 +185,13 @@ public class Main {
           }
           sdf.execute(pages, strategy);
         }
+        else if (cmd.hasOption(SOURCE_RECENT_CHANGES_ID)) {
+          ScoutDocFetch sdf = new ScoutDocFetch();
+          sdf.executeRecentChanges(filter);
+        }
         else if (cmd.hasOption(SOURCE_RSS_ID)) {
           ScoutDocFetch sdf = new ScoutDocFetch();
-          sdf.executeRss();
+          sdf.executeRss(filter);
         }
         else if (tasks.size() > 0) {
           for (Task task : tasks) {
@@ -175,10 +207,9 @@ public class Main {
       if (operations.contains(Operation.CHECK)) {
         ScoutDocCheck sdc = new ScoutDocCheck();
         List<Check> checks = Lists.newArrayList();
-        if (cmd.hasOption(SOURCE_RSS_ID)) {
-          throw new MissingArgumentException("Source <" + optRss.getLongOpt() + "> is not allowed for the <CHECK> operation.");
-        }
-        else if (pages.size() > 0) {
+        ensureNotSet(cmd, optRecentChange, Operation.CHECK);
+        ensureNotSet(cmd, optRss, Operation.CHECK);
+        if (pages.size() > 0) {
           checks = sdc.analysePages(pages);
         }
         else if (tasks.size() > 0) {
@@ -202,16 +233,11 @@ public class Main {
       }
 
       if (operations.contains(Operation.CONVERT)) {
-        if (cmd.hasOption(SOURCE_ALL_PAGES_ID)) {
-          throw new MissingArgumentException("Source <" + optAllPages.getLongOpt() + "> is not allowed for the <CONVERT> operation.");
-        }
-        else if (cmd.hasOption(SOURCE_LIST_ID)) {
-          throw new MissingArgumentException("Source <" + optListPages.getLongOpt() + "> is not allowed for the <CONVERT> operation.");
-        }
-        else if (cmd.hasOption(SOURCE_RSS_ID)) {
-          throw new MissingArgumentException("Source <" + optRss.getLongOpt() + "> is not allowed for the <CONVERT> operation.");
-        }
-        else if (tasks.size() > 0) {
+        ensureNotSet(cmd, optAllPages, Operation.CONVERT);
+        ensureNotSet(cmd, optListPages, Operation.CONVERT);
+        ensureNotSet(cmd, optRecentChange, Operation.CONVERT);
+        ensureNotSet(cmd, optRss, Operation.CONVERT);
+        if (tasks.size() > 0) {
           for (Task task : tasks) {
             ScoutDocConverter sdc = new ScoutDocConverter();
             sdc.execute(task);
@@ -254,6 +280,12 @@ public class Main {
     }
     catch (Exception e) {
       e.printStackTrace();
+    }
+  }
+
+  private static void ensureNotSet(CommandLine cmd, Option option, Operation operation) throws MissingArgumentException {
+    if (cmd.hasOption(option.getOpt())) {
+      throw new MissingArgumentException("Source <" + option.getLongOpt() + "> is not allowed for the <" + operation.name() + "> operation.");
     }
   }
 
@@ -301,7 +333,9 @@ public class Main {
                 SOURCE_TASKS_ID,
                 SOURCE_ALL_PAGES_ID,
                 SOURCE_LIST_ID,
+                SOURCE_RECENT_CHANGES_ID,
                 SOURCE_RSS_ID,
+                SOURCE_FILTER_ID,
                 OPERATION_ID,
                 OUTPUT_CHECKSTYLE_ID,
                 OUTPUT_DASHBOARD_ID
@@ -310,6 +344,26 @@ public class Main {
     });
     helpFormatter.printHelp("scoutdoc.main.Main", options);
     System.exit(1);
+  }
+
+  static <T> T newInstance(String className, Class<T> classType, T defaultClass) {
+    Class<?> cls;
+    try {
+      cls = Class.forName(className);
+      if (classType.isAssignableFrom(cls)) {
+        return classType.cast(cls.newInstance());
+      }
+    }
+    catch (ClassNotFoundException e) {
+      e.printStackTrace();
+    }
+    catch (InstantiationException e) {
+      e.printStackTrace();
+    }
+    catch (IllegalAccessException e) {
+      e.printStackTrace();
+    }
+    return defaultClass;
   }
 
   public static enum Operation {

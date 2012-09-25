@@ -27,7 +27,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 import scoutdoc.main.ProjectProperties;
-import scoutdoc.main.eclipsescout.ScoutPages;
+import scoutdoc.main.filter.IPageFilter;
 import scoutdoc.main.mediawiki.ApiFileUtility;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageUtility;
@@ -40,7 +40,7 @@ public class RssUtility {
   private static final String ARG_OLDID = "oldid=";
 
 //	public static List<Page> parseRss(InputSource inputSource) {
-  public static List<Page> parseRss(String url) {
+  public static List<Page> parseRss(String url, IPageFilter filter) {
     List<Page> result = new ArrayList<Page>();
 
     DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -53,7 +53,7 @@ public class RssUtility {
       XPathExpression expr = xpath.compile("//item/link");
       NodeList nodes = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
       for (int i = 0; i < nodes.getLength(); i++) {
-        Page page = convertToPage(nodes.item(i).getTextContent());
+        Page page = convertToPage(nodes.item(i).getTextContent(), filter);
         if (page != null) {
           result.add(page);
         }
@@ -65,7 +65,7 @@ public class RssUtility {
     return Collections.unmodifiableList(result);
   }
 
-  public static Page convertToPage(String linkText) {
+  public static Page convertToPage(String linkText, IPageFilter filter) {
     String s = linkText;
     String title = null;
     String revIdText = null;
@@ -97,23 +97,14 @@ public class RssUtility {
         if (revIdText != null) {
           revId = Long.parseLong(revIdText);
         }
-        File apiFile = new File(PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_META));
+        File apiFile = PageUtility.toApiFile(page);
         if (ApiFileUtility.readRevisionId(apiFile) < revId) {
-          return filterPage(page);
+          if (filter.keepPage(page)) {
+            return page;
+          }
         }
       }
     }
     return null;
   }
-
-  public static Page filterPage(Page page) {
-    if (PageUtility.exists(page)) {
-      return page;
-    }
-    else if (ScoutPages.isScoutPage(page)) {
-      return page;
-    }
-    return null;
-  }
-
 }

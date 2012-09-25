@@ -69,23 +69,7 @@ public class ProjectProperties {
       }
       if (properties.containsKey(PROP_WIKI_CONFIG)) {
         String className = (String) properties.get(PROP_WIKI_CONFIG);
-        Class<?> cls;
-        try {
-          cls = Class.forName(className);
-          mediaWikiConfiguration = (IMediaWikiConfiguration) cls.newInstance();
-        }
-        catch (ClassNotFoundException e) {
-          e.printStackTrace();
-          mediaWikiConfiguration = new DefaultMediaWikiConfiguration();
-        }
-        catch (InstantiationException e) {
-          e.printStackTrace();
-          mediaWikiConfiguration = new DefaultMediaWikiConfiguration();
-        }
-        catch (IllegalAccessException e) {
-          e.printStackTrace();
-          mediaWikiConfiguration = new DefaultMediaWikiConfiguration();
-        }
+        mediaWikiConfiguration = Main.newInstance(className, IMediaWikiConfiguration.class, new DefaultMediaWikiConfiguration());
       }
       if (properties.containsKey(PROP_FOLDER_WIKI_DIST)) {
         folderWikiDist = (String) properties.get(PROP_FOLDER_WIKI_DIST);

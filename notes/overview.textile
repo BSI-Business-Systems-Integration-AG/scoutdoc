@@ -96,10 +96,13 @@ usage: scoutdoc.main.Main
  -t,--task <files>                   (source) one or many task files
  -p,--pages                          (source) use the pages contained in the source folder
  -l,--list <file>                    (source) list of pages contained in the file
- -r,--rss                            (source) use the pages from the rss file
+ -g,--recent-changes                 (source) use the pages from the wiki recent changes
+ -r,--rss                            (source) use the pages from the rss feed of the wiki
+ -f,--filter <class>                 Filter for list of pages used as source
  -o,--operation <operations>         operation: FETCH, CHECK, CONVERT
  -x,--output-checkstyle <filename>   (CHECK output) create a xml checkstyle file (<filename> is optional. Default: Checkstyle.xml)
  -d,--output-dashboard <folder>      (CHECK output) create an html dashboard (<folder> is optional. Default: dashboard)
+
 
 Usage examples can be found in the next section.
 
@@ -124,13 +127,24 @@ With this command line you download pages for a specific task.
 * @-t <task.properties>@: the task properties files (1..n).
 
 
+**Fetch "recent changed" pages (since the last check:**
+
+bc. 
+scoutdoc.main.Main -o FETCH -c <config_file.properties> -g -f <PageFilter class>
+
+* @-c <config_file.properties>@: the project properties file (optional).
+* @-f <PageFilter class>@: filter pages found in the "recent change" list (optional).
+
+With this command line you download pages from the "recent changes" list (API:Recentchanges) of the MediaWiki server. The search will start at the timestamp where it stopped at the last execution. On the first execution (or if the last timestamp is not available), the newest timestamp of all local pages will be considered. 
+
 **Fetch newer pages (based on RSS file):**
 
 bc. 
 scoutdoc.main.Main -o FETCH -c <config_file.properties> -r
 
-With this command line you download pages from the RSS Feed (Special:RecentChanges) of the MediaWiki Instance. From the RSS feed, only pages with a newer __revision id__ than what is on the disk are considered.
+With this command line you download pages from the RSS Feed (Special:RecentChanges) of the MediaWiki server. From the RSS feed, only pages with a newer __revision id__ than what is on the disk are considered.
 * @-c <config_file.properties>@: the project properties file (optional).
+* @-f <PageFilter class>@: filter pages found in the rss feed (optional).
 
 
 **Fetch a list of pages:**
@@ -141,7 +155,7 @@ scoutdoc.main.Main -o FETCH -c <config_file.properties> -l <list.txt>
 With this command line you download a list of pages (provided in a txt file).
 * @-c <config_file.properties>@: the project properties file (optional).
 * @-l <list.txt>@: the list of pages.
-
+* @-f <PageFilter class>@: filter the list of pages (optional)
 
 **Refresh the pages of the disk:**
 
@@ -151,7 +165,7 @@ scoutdoc.main.Main -o FETCH -c <config_file.properties> -p
 With this command line you download all pages you have in the source folder (This is like a refresh).
 * @-c <config_file.properties>@: the project properties file (optional).
 * @-p@: use the pages of the source folder to create the list of pages that are fetched.
-
+* @-f <PageFilter class>@: filter the list of pages (optional)
 
 h3. Operation: CHECK
 
@@ -175,6 +189,7 @@ scoutdoc.main.Main -o CHECK -c <config_file.properties> -p -x <filename.xml> -d 
 With this command line you check all pages of the @wiki_src@ directory.
 * @-c <config_file.properties>@: the project properties file (optional).
 * @-p@: use the pages of the source folder to create the list of pages that are fetched.
+* @-f <PageFilter class>@: filter the list of pages (optional)
 * @-x <filename.xml>@: the name of the output file for checkstyle output (default when no argument: Checkstyle.xml)
 * @-d <folder>@: the name of the output folder for dashboard output (default when no argument: dashboard)
 
