@@ -14,10 +14,21 @@ package scoutdoc.main.structure;
 public enum PageType {
   Article,
   Category,
+  Category_talk,
+  Eclipsepedia,
+  Eclipsepedia_talk,
   File,
+  Help,
+  Help_talk,
   Image,
+  Image_talk,
   Media,
+  MediaWiki,
+  MediaWiki_talk,
+  Special,
   Talk,
   Template,
-  Template_talk
+  Template_talk,
+  User,
+  User_talk
 }
