@@ -32,6 +32,7 @@ import scoutdoc.main.converter.finder.SubstringFinder;
 import scoutdoc.main.converter.finder.SubstringFinder.Range;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Strings;
 
 /**
  * Copy of the WikiText TemplateProcessor to add some features that should be merged back in the official library.
@@ -95,8 +96,9 @@ public class TemplateProcessorExt {
 
     int index = 0;
     Range templateRange = templateFinder.nextRange(markupContent, index);
+    boolean trimNext = false;
     while (!SubstringFinder.EMPTY_RANGE.equals(templateRange)) {
-      processedMarkup.append(markupContent.substring(index, templateRange.getRangeStart()));
+      appendToMarkup(processedMarkup, trimNext, markupContent.substring(index, templateRange.getRangeStart()));
 
       int contentStart = templateRange.getContentStart();
       int contentEnd = templateRange.getContentEnd();
@@ -132,17 +134,35 @@ public class TemplateProcessorExt {
           replacementText = processTemplate(template, markupPageName, parameters);
           replacementText = processTemplates(replacementText, markupPageName, templates);
         }
-        processedMarkup.append(replacementText);
+        if (Strings.isNullOrEmpty(replacementText)) {
+          //Nothing to add, trim the left of next text that is added.
+          trimNext = true;
+        }
+        else {
+          processedMarkup.append(replacementText);
+          trimNext = false;
+        }
       }
 
       index = contentEnd + templateFinder.getCloseLength();
       templateRange = templateFinder.nextRange(markupContent, index);
     }
     if (index < markupContent.length()) {
-      processedMarkup.append(markupContent.substring(index));
+      appendToMarkup(processedMarkup, trimNext, markupContent.substring(index));
     }
 
     return processedMarkup.toString();
+  }
+
+  private void appendToMarkup(StringBuilder processedMarkup, boolean trimNext, String text) {
+    String s;
+    if (trimNext) {
+      s = text.replaceAll("^\\s+", "");
+    }
+    else {
+      s = text;
+    }
+    processedMarkup.append(s);
   }
 
   private String processTemplate(Template template, String pageName, List<Parameter> parameters) {

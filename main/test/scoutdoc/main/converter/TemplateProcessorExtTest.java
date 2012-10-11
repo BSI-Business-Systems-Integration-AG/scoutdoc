@@ -97,4 +97,32 @@ public class TemplateProcessorExtTest {
     markup = templateProcessor.processTemplates("xx {{bar|foo {{foo|fff}} foo|bar {{foo|bbb}} bar}} xx", "MyPage");
     assertEquals("xx 1:foo '''fff''' foo, 2:bar '''bbb''' bar xx", markup);
   }
+
+  @Test
+  public void testTrim() {
+    Template templateFoo = new Template();
+    templateFoo.setName("foo");
+    templateFoo.setTemplateMarkup("");
+    markupLanguage.getTemplates().add(templateFoo);
+
+    Template templateBar = new Template();
+    templateBar.setName("bar");
+    templateBar.setTemplateMarkup("--bar--");
+    markupLanguage.getTemplates().add(templateBar);
+
+    TemplateProcessorExt templateProcessor = new TemplateProcessorExt(markupLanguage);
+
+    String markup;
+    markup = templateProcessor.processTemplates("xx {{foo}} xx", "MyPage");
+    assertEquals("xx xx", markup);
+
+    markup = templateProcessor.processTemplates("xx {{foo}} {{bar}} xx", "MyPage");
+    assertEquals("xx --bar-- xx", markup);
+
+    markup = templateProcessor.processTemplates(" {{bar}} xx", "MyPage");
+    assertEquals(" --bar-- xx", markup);
+
+    markup = templateProcessor.processTemplates("{{foo}} {{bar}} xx", "MyPage");
+    assertEquals("--bar-- xx", markup);
+  }
 }
