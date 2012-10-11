@@ -18,9 +18,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import scoutdoc.main.ProjectProperties;
+import scoutdoc.main.mediawiki.ApiFileUtility;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Charsets;
@@ -30,8 +33,11 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 
 public class PageUtility {
-  private static final String SLASH = "/";
-  private static final String TRAILING_SLASH_REPLACEMENT = "%2F";
+  private static final char SLASH = '/';
+  private static final String SLASH_REPLACEMENT = "%2F";
+  private static final char DOUBLE_POINT = ':';
+  private static final String DOUBLE_POINT_REPLACEMENT = "%3A";
+  private static final int MAX_FILE_NAME_LENGTH = 100;
 
   /**
    * Convert a {@link Page} to the FULLPAGENAME (which is {{NAMESPACE}}:{{PAGENAME}}).
@@ -52,7 +58,6 @@ public class PageUtility {
       namespace = page.getType() + ":";
     }
     String pageName = namespace + page.getName();
-    pageName = decodeTrailingSlash(pageName);
     return convertToInternalName(pageName);
   }
 
@@ -89,40 +94,92 @@ public class PageUtility {
    * @return path of the file
    */
   public static String /*file path*/toFilePath(Page page, String fileExtension) {
-    Preconditions.checkNotNull(page.getType(), "Page#Type can not be null");
-    Preconditions.checkNotNull(page.getName(), "Page#Name can not be null");
+    Preconditions.checkNotNull(page.getType(), "Page#Type can not be null. Page: " + page.toString());
+    Preconditions.checkNotNull(page.getName(), "Page#Name can not be null. Page: " + page.toString());
+    Preconditions.checkNotNull(page.getId(), "Page#Id can not be null. Page: " + page.toString());
 
-    return toFilePath(page.getType(), page.getName(), fileExtension);
+    return toFilePath(page.getType(), page.getId(), page.getName(), fileExtension);
   }
 
   public static String toFilePath(Page page) {
     return toFilePath(page, ProjectProperties.FILE_EXTENTION_CONTENT);
   }
 
-  private static String toFilePath(PageType type, String fileName, String fileExtension) {
-    String filePath = codeTrailingSlash(fileName);
-    if (!ProjectProperties.getFileSeparator().equals(SLASH)) {
-      filePath = CharMatcher.anyOf(SLASH).replaceFrom(filePath, ProjectProperties.getFileSeparator());
+  private static String toFilePath(PageType type, Integer pageId, String fileName, String fileExtension) {
+    String filePath = fileName;
+    filePath = CharMatcher.is(SLASH).replaceFrom(filePath, SLASH_REPLACEMENT);
+    filePath = CharMatcher.is(DOUBLE_POINT).replaceFrom(filePath, DOUBLE_POINT_REPLACEMENT);
+    if (filePath.length() > MAX_FILE_NAME_LENGTH) {
+      filePath = filePath.substring(0, MAX_FILE_NAME_LENGTH);
     }
+    filePath = Joiner.on('-').join(filePath, pageId.toString());
     filePath = ProjectProperties.getFolderWikiSource() + ProjectProperties.getFileSeparator() + type.name() + ProjectProperties.getFileSeparator() + filePath;
     filePath = Joiner.on('.').skipNulls().join(filePath, fileExtension);
     return convertToInternalName(filePath);
   }
 
   public static File toFile(Page page) {
+    Preconditions.checkNotNull(page.getId(), "PageId can not be null. Page: " + page.toString());
     if (isImage(page)) {
-      return new File(toFilePath(page.getType(), toPageNamee(page), null));
+      return toImageFile(page);
     }
     else {
-      return new File(toFilePath(page));
+      return toContentFile(page);
     }
+  }
+
+  public static File toContentFile(Page page) {
+    return new File(toFilePath(page));
+  }
+
+  public static File toImageFile(Page imagePage) {
+    Preconditions.checkArgument(isImage(imagePage), "imagePage should be an image see PageUtility.isImage(..)");
+    Preconditions.checkNotNull(imagePage.getId(), "PageId can not be null. Page: " + imagePage.toString());
+
+    String name = toPageNamee(imagePage);
+
+    String ext, fileName;
+    int pos = CharMatcher.is('.').lastIndexIn(name);
+    if (pos > 0) {
+      fileName = name.substring(0, pos);
+      ext = name.substring(pos + 1);
+    }
+    else {
+      fileName = name;
+      ext = null;
+    }
+    return new File(toFilePath(imagePage.getType(), imagePage.getId(), fileName, ext));
+  }
+
+  public static File toContentFileFromApiFile(File apiFile) {
+    return new File(apiFile.getPath().replaceAll(ProjectProperties.FILE_EXTENTION_META + "$", ProjectProperties.FILE_EXTENTION_CONTENT));
   }
 
   public static File toApiFile(Page page) {
     return new File(toFilePath(page, ProjectProperties.FILE_EXTENTION_META));
   }
 
-  public static Page /*page*/toPage(String fullPageName) {
+  public static File toApiFileFromContentFile(File apiFile) {
+    return new File(apiFile.getPath().replaceAll(ProjectProperties.FILE_EXTENTION_META + "$", ProjectProperties.FILE_EXTENTION_CONTENT));
+  }
+
+//  public static Page /*page*/toPage(String fullPageName) {
+//    return toPage(fullPageName, null);
+//  }
+
+  /**
+   * @param pageNamee
+   */
+  public static Page toPageTitle(String fullPageName) {
+    return toPageInternal(fullPageName, null);
+  }
+
+  public static Page /*page*/toPage(String fullPageName, int pageId) {
+    return toPageInternal(fullPageName, Integer.valueOf(pageId));
+  }
+
+  private static Page /*page*/toPageInternal(String fullPageName, Integer pageId) {
+    Page page = new Page();
     String fullPageNamee = convertToInternalName(fullPageName);
 
     PageType type;
@@ -133,20 +190,23 @@ public class PageUtility {
       String typeRaw = fullPageNamee.substring(0, index);
       try {
         type = PageType.valueOf(typeRaw);
+        if (type == PageType.Media) {
+          type = PageType.Image;
+        }
       }
       catch (IllegalArgumentException e) {
-        e.printStackTrace();
+        System.err.println("Namespace not found: " + typeRaw);
         type = PageType.Article;
+        name = fullPageNamee;
       }
     }
     else {
       type = PageType.Article;
       name = fullPageNamee;
     }
-    name = codeTrailingSlash(name);
-    Page page = new Page();
     page.setName(name);
     page.setType(type);
+    page.setId(pageId);
     return page;
   }
 
@@ -162,31 +222,39 @@ public class PageUtility {
     return page.getType() == PageType.Image || page.getType() == PageType.File || page.getType() == PageType.Media;
   }
 
-  public static List<Page> loadPages(String sourceFolder) {
-    File f = new File(sourceFolder);
-    return loadPages(f);
+  public static Collection<Page> loadPages(String sourceFolder) {
+    return loadApiFileAndPages(sourceFolder).values();
   }
 
-  public static List<Page> loadPages(File folder) {
+  public static Collection<Page> loadPages(File folder) {
+    return loadApiFileAndPages(folder).values();
+  }
+
+  public static Map<File, Page> loadApiFileAndPages(String sourceFolder) {
+    File f = new File(sourceFolder);
+    return loadApiFileAndPages(f);
+  }
+
+  public static Map<File, Page> loadApiFileAndPages(File folder) {
     Preconditions.checkArgument(folder.isDirectory(), "should be a directory: " + folder.getPath());
     Preconditions.checkArgument(isInSourceFolder(folder), "the directory should be included in ProjectProperties.getFolderWikiSource().");
 
-    List<Page> result = new ArrayList<Page>();
+    HashMap<File, Page> result = new HashMap<File, Page>();
 
-    File[] childContentFiles = folder.listFiles(new FileFilter() {
+    File[] childApiFiles = folder.listFiles(new FileFilter() {
       @Override
       public boolean accept(File f) {
-        return f.getName().endsWith("." + ProjectProperties.FILE_EXTENTION_CONTENT);
+        return f.getName().endsWith("." + ProjectProperties.FILE_EXTENTION_META);
       }
     });
-    for (File contentFile : childContentFiles) {
+    for (File apiFile : childApiFiles) {
       //To page:
-      Page page = toPage(contentFile);
+      Page page = toPage(apiFile);
 
       //To api File
-      File apiFile = toApiFile(page);
-      if (apiFile.exists()) {
-        result.add(page);
+      File contentFile = toContentFileFromApiFile(apiFile);
+      if (contentFile.exists()) {
+        result.put(apiFile, page);
       }
     }
 
@@ -198,10 +266,10 @@ public class PageUtility {
     });
 
     for (File f : childFolder) {
-      result.addAll(loadPages(f));
+      result.putAll(loadApiFileAndPages(f));
     }
 
-    return Collections.unmodifiableList(result);
+    return result;
   }
 
   public static Page toPage(File file) {
@@ -209,29 +277,22 @@ public class PageUtility {
       String path = file.getCanonicalPath();
       boolean isContentFile = path.endsWith("." + ProjectProperties.FILE_EXTENTION_CONTENT);
       boolean isApiFile = path.endsWith("." + ProjectProperties.FILE_EXTENTION_META);
-      if (!isContentFile && !isApiFile) {
+      File apiFile;
+      if (isContentFile) {
+        String apiFilePath = path.replaceAll("\\." + ProjectProperties.FILE_EXTENTION_CONTENT + "$", "." + ProjectProperties.FILE_EXTENTION_META);
+        apiFile = new File(apiFilePath);
+        if (!apiFile.exists()) {
+          return null;
+        }
+      }
+      else if (isApiFile) {
+        apiFile = file;
+      }
+      else {
         return null;
       }
 
-      if (isContentFile) {
-        path = path.substring(0, path.length() - ProjectProperties.FILE_EXTENTION_CONTENT.length() - 1);
-      }
-      if (isApiFile) {
-        path = path.substring(0, path.length() - ProjectProperties.FILE_EXTENTION_META.length() - 1);
-      }
-
-      String sourcePath = new File(ProjectProperties.getFolderWikiSource()).getCanonicalPath();
-      if (path.startsWith(sourcePath)) {
-        path = path.substring(sourcePath.length() + ProjectProperties.getFileSeparator().length());
-        if (!ProjectProperties.getFileSeparator().equals(SLASH)) {
-          path = CharMatcher.anyOf(ProjectProperties.getFileSeparator()).replaceFrom(path, SLASH);
-        }
-        int i = path.indexOf(SLASH);
-        if (i > 0) {
-          path = path.substring(0, i) + ":" + path.substring(i + ProjectProperties.getFileSeparator().length());
-          return toPage(path);
-        }
-      }
+      return ApiFileUtility.createPage(apiFile);
     }
     catch (IOException e) {
       e.printStackTrace();
@@ -240,6 +301,9 @@ public class PageUtility {
   }
 
   public static boolean exists(Page page) {
+    if (page.getId() == null) {
+      return false;
+    }
     File file = toFile(page);
     return file.exists();
   }
@@ -279,7 +343,7 @@ public class PageUtility {
     File file = new File(listFilePath);
     List<String> lines = Files.readLines(file, Charsets.UTF_8);
     for (String l : lines) {
-      pages.add(toPage(l));
+      pages.add(Pages.get(l));
     }
     return Collections.unmodifiableList(pages);
   }
@@ -294,19 +358,5 @@ public class PageUtility {
       parent = parent.getParentFile();
     }
     return false;
-  }
-
-  private static String codeTrailingSlash(String filePath) {
-    if (filePath.endsWith(SLASH)) {
-      filePath = filePath.substring(0, filePath.length() - SLASH.length()) + TRAILING_SLASH_REPLACEMENT;
-    }
-    return filePath;
-  }
-
-  private static String decodeTrailingSlash(String filePath) {
-    if (filePath.endsWith(TRAILING_SLASH_REPLACEMENT)) {
-      filePath = filePath.substring(0, filePath.length() - TRAILING_SLASH_REPLACEMENT.length()) + SLASH;
-    }
-    return filePath;
   }
 }

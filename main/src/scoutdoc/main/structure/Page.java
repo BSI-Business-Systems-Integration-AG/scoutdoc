@@ -14,6 +14,7 @@ package scoutdoc.main.structure;
 public class Page implements Comparable<Page> {
   private String name;
   private PageType type;
+  private Integer id;
 
   public String getName() {
     return name;
@@ -31,10 +32,19 @@ public class Page implements Comparable<Page> {
     this.type = type;
   }
 
+  public Integer getId() {
+    return id;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     return result;
@@ -46,6 +56,10 @@ public class Page implements Comparable<Page> {
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
     Page other = (Page) obj;
+    if (id == null) {
+      if (other.id != null) return false;
+    }
+    else if (!id.equals(other.id)) return false;
     if (name == null) {
       if (other.name != null) return false;
     }
@@ -56,7 +70,7 @@ public class Page implements Comparable<Page> {
 
   @Override
   public String toString() {
-    return "Page [name=" + name + ", type=" + type + "]";
+    return "Page [type=" + type + ", name=" + name + ", id=" + id + "]";
   }
 
   @Override

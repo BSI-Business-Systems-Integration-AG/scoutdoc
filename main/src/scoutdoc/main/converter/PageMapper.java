@@ -20,6 +20,7 @@ import org.eclipse.mylyn.internal.wikitext.mediawiki.core.PageMapping;
 import scoutdoc.main.mediawiki.ContentFileUtility;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageUtility;
+import scoutdoc.main.structure.Pages;
 
 public class PageMapper implements PageMapping {
   private Map<String, String> pageToHrefMap;
@@ -37,7 +38,7 @@ public class PageMapper implements PageMapping {
     String pageNamee = PageUtility.convertToInternalName(pageName);
     if (!pageToHrefMap.containsKey(pageNamee)) {
       //New pageName, check if it is a redirection:
-      Page page = PageUtility.toPage(pageNamee);
+      Page page = Pages.get(pageNamee);
       while (page != null) {
         String newPageNamee = PageUtility.toFullPageNamee(page);
         if (pageToHrefMap.containsKey(newPageNamee)) {
@@ -47,7 +48,7 @@ public class PageMapper implements PageMapping {
         }
         page = ContentFileUtility.checkRedirection(page);
       }
-      //Is not a redirection, but it do not exisits
+      //Is not a redirection or the page is not local
       return null;
     }
     //pageName already exists => return Href.

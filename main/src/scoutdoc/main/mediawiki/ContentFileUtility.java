@@ -8,6 +8,7 @@ import scoutdoc.main.converter.finder.SubstringFinder;
 import scoutdoc.main.converter.finder.SubstringFinder.Range;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageUtility;
+import scoutdoc.main.structure.Pages;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
@@ -28,6 +29,9 @@ public class ContentFileUtility {
 
   public static Page checkRedirection(Page page, boolean checkSelfRedirection) {
     try {
+      if (!PageUtility.exists(page)) {
+        return null;
+      }
       Page result = checkRedirection(PageUtility.toFile(page));
       if (!checkSelfRedirection && page.equals(result)) {
         return null; //Redirection on the same page is like no redirection at all.
@@ -53,7 +57,7 @@ public class ContentFileUtility {
           if (pageName.startsWith(":")) {
             pageName = pageName.substring(1);
           }
-          return PageUtility.toPage(pageName);
+          return Pages.get(pageName);
         }
       }
     }

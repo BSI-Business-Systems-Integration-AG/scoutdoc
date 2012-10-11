@@ -12,6 +12,7 @@
 package scoutdoc.main;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -36,6 +37,7 @@ import scoutdoc.main.filter.AcceptAllPageFilter;
 import scoutdoc.main.filter.IPageFilter;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageUtility;
+import scoutdoc.main.structure.Pages;
 import scoutdoc.main.structure.RelatedPagesStrategy;
 import scoutdoc.main.structure.Task;
 import scoutdoc.main.structure.TaskUtility;
@@ -132,11 +134,12 @@ public class Main {
       if (cmd.hasOption(PROP_ID)) {
         ProjectProperties.initProperties(cmd.getOptionValue(PROP_ID));
       }
+      Pages.initPageList();
 
       List<Operation> operations = readOptionEnum(cmd, optOperation, Operation.class);
       List<Task> tasks = readTasks(cmd, optTask);
 
-      List<Page> pageList;
+      Collection<Page> pageList;
       if (cmd.hasOption(SOURCE_ALL_PAGES_ID)) {
         pageList = PageUtility.loadPages(ProjectProperties.getFolderWikiSource());
       }

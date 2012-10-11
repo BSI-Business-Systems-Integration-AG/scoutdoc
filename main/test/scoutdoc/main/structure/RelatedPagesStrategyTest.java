@@ -23,7 +23,7 @@ public class RelatedPagesStrategyTest {
   @Test
   public void testFindRelatedPagesNone() {
     Collection<Page> pages;
-    TU.initProperties();
+    TU.init();
 
     pages = RelatedPagesStrategy.findRelatedPages(TU.PAGE_1, RelatedPagesStrategy.NO_RELATED_PAGES);
     Assert.assertEquals("size", 0, pages.size());
@@ -41,7 +41,7 @@ public class RelatedPagesStrategyTest {
   @Test
   public void testFindRelatedPagesImgagesAndTemplate() {
     Collection<Page> pages;
-    TU.initProperties();
+    TU.init();
 
     pages = RelatedPagesStrategy.findRelatedPages(TU.PAGE_1, RelatedPagesStrategy.IMAGES_AND_TEMPLATES);
     Assert.assertEquals("size", 6, pages.size());
@@ -65,7 +65,7 @@ public class RelatedPagesStrategyTest {
   @Test
   public void testFindRelatedPagesImgagesTemplateAndImage() {
     Collection<Page> pages;
-    TU.initProperties();
+    TU.init();
 
     pages = RelatedPagesStrategy.findRelatedPages(TU.PAGE_1, RelatedPagesStrategy.IMAGES_TEMPLATES_AND_LINKS);
     Assert.assertEquals("size", 10, pages.size());
@@ -101,7 +101,7 @@ public class RelatedPagesStrategyTest {
   @Test
   public void testFindRelatedPagesAll() {
     Collection<Page> pages;
-    TU.initProperties();
+    TU.init();
 
     pages = RelatedPagesStrategy.findRelatedPages(TU.PAGE_1, RelatedPagesStrategy.ALL);
     Assert.assertEquals("size", 13, pages.size());

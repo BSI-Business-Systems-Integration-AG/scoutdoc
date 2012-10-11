@@ -42,6 +42,7 @@ import scoutdoc.main.filter.IPageFilter;
 import scoutdoc.main.mediawiki.ApiFileUtility;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageUtility;
+import scoutdoc.main.structure.Pages;
 import scoutdoc.main.structure.RelatedPagesStrategy;
 import scoutdoc.main.structure.Task;
 
@@ -90,7 +91,7 @@ public class ScoutDocFetch {
     }
     if (lastTimestamp == null) {
       lastTimestamp = "0000-00-00T00:00:00Z";
-      List<Page> pages = PageUtility.loadPages(ProjectProperties.getFolderWikiSource());
+      Collection<Page> pages = PageUtility.loadPages(ProjectProperties.getFolderWikiSource());
       for (Page page : pages) {
         String timestamp = ApiFileUtility.readTimestamp(PageUtility.toApiFile(page));
         if (timestamp.compareTo(lastTimestamp) > 0) {
@@ -114,9 +115,8 @@ public class ScoutDocFetch {
 
       try {
         String queryContent = downlaod(UrlUtility.createFullUrl(ProjectProperties.getWikiApiUrl(), parameters));
-        List<String> pageNames = ApiFileUtility.readValues(queryContent, "//recentchanges/rc/@title");
-        for (String pageName : pageNames) {
-          Page page = PageUtility.toPage(pageName);
+        List<Page> rcPages = ApiFileUtility.createPages(queryContent, "//recentchanges/rc/@title");
+        for (Page page : rcPages) {
           if (pageFilter.keepPage(page)) {
             pages.add(page);
           }
@@ -154,17 +154,25 @@ public class ScoutDocFetch {
    */
   public void execute(Collection<Page> inputPages, RelatedPagesStrategy strategy) {
     Set<Page> pages = new HashSet<Page>();
+    Set<Page> normalizedInputPages = new HashSet<Page>();
     Set<Page> pagesToDownload = new HashSet<Page>();
-    pages.addAll(inputPages);
     pagesToDownload.addAll(inputPages);
 
     while (pagesToDownload.size() > 0) {
       Set<Page> pagesAdditional = new HashSet<Page>();
 
-      for (Page page : pagesToDownload) {
-        downloadPage(page);
-        //Read the API Page to related content to the set. 
-        pagesAdditional.addAll(strategy.findNextRelatedPages(page, inputPages.contains(page)));
+      for (Page p : pagesToDownload) {
+        Page page = downloadPage(p);
+        if (page != null) {
+          Pages.add(page);
+          if (inputPages.contains(p)) {
+            normalizedInputPages.add(p);
+          }
+          pages.add(page);
+
+          //Read the API Page to related content to the set.
+          pagesAdditional.addAll(strategy.findNextRelatedPages(page, normalizedInputPages.contains(page)));
+        }
       }
 
       pagesToDownload = new HashSet<Page>();
@@ -177,35 +185,18 @@ public class ScoutDocFetch {
     }
   }
 
-  private static void downloadPage(Page page) {
+  private static Page downloadPage(Page page) {
     try {
-      long lastRevisionId = ApiFileUtility.readRevisionId(PageUtility.toApiFile(page));
-      File apiFile = downloadApiPage(page, lastRevisionId);
-      if (apiFile != null) {
-        downloadMediaWikiPage(page);
-      }
+      Page normalizedPage = downloadApiPageAndContent(page);
+      return normalizedPage;
     }
     catch (Exception e) {
       e.printStackTrace();
     }
+    return null;
   }
 
-  private static void downloadMediaWikiPage(Page page) throws IOException, TransformerException {
-    String url = ProjectProperties.getWikiIndexUrl();
-
-    Map<String, String> parameters = new LinkedHashMap<String, String>();
-    parameters.put("action", "raw");
-    parameters.put("title", URLEncoder.encode(PageUtility.toFullPageNamee(page), "UTF-8"));
-//    parameters.put("templates", "expand");
-
-    String fullUrl = UrlUtility.createFullUrl(url, parameters);
-    String content = downlaod(fullUrl);
-
-    File file = new File(PageUtility.toFilePath(page, ProjectProperties.FILE_EXTENTION_CONTENT));
-    writeContentToFile(file, content);
-  }
-
-  private static File downloadApiPage(Page page, long lastRevisionId) throws IOException, TransformerException {
+  private static Page downloadApiPageAndContent(Page page) throws IOException, TransformerException {
     Preconditions.checkNotNull(page.getType(), "Page#Type can not be null");
 
     String url = ProjectProperties.getWikiApiUrl();
@@ -229,31 +220,60 @@ public class ScoutDocFetch {
     if (invalidTags.size() > 0) {
       throw new IllegalStateException("Got an invalid api file for url: " + fullUrl);
     }
+    //TODO: handle missing attribute! => Syserr and return null ?
 
+    Page resultPage = ApiFileUtility.createPage(content);
+
+    long localRevisionId = ApiFileUtility.readRevisionId(PageUtility.toApiFile(resultPage));
     long revisionId = ApiFileUtility.readRevisionId(content);
-    if (revisionId <= lastRevisionId) {
-      return null;
+    boolean hasChanged = (revisionId > localRevisionId);
+    if (hasChanged) {
+      content = prettyFormat(content);
+      File file = PageUtility.toApiFile(resultPage);
+      writeContentToFile(file, content);
     }
-    content = prettyFormat(content);
 
-    File file = PageUtility.toApiFile(page);
-    writeContentToFile(file, content);
+    //Mediawiki page:
+    File contentFile = PageUtility.toContentFile(resultPage);
+    if (hasChanged || !contentFile.exists()) {
+      downloadMediaWikiPage(resultPage, contentFile);
+    }
 
-    if (PageUtility.isImage(page)) {
-      String value = ApiFileUtility.readValue(file, "//imageinfo/ii/@url");
-      if (value != null) {
-        downloadImage(page, value);
+    //Image page:
+    if (PageUtility.isImage(resultPage)) {
+      File imageFile = PageUtility.toContentFile(resultPage);
+      if (hasChanged || !imageFile.exists()) {
+        String imageServerPath = ApiFileUtility.readValue(content, "//imageinfo/ii/@url");
+        if (imageServerPath != null) {
+          downloadImage(imageServerPath, imageFile);
+        }
+        else {
+          System.err.println("Could not find the image path on the server in api file. Page: " + resultPage.toString());
+        }
       }
     }
-    return file;
+
+    return resultPage;
   }
 
-  private static File downloadImage(Page imagePage, String imageServerPath) throws IOException, TransformerException {
-    Preconditions.checkNotNull(imageServerPath, "imageServerPath can not be null");
-    Preconditions.checkNotNull(imagePage, "imagePage can not be null");
-    Preconditions.checkArgument(PageUtility.isImage(imagePage), "imagePage should have a PageUtility.isFile(..) type (Image/File)");
+  private static void downloadMediaWikiPage(Page page, File file) throws IOException, TransformerException {
+    String url = ProjectProperties.getWikiIndexUrl();
 
-    File file = PageUtility.toFile(imagePage);
+    Map<String, String> parameters = new LinkedHashMap<String, String>();
+    parameters.put("action", "raw");
+    parameters.put("title", URLEncoder.encode(PageUtility.toFullPageNamee(page), "UTF-8"));
+//    parameters.put("templates", "expand");
+
+    String fullUrl = UrlUtility.createFullUrl(url, parameters);
+    String content = downlaod(fullUrl);
+
+    writeContentToFile(file, content);
+  }
+
+  private static File downloadImage(String imageServerPath, File file) throws IOException, TransformerException {
+    Preconditions.checkNotNull(imageServerPath, "imageServerPath can not be null");
+    Preconditions.checkNotNull(file, "file can not be null");
+
     String fullUrl;
     if (imageServerPath.startsWith(ProjectProperties.getWikiServerUrl())) {
       fullUrl = imageServerPath;

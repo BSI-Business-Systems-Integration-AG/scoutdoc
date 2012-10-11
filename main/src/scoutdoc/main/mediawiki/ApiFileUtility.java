@@ -31,12 +31,15 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageType;
 import scoutdoc.main.structure.PageUtility;
+import scoutdoc.main.structure.Pages;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
@@ -147,7 +150,7 @@ public class ApiFileUtility {
   }
 
   private static long readRevisionId(InputSource inputSource) {
-    String value = readValue(inputSource, "//revisions/rev/@revid");
+    String value = readNodeValue(inputSource, "//revisions/rev/@revid");
     if (value == null) {
       return 0L;
     }
@@ -157,27 +160,95 @@ public class ApiFileUtility {
   }
 
   public static String readTimestamp(File apiFile) {
-    return readValue(createInputSource(apiFile), "//revisions/rev/@timestamp");
+    return readNodeValue(createInputSource(apiFile), "//revisions/rev/@timestamp");
+  }
+
+  public static Page createPage(File apiFile) {
+    return createPage(createInputSource(apiFile));
+  }
+
+  public static Page createPage(String apiFileContent) {
+    return createPage(createInputSource(apiFileContent));
+  }
+
+  public static List<Page> createPages(String content, String xpathQuery) {
+    List<Page> result = new ArrayList<Page>();
+    List<Node> nodes = readNodes(createInputSource(content), xpathQuery);
+    for (Node node : nodes) {
+      result.add(createPageFromNode(node));
+    }
+    return Collections.unmodifiableList(result);
+  }
+
+  private static Page createPage(InputSource inputSource) {
+    Node node = readNode(inputSource, "//pages/page");
+    return createPageFromNode(node);
+  }
+
+  private static Page createPageFromNode(Node node) {
+    if (node == null) {
+      return null;
+    }
+    NamedNodeMap attributes = node.getAttributes();
+    String pageIdValue = attributes.getNamedItem("pageid").getTextContent();
+    String titleValue = attributes.getNamedItem("title").getTextContent();
+    Page page;
+    if (pageIdValue != null) {
+      Integer pageId = Integer.parseInt(pageIdValue);
+      page = PageUtility.toPage(titleValue, pageId);
+    }
+    else {
+      page = PageUtility.toPageTitle(titleValue);
+    }
+    return page;
   }
 
   public static String readValue(File file, String xpathQuery) {
-    return readValue(createInputSource(file), xpathQuery);
+    return readNodeValue(createInputSource(file), xpathQuery);
   }
 
   public static String readValue(String content, String xpathQuery) {
-    return readValue(createInputSource(content), xpathQuery);
+    return readNodeValue(createInputSource(content), xpathQuery);
   }
 
   public static List<String> readValues(File file, String xpathQuery) {
-    return readValues(createInputSource(file), xpathQuery);
+    return readNodesValue(createInputSource(file), xpathQuery);
   }
 
   public static List<String> readValues(String content, String xpathQuery) {
-    return readValues(createInputSource(content), xpathQuery);
+    return readNodesValue(createInputSource(content), xpathQuery);
   }
 
-  private static String readValue(InputSource inputSource, String xpathQuery) {
-    List<String> values = readValues(inputSource, xpathQuery);
+  private static Collection<Page> parseApiFile(File apiFile, String xpathQuery) {
+    Set<Page> pagesSet = new HashSet<Page>();
+    List<String> values = readNodesValue(createInputSource(apiFile), xpathQuery);
+    for (String v : values) {
+      pagesSet.add(Pages.get(v));
+    }
+    return Collections.unmodifiableCollection(pagesSet);
+  }
+
+  private static String readNodeValue(InputSource inputSource, String xpathQuery) {
+    Node node = readNode(inputSource, xpathQuery);
+    if (node == null) {
+      return null;
+    }
+    else {
+      return node.getNodeValue();
+    }
+  }
+
+  private static List<String> readNodesValue(InputSource inputSource, String xpathQuery) {
+    List<String> result = new ArrayList<String>();
+    List<Node> nodes = readNodes(inputSource, xpathQuery);
+    for (Node node : nodes) {
+      result.add(node.getNodeValue());
+    }
+    return Collections.unmodifiableList(result);
+  }
+
+  private static Node readNode(InputSource inputSource, String xpathQuery) {
+    List<Node> values = readNodes(inputSource, xpathQuery);
     if (values.size() == 0) {
       return null;
     }
@@ -189,17 +260,8 @@ public class ApiFileUtility {
     }
   }
 
-  private static Collection<Page> parseApiFile(File apiFile, String xpathQuery) {
-    Set<Page> pagesSet = new HashSet<Page>();
-    List<String> values = readValues(createInputSource(apiFile), xpathQuery);
-    for (String v : values) {
-      pagesSet.add(PageUtility.toPage(v));
-    }
-    return Collections.unmodifiableCollection(pagesSet);
-  }
-
-  private static List<String> readValues(InputSource inputSource, String xpathQuery) {
-    List<String> result = new ArrayList<String>();
+  private static List<Node> readNodes(InputSource inputSource, String xpathQuery) {
+    List<Node> result = new ArrayList<Node>();
     if (inputSource == null) {
       return result;
     }
@@ -213,7 +275,7 @@ public class ApiFileUtility {
       XPathExpression expr = xpath.compile(xpathQuery);
       NodeList nodes = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
       for (int i = 0; i < nodes.getLength(); i++) {
-        result.add(nodes.item(i).getNodeValue());
+        result.add(nodes.item(i));
       }
     }
     catch (Exception e) {

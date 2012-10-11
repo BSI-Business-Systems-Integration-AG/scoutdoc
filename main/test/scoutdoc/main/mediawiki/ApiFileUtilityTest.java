@@ -21,18 +21,19 @@ import org.junit.Test;
 
 import scoutdoc.main.TU;
 import scoutdoc.main.structure.Page;
+import scoutdoc.main.structure.PageType;
 import scoutdoc.main.structure.PageUtility;
 
 public class ApiFileUtilityTest {
 
   @Test
-  public void testReadRecisionId() {
-    runReadRecisionId(245, "<rev revid=\"245\" parentid=\"243\" user=\"Admin\" timestamp=\"2012-08-10T16:59:40Z\" comment=\"\"/>");
-    runReadRecisionId(5, "<rev revid=\"5\" />");
-    runReadRecisionId(0, "");
+  public void testReadRevisionId() {
+    runReadRevisionId(245, "<rev revid=\"245\" parentid=\"243\" user=\"Admin\" timestamp=\"2012-08-10T16:59:40Z\" comment=\"\"/>");
+    runReadRevisionId(5, "<rev revid=\"5\" />");
+    runReadRevisionId(0, "");
   }
 
-  private void runReadRecisionId(int expected, String content) {
+  private void runReadRevisionId(int expected, String content) {
     StringBuilder sb = new StringBuilder();
     sb.append("<api><query><pages><page><revisions>");
     sb.append(content);
@@ -43,7 +44,7 @@ public class ApiFileUtilityTest {
   }
 
   @Test
-  public void testReadRecisionIdApiFile() {
+  public void testReadRevisionIdApiFile() {
     long actual = ApiFileUtility.readRevisionId(initAndGetApiFile());
     Assert.assertEquals(245, actual);
   }
@@ -107,8 +108,24 @@ public class ApiFileUtilityTest {
   }
 
   private File initAndGetApiFile() {
-    TU.initProperties();
+    TU.init();
     return PageUtility.toApiFile(TU.PAGE_1);
   }
 
+  @Test
+  public void testCreatePage() throws Exception {
+    Page p1 = TU.createPage(PageType.Article, "Test_Page1", 14);
+    runCreatePage(p1, "<page pageid=\"14\" ns=\"0\" title=\"Test_Page1\">Content</page>");
+    Page p2 = TU.createPage(PageType.Category, "My_category", 28);
+    runCreatePage(p2, "<page pageid=\"28\" ns=\"0\" title=\"Category:My category\">Lorem Ipsum</page>");
+  }
+
+  private void runCreatePage(Page expected, String content) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("<api><query><pages>");
+    sb.append(content);
+    sb.append("</pages></query></api>");
+    Page page = ApiFileUtility.createPage(sb.toString());
+    TU.assertPageEquals(expected, page);
+  }
 }

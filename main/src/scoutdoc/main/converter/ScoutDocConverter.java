@@ -28,6 +28,7 @@ import scoutdoc.main.ProjectProperties;
 import scoutdoc.main.mediawiki.ApiFileUtility;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageUtility;
+import scoutdoc.main.structure.Pages;
 import scoutdoc.main.structure.Task;
 
 import com.google.common.base.CharMatcher;
@@ -42,8 +43,8 @@ public class ScoutDocConverter {
 
     MediaWikiLanguageExt markupLanguage = new MediaWikiLanguageExt();
 
-    markupLanguage.getTemplateProviders().add(new IgnoreTemplateProvider("ScoutPage", "note")); //Could also use: markupLanguage.setTemplateExcludes("ScoutPage")
-    markupLanguage.getTemplateProviders().add(new FilesTemplateProvider(new File(ProjectProperties.getFolderWikiSource() + ProjectProperties.getFileSeparator() + "Template")));
+    markupLanguage.getTemplateProviders().add(new IgnoreTemplateProvider("ScoutPage")); //Could also use: markupLanguage.setTemplateExcludes("ScoutPage")
+    markupLanguage.getTemplateProviders().add(new PagesTemplateProvider());
     markupLanguage.setInternalLinkPattern(ProjectProperties.getWikiServerInternalLinkPattern());
 
     MarkupParser markupParser = new MarkupParser();
@@ -51,7 +52,7 @@ public class ScoutDocConverter {
 
     List<ConversionItem> items = new ArrayList<ConversionItem>();
     ConversionItem firstItem = new ConversionItem();
-    firstItem.inputPage = t.getInputPages().get(0);
+    firstItem.inputPage = Pages.normalize(t.getInputPages().get(0));
     firstItem.outputFileName = "index.html";
     firstItem.outputTitle = t.getOutputTitle();
     firstItem.includeToc = t.getInputPages().size() > 1;
@@ -59,7 +60,7 @@ public class ScoutDocConverter {
     items.add(firstItem);
 
     for (int i = 1; i < t.getInputPages().size(); i++) {
-      Page p = t.getInputPages().get(i);
+      Page p = Pages.normalize(t.getInputPages().get(i));
       ConversionItem item = new ConversionItem();
       item.inputPage = p;
       item.outputFileName = String.format("%02d", i) + "_" + PageUtility.toBasePageNamee(p).toLowerCase() + ".html";
@@ -129,8 +130,14 @@ public class ScoutDocConverter {
 
       File toFolder = computeImagesFolder(t);
       for (Page image : images) {
-        File from = PageUtility.toFile(image);
-        Files.copy(from, new File(toFolder, PageUtility.convertToInternalName(image.getName())));
+        File imageFile = PageUtility.toImageFile(image);
+        if (imageFile.exists()) {
+          Files.copy(imageFile, new File(toFolder, PageUtility.convertToInternalName(image.getName())));
+        }
+        else {
+          System.err.println("Requested imageFile does not exist. Page: " + image.toString());
+        }
+
       }
     }
 

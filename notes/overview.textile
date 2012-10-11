@@ -54,35 +54,34 @@ First level (MediaWiki namespace):
 * Image
 * Template
 
-For each page:
+For each page, the base-name of the page (page title without the namespace prefix) is encoded in order to handle special characters (for example @":"@ is not allowed on windows). The ID of the page (pageid) is added as page suffix (separated with a @"-"@) in order to avoid colision on the filesystem (windows do not handle case sensitivity). Two files are created:
 * @*.mediawiki@ file: source of the page (content of the page, using the mediawiki Markup)
 * @*.meta.xml@ file: meta information provided by MediaWiki.
+
+For images and file, the binary file is also stored with the appropriate extension.
 
 Here an example of how the pages are organized on the disk:
 
 bc. 
   wiki_src
-  |  
+  |
   +---Article
-  |   \---Scout
-  |       \---Tutorial
-  |           +---3.7
-  |           |    HelloWorld.mediawiki
-  |           |    HelloWorld.meta.xml
-  |           |
-  |           \---3.8
-  |                HelloWorld.mediawiki
-  |                HelloWorld.meta.xml
+  |       Scout%2FTutorial%2F3.7%2FHelloWorld-30441.mediawiki
+  |       Scout%2FTutorial%2F3.7%2FHelloWorld-30441.meta.xml
+  |       Scout%2FTutorial%2F3.8%2FHelloWorld-36675.mediawiki
+  |       Scout%2FTutorial%2F3.8%2FHelloWorld-36675.meta.xml
+  |       ...
+  |
   +---Image
-  |    Newprojectdialog1.png
-  |    Newprojectdialog1.png.mediawiki
-  |    Newprojectdialog1.png.meta.xml
-  |    ...
-  |      
+  |       Newprojectdialog1-30427.png
+  |       Newprojectdialog1.png-30427.mediawiki
+  |       Newprojectdialog1.png-30427.meta.xml
+  |       ...
+  |
   \---Template
-       ScoutLink.mediawiki
-       ScoutLink.meta.xml
-       ...
+          ScoutLink-26314.mediawiki
+          ScoutLink-26314.meta.xml
+          ...
 
 
 h2. Usage

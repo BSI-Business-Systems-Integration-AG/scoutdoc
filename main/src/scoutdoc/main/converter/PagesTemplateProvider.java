@@ -17,23 +17,31 @@ import java.io.IOException;
 import org.eclipse.mylyn.wikitext.mediawiki.core.Template;
 import org.eclipse.mylyn.wikitext.mediawiki.core.TemplateResolver;
 
+import scoutdoc.main.structure.Page;
+import scoutdoc.main.structure.PageUtility;
+import scoutdoc.main.structure.Pages;
+
 import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
 import com.google.common.io.Files;
 
-public class FilesTemplateProvider extends TemplateResolver {
-  private static final String FILE_EXTENSION = ".mediawiki";
-  private File folder;
+public class PagesTemplateProvider extends TemplateResolver {
 
-  public FilesTemplateProvider(File folder) {
+  public PagesTemplateProvider() {
     super();
-    this.folder = folder;
   }
 
   @Override
   public Template resolveTemplate(String templateName) {
+    if (Strings.isNullOrEmpty(templateName)) {
+      return null;
+    }
     String basicName = templateName.toLowerCase().startsWith("template:") ? templateName.substring(templateName.lastIndexOf(':') + 1) : templateName;
 
-    File file = new File(folder, basicName + FILE_EXTENSION);
+    String templatePageName = "Template:" + basicName.substring(0, 1).toUpperCase() + basicName.substring(1);
+    Page templatePage = Pages.get(templatePageName);
+    File file = PageUtility.toContentFile(templatePage);
+
     if (file.exists()) {
       try {
         String content = Files.toString(file, Charsets.UTF_8);
@@ -50,5 +58,4 @@ public class FilesTemplateProvider extends TemplateResolver {
     }
     return null;
   }
-
 }

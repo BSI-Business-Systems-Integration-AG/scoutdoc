@@ -53,7 +53,7 @@ public class TaskUtility {
         t.setOutputCheckstyleFile(value);
       }
       else if (key.startsWith(PAGES_PREFIX)) {
-        pages.put(key, PageUtility.toPage(value));
+        pages.put(key, Pages.get(value));
       }
       else {
         throw new IllegalStateException("Unknwon property <" + key + ">");

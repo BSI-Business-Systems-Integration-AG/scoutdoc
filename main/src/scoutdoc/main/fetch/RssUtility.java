@@ -31,6 +31,7 @@ import scoutdoc.main.filter.IPageFilter;
 import scoutdoc.main.mediawiki.ApiFileUtility;
 import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageUtility;
+import scoutdoc.main.structure.Pages;
 
 import com.google.common.base.Splitter;
 
@@ -91,7 +92,7 @@ public class RssUtility {
     }
 
     if (title != null) {
-      Page page = PageUtility.toPage(title);
+      Page page = Pages.get(title);
       if (page != null) {
         long revId = Long.MAX_VALUE;
         if (revIdText != null) {

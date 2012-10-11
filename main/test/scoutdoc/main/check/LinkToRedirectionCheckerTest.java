@@ -24,7 +24,7 @@ public class LinkToRedirectionCheckerTest {
 
   @Test
   public void testCheckNotMatch() {
-    TU.initProperties();
+    TU.init();
 
     runNotMatch(TU.PAGE_2);
     runNotMatch(TU.RED_1);

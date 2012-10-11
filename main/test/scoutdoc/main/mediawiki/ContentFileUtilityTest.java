@@ -17,7 +17,6 @@ import org.junit.Test;
 
 import scoutdoc.main.ProjectProperties;
 import scoutdoc.main.TU;
-import scoutdoc.main.structure.Page;
 import scoutdoc.main.structure.PageType;
 
 public class ContentFileUtilityTest {
@@ -32,50 +31,54 @@ public class ContentFileUtilityTest {
     Assert.assertEquals(null, ContentFileUtility.checkRedirection("#REDIRECT [Page1]]"));
     Assert.assertEquals(null, ContentFileUtility.checkRedirection("REDIRECT [[Page1]]"));
 
-    Page page1 = TU.createPage(PageType.Article, "Page1");
-    TU.assertPageEquals(page1, ContentFileUtility.checkRedirection("#REDIRECT [[Page1]]"));
-    TU.assertPageEquals(page1, ContentFileUtility.checkRedirection("#REDIRECT [[Page1]]\n"));
-    TU.assertPageEquals(page1, ContentFileUtility.checkRedirection("#REDIRECT[[Page1]]"));
-    TU.assertPageEquals(page1, ContentFileUtility.checkRedirection("#REDIRECT[[Page1]]\n"));
+    TU.assertPageEquals(PageType.Article, "Page1", ContentFileUtility.checkRedirection("#REDIRECT [[Page1]]"));
+    TU.assertPageEquals(PageType.Article, "Page1", ContentFileUtility.checkRedirection("#REDIRECT [[Page1]]\n"));
+    TU.assertPageEquals(PageType.Article, "Page1", ContentFileUtility.checkRedirection("#REDIRECT[[Page1]]"));
+    TU.assertPageEquals(PageType.Article, "Page1", ContentFileUtility.checkRedirection("#REDIRECT[[Page1]]\n"));
 
-    Page myPage = TU.createPage(PageType.Article, "My_Page");
-    TU.assertPageEquals(myPage, ContentFileUtility.checkRedirection("#REDIRECT [[My Page]]"));
-    TU.assertPageEquals(myPage, ContentFileUtility.checkRedirection("#REDIRECT [[My_Page]]"));
+    TU.assertPageEquals(PageType.Article, "My_Page", ContentFileUtility.checkRedirection("#REDIRECT [[My Page]]"));
+    TU.assertPageEquals(PageType.Article, "My_Page", ContentFileUtility.checkRedirection("#REDIRECT [[My_Page]]"));
 
-    Page rootPage = TU.createPage(PageType.Article, "Root/Page");
-    TU.assertPageEquals(rootPage, ContentFileUtility.checkRedirection("#REDIRECT [[Root/Page]]"));
+    TU.assertPageEquals(PageType.Article, "Root/Page", ContentFileUtility.checkRedirection("#REDIRECT [[Root/Page]]"));
+    TU.assertPageEquals(PageType.Article, "Root/Page/", ContentFileUtility.checkRedirection("#REDIRECT [[Root/Page/]]"));
 
-    Page rootPageSlash = TU.createPage(PageType.Article, "Root/Page%2F");
-    TU.assertPageEquals(rootPageSlash, ContentFileUtility.checkRedirection("#REDIRECT [[Root/Page/]]"));
-
-    Page category = TU.createPage(PageType.Category, "MyCategory");
-    TU.assertPageEquals(category, ContentFileUtility.checkRedirection("#REDIRECT [[:Category:MyCategory]]"));
-    TU.assertPageEquals(category, ContentFileUtility.checkRedirection("#REDIRECT [[:Category:MyCategory]]\n"));
+    TU.assertPageEquals(PageType.Category, "MyCategory", ContentFileUtility.checkRedirection("#REDIRECT [[:Category:MyCategory]]"));
+    TU.assertPageEquals(PageType.Category, "MyCategory", ContentFileUtility.checkRedirection("#REDIRECT [[:Category:MyCategory]]\n"));
   }
 
   @Test
   public void testCheckRedirectionStringWithCustomPrefix() {
-    TU.initProperties();
+    TU.init();
 
     //Precondition:
     Assert.assertTrue(ProjectProperties.getMediaWikiConfiguration().getRedirectionPrefixes().contains("#CUSTOM_REDIRECTION"));
 
     //Test:
-    Page page = TU.createPage(PageType.Article, "ThisPage");
-    TU.assertPageEquals(page, ContentFileUtility.checkRedirection("#CUSTOM_REDIRECTION [[ThisPage]]"));
-    TU.assertPageEquals(page, ContentFileUtility.checkRedirection("#CUSTOM_REDIRECTION [[ThisPage]]\n"));
-    TU.assertPageEquals(page, ContentFileUtility.checkRedirection("#CUSTOM_REDIRECTION[[ThisPage]]"));
-    TU.assertPageEquals(page, ContentFileUtility.checkRedirection("#CUSTOM_REDIRECTION[[ThisPage]]\n"));
+    TU.assertPageEquals(PageType.Article, "ThisPage", ContentFileUtility.checkRedirection("#CUSTOM_REDIRECTION [[ThisPage]]"));
+    TU.assertPageEquals(PageType.Article, "ThisPage", ContentFileUtility.checkRedirection("#CUSTOM_REDIRECTION [[ThisPage]]\n"));
+    TU.assertPageEquals(PageType.Article, "ThisPage", ContentFileUtility.checkRedirection("#CUSTOM_REDIRECTION[[ThisPage]]"));
+    TU.assertPageEquals(PageType.Article, "ThisPage", ContentFileUtility.checkRedirection("#CUSTOM_REDIRECTION[[ThisPage]]\n"));
   }
 
   @Test
   public void testCheckRedirectionPage() {
-    TU.initProperties();
+    TU.init();
 
     TU.assertPageEquals(TU.RED_2, ContentFileUtility.checkRedirection(TU.RED_1));
     TU.assertPageEquals(TU.PAGE_2, ContentFileUtility.checkRedirection(TU.RED_2));
     TU.assertPageEquals(null, ContentFileUtility.checkRedirection(TU.PAGE_2));
     TU.assertPageEquals(null, ContentFileUtility.checkRedirection(TU.RED_SELF));
+  }
+
+  @Test
+  public void testCheckRedirectionPageNotExist() {
+    TU.init();
+
+    //Page do no exists:
+    TU.assertPageEquals(null, ContentFileUtility.checkRedirection(TU.createPage(PageType.Article, "MyPage", 3)));
+
+    //Page is unknown:
+    TU.assertPageEquals(null, ContentFileUtility.checkRedirection(TU.createIncompletePage(PageType.Article, "MyPage2")));
   }
 
 }

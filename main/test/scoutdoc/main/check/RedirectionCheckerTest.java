@@ -27,11 +27,11 @@ public class RedirectionCheckerTest {
 
   @Test
   public void testCheckNotMatch() {
-    TU.initProperties();
+    TU.init();
 
-    runNotMatch(PageUtility.toPage("Test_Page1"));
-    runNotMatch(PageUtility.toPage("Test_Red2"));
-    runNotMatch(PageUtility.toPage("Test_Red3"));
+    runNotMatch(TU.PAGE_1);
+    runNotMatch(TU.RED_2);
+    runNotMatch(TU.RED_3);
   }
 
   private void runNotMatch(Page page) {
@@ -41,9 +41,9 @@ public class RedirectionCheckerTest {
 
   @Test
   public void testCheck() {
-    TU.initProperties();
+    TU.init();
 
-    Page page = PageUtility.toPage("Test_Red1");
+    Page page = TU.RED_1;
 
     List<Check> actual = new RedirectionChecker().check(page);
     Assert.assertEquals("size", 1, actual.size());
@@ -59,13 +59,13 @@ public class RedirectionCheckerTest {
 
   @Test
   public void testCheckSelfRedirection() {
-    TU.initProperties();
-    runCircularRedirection("'Test RedSelf' => 'Test RedSelf'", PageUtility.toPage("Test_RedSelf"));
+    TU.init();
+    runCircularRedirection("'Test RedSelf' => 'Test RedSelf'", TU.RED_SELF);
   }
 
   @Test
   public void testCircularRedirection() {
-    TU.initProperties();
+    TU.init();
 
     runCircularRedirection("'Test RedCirc1' => 'Test RedCirc2' => 'Test RedCirc1'", TU.RED_CIRC_1);
     runCircularRedirection("'Test RedCirc2' => 'Test RedCirc1' => 'Test RedCirc2'", TU.RED_CIRC_2);

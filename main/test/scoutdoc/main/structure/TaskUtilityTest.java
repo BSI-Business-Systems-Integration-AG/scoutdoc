@@ -18,10 +18,14 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import scoutdoc.main.TU;
+
 public class TaskUtilityTest {
 
   @Test
   public void test() throws Exception {
+    TU.init();
+
     File f = File.createTempFile("test", "properties");
 
     Task t = new Task();
@@ -30,9 +34,9 @@ public class TaskUtilityTest {
     t.setOutputTitle("Test Title");
     t.setOutputCheckstyleFile("My-checkstyle-file.xml");
     t.setInputPages(Arrays.<Page> asList(
-        PageUtility.toPage("Name/OfPage/3.7/in_the_wiki1"),
-        PageUtility.toPage("Name/OfPage/3.7/in_the_wiki2"),
-        PageUtility.toPage("Name/OfPage/3.7/in_the_wiki3")
+        TU.PAGE_1,
+        TU.PAGE_2,
+        TU.PAGE_3
         ));
 
     System.out.println(f.getAbsolutePath());
