@@ -220,6 +220,12 @@ public class ScoutDocFetch {
     if (invalidTags.size() > 0) {
       throw new IllegalStateException("Got an invalid api file for url: " + fullUrl);
     }
+    List<String> missingTags = ApiFileUtility.readValues(content, "//page[@missing]");
+    if (missingTags.size() > 0) {
+      System.err.println("Page is missing at url: '" + fullUrl + "'. Page: " + page.toString());
+      return null;
+    }
+
     //TODO: handle missing attribute! => Syserr and return null ?
 
     Page resultPage = ApiFileUtility.createPage(content);
