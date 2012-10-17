@@ -115,7 +115,7 @@ public class ScoutDocFetch {
 
       try {
         String queryContent = downlaod(UrlUtility.createFullUrl(ProjectProperties.getWikiApiUrl(), parameters));
-        List<Page> rcPages = ApiFileUtility.createPages(queryContent, "//recentchanges/rc/@title");
+        List<Page> rcPages = ApiFileUtility.createPages(queryContent, "//recentchanges/rc");
         for (Page page : rcPages) {
           if (pageFilter.keepPage(page)) {
             pages.add(page);
@@ -226,8 +226,6 @@ public class ScoutDocFetch {
       return null;
     }
 
-    //TODO: handle missing attribute! => Syserr and return null ?
-
     Page resultPage = ApiFileUtility.createPage(content);
 
     long localRevisionId = ApiFileUtility.readRevisionId(PageUtility.toApiFile(resultPage));
@@ -247,7 +245,7 @@ public class ScoutDocFetch {
 
     //Image page:
     if (PageUtility.isImage(resultPage)) {
-      File imageFile = PageUtility.toContentFile(resultPage);
+      File imageFile = PageUtility.toImageFile(resultPage);
       if (hasChanged || !imageFile.exists()) {
         String imageServerPath = ApiFileUtility.readValue(content, "//imageinfo/ii/@url");
         if (imageServerPath != null) {
