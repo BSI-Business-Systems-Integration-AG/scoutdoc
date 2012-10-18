@@ -17,7 +17,9 @@ import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.mylyn.wikitext.core.parser.MarkupParser;
 import org.eclipse.mylyn.wikitext.core.parser.outline.OutlineItem;
@@ -91,6 +93,9 @@ public class ScoutDocConverter {
       Files.createParentDirs(item.outputFile);
       System.out.println("outputFile: " + item.outputFile);
 
+      File apiFile = PageUtility.toApiFile(item.inputPage);
+      Collection<Page> images = ApiFileUtility.parseImages(apiFile);
+
       StringWriter out = new StringWriter();
       HtmlDocumentBuilderExt htmlDocumentBuilder = new HtmlDocumentBuilderExt(out);
       htmlDocumentBuilder.setPrependImagePrefix(ProjectProperties.getRelPathNavImagesDist());
@@ -101,6 +106,11 @@ public class ScoutDocConverter {
       markupParser.setBuilder(htmlDocumentBuilder);
 
       markupLanguage.setPageName(item.inputPage.getName());
+      Set<String> imageNames = new HashSet<String>();
+      for (Page image : images) {
+        imageNames.add(PageUtility.toPageNamee(image));
+      }
+      markupLanguage.setImageNames(imageNames);
 
       markupParser.parse(item.inputContent);
 
@@ -124,9 +134,6 @@ public class ScoutDocConverter {
           firstLevel = item.outlineItem;
         }
       }
-
-      File apiFile = PageUtility.toApiFile(item.inputPage);
-      Collection<Page> images = ApiFileUtility.parseImages(apiFile);
 
       File toFolder = computeImagesFolder(t);
       for (Page image : images) {
