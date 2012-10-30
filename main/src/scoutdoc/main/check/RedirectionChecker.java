@@ -48,7 +48,6 @@ public class RedirectionChecker implements IChecker {
             //Circular Redirection
             Check check = new Check();
             check.setType("Circular redirection");
-            check.setFileName(PageUtility.toFilePath(page));
             check.setPage(page);
             check.setLine(1);
             check.setColumn(1);
@@ -61,7 +60,6 @@ public class RedirectionChecker implements IChecker {
         }
         Check check = new Check();
         check.setType("Multiple redirection");
-        check.setFileName(PageUtility.toFilePath(page));
         check.setPage(page);
         check.setLine(1);
         check.setColumn(1);

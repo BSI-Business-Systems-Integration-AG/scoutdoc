@@ -14,6 +14,8 @@ package scoutdoc.main.check;
 import java.io.PrintWriter;
 import java.util.List;
 
+import scoutdoc.main.structure.PageUtility;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
@@ -35,7 +37,8 @@ public class CheckstyleFileWriter {
     Multimap<String, Check> multimap = ArrayListMultimap.create();
 
     for (Check check : list) {
-      multimap.put(check.getFileName(), check);
+      String filePath = PageUtility.toFile(check.getPage()).getAbsolutePath();
+      multimap.put(filePath, check);
     }
 
     for (String file : multimap.keySet()) {

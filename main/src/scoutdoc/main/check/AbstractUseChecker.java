@@ -17,7 +17,6 @@ import java.util.List;
 import scoutdoc.main.mediawiki.ApiFileContentType;
 import scoutdoc.main.mediawiki.ApiFileUtility;
 import scoutdoc.main.structure.Page;
-import scoutdoc.main.structure.PageUtility;
 
 /**
  * Base class to check if a page is using on other resource (based on api file).
@@ -42,7 +41,6 @@ public abstract class AbstractUseChecker implements IChecker {
     else {
       Check check = new Check();
       check.setType(createType());
-      check.setFileName(PageUtility.toFilePath(page));
       check.setPage(page);
       check.setLine(1);
       check.setColumn(1);

@@ -19,7 +19,6 @@ import scoutdoc.main.structure.Page;
 public class Check {
   private int column;
   private int line;
-  private String fileName;
   private Page page;
   private String type;
   private String message;
@@ -40,14 +39,6 @@ public class Check {
 
   public void setLine(int line) {
     this.line = line;
-  }
-
-  public String getFileName() {
-    return fileName;
-  }
-
-  public void setFileName(String fileName) {
-    this.fileName = fileName;
   }
 
   public Page getPage() {
@@ -95,8 +86,6 @@ public class Check {
     final int prime = 31;
     int result = 1;
     result = prime * result + column;
-    result = prime * result
-        + ((fileName == null) ? 0 : fileName.hashCode());
     result = prime * result + line;
     result = prime * result + ((message == null) ? 0 : message.hashCode());
     result = prime * result + ((page == null) ? 0 : page.hashCode());
@@ -114,10 +103,6 @@ public class Check {
     if (getClass() != obj.getClass()) return false;
     Check other = (Check) obj;
     if (column != other.column) return false;
-    if (fileName == null) {
-      if (other.fileName != null) return false;
-    }
-    else if (!fileName.equals(other.fileName)) return false;
     if (line != other.line) return false;
     if (message == null) {
       if (other.message != null) return false;

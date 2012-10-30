@@ -91,12 +91,18 @@ public class ScoutDocFetch {
     }
     if (lastTimestamp == null) {
       lastTimestamp = "0000-00-00T00:00:00Z";
-      Collection<Page> pages = PageUtility.loadPages(ProjectProperties.getFolderWikiSource());
-      for (Page page : pages) {
-        String timestamp = ApiFileUtility.readTimestamp(PageUtility.toApiFile(page));
-        if (timestamp.compareTo(lastTimestamp) > 0) {
-          lastTimestamp = timestamp;
+      Collection<Page> pages;
+      try {
+        pages = PageUtility.loadPages(ProjectProperties.getFolderWikiSource());
+        for (Page page : pages) {
+          String timestamp = ApiFileUtility.readTimestamp(PageUtility.toApiFile(page));
+          if (timestamp.compareTo(lastTimestamp) > 0) {
+            lastTimestamp = timestamp;
+          }
         }
+      }
+      catch (IOException e) {
+        e.printStackTrace();
       }
     }
 

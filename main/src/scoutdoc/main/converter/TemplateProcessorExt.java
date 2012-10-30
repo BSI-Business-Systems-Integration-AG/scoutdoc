@@ -289,6 +289,11 @@ public class TemplateProcessorExt {
           parameters.get(1).value +
           "|image=Idea.png|bgcolor=#def3fe|bdcolor=#c5d7e0}}";
     }
+    else if (parameters.size() == 1) {
+      return "{{message|" +
+          parameters.get(0).value +
+          "|image=Idea.png|bgcolor=#def3fe|bdcolor=#c5d7e0}}";
+    }
     else {
       throw new UnsupportedOperationException("unexpected Tip Template Configuration");
       //		return "*****ScoutLinkError*****";

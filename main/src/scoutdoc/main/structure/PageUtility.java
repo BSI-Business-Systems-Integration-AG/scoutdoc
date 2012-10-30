@@ -222,7 +222,7 @@ public class PageUtility {
     return page.getType() == PageType.Image || page.getType() == PageType.File || page.getType() == PageType.Media;
   }
 
-  public static Collection<Page> loadPages(String sourceFolder) {
+  public static Collection<Page> loadPages(String sourceFolder) throws IOException {
     return loadApiFileAndPages(sourceFolder).values();
   }
 
@@ -230,8 +230,12 @@ public class PageUtility {
     return loadApiFileAndPages(folder).values();
   }
 
-  public static Map<File, Page> loadApiFileAndPages(String sourceFolder) {
+  public static Map<File, Page> loadApiFileAndPages(String sourceFolder) throws IOException {
     File f = new File(sourceFolder);
+    if (!f.exists()) {
+      Files.createParentDirs(f);
+      f.mkdir();
+    }
     return loadApiFileAndPages(f);
   }
 

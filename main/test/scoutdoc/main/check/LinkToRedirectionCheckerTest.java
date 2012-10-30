@@ -18,7 +18,6 @@ import org.junit.Test;
 
 import scoutdoc.main.TU;
 import scoutdoc.main.structure.Page;
-import scoutdoc.main.structure.PageUtility;
 
 public class LinkToRedirectionCheckerTest {
 
@@ -43,7 +42,6 @@ public class LinkToRedirectionCheckerTest {
     Assert.assertEquals("size", 1, actual.size());
 
     Assert.assertEquals("check type", "Link to redirection", actual.get(0).getType());
-    Assert.assertEquals("check file name", PageUtility.toFilePath(TU.PAGE_1), actual.get(0).getFileName());
     Assert.assertEquals("check page", TU.PAGE_1, actual.get(0).getPage());
     Assert.assertEquals("check line", 1, actual.get(0).getLine());
     Assert.assertEquals("check column", 1, actual.get(0).getColumn());

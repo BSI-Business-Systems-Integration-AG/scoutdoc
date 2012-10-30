@@ -22,7 +22,6 @@ import scoutdoc.main.check.Check;
 import scoutdoc.main.check.Severity;
 import scoutdoc.main.check.dashboard.DashboardWriter.Column;
 import scoutdoc.main.structure.Page;
-import scoutdoc.main.structure.PageUtility;
 
 import com.google.common.collect.Lists;
 
@@ -78,7 +77,6 @@ public class OutputElementComparatorTest {
     Check c = new Check();
     c.setLine(1);
     c.setColumn(1);
-    c.setFileName(PageUtility.toFilePath(page));
     c.setPage(page);
     c.setType("DOUBLE REDIRECTION");
     c.setMessage("Ri izo randa giuma finyuri, dite amadaci berojen ili zu. Supa mandi amadaci mi iro, ipe ta ceika urene anice.");
@@ -91,7 +89,6 @@ public class OutputElementComparatorTest {
     Check c = new Check();
     c.setLine(1);
     c.setColumn(1);
-    c.setFileName(PageUtility.toFilePath(page));
     c.setPage(page);
     c.setType("OTHER");
     c.setMessage("Du noci suhum imi. Lango umidi te ipa, hinne abuni ubo pe. Ika teka imagi gonyo on.");

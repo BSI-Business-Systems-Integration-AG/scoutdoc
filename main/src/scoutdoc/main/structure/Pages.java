@@ -28,13 +28,19 @@ public class Pages {
 
   public static void initPageList() {
     pageMap.clear();
-    Map<File, Page> pages = PageUtility.loadApiFileAndPages(ProjectProperties.getFolderWikiSource());
-    for (Entry<File, Page> e : pages.entrySet()) {
-      Page page = e.getValue();
-      File apiFile = e.getKey();
+    Map<File, Page> pages;
+    try {
+      pages = PageUtility.loadApiFileAndPages(ProjectProperties.getFolderWikiSource());
+      for (Entry<File, Page> set : pages.entrySet()) {
+        Page page = set.getValue();
+        File apiFile = set.getKey();
 
-      normalizePageFiles(page, apiFile);
-      add(page);
+        normalizePageFiles(page, apiFile);
+        add(page);
+      }
+    }
+    catch (IOException e) {
+      e.printStackTrace();
     }
   }
 

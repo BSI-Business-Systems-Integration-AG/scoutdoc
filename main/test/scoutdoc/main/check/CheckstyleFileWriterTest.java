@@ -19,14 +19,18 @@ import java.util.List;
 
 import junit.framework.Assert;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
+
+import scoutdoc.main.TU;
+import scoutdoc.main.structure.PageUtility;
 
 /**
  * Tests for {@link CheckstyleFileWriter}
  */
 public class CheckstyleFileWriterTest {
-  private static final String FILE_1 = "C:/my_file.txt";
-  private static final String FILE_2 = "C:/my_file2.txt";
+  private static String FILE_1 = "<not initialized 1>";
+  private static String FILE_2 = "<not initialized 2>";
   private static final String MESSAGE_1 = "This is the message";
   private static final String MESSAGE_2 = "This is message 2";
   private static final String SOURCE = "xxx";
@@ -36,6 +40,13 @@ public class CheckstyleFileWriterTest {
   private static final String CHECKSTYLE_OPEN = "<checkstyle version=\"5.5\">";
   private static final String CHECKSTYLE_CLOSE = "</checkstyle>";
   private static final String FILE_CLOSE = "</file>";
+
+  @BeforeClass
+  public static void beforeClass() {
+    TU.init();
+    FILE_1 = PageUtility.toFile(TU.PAGE_1).getAbsolutePath();
+    FILE_2 = PageUtility.toFile(TU.PAGE_2).getAbsolutePath();
+  }
 
   @Test
   public void testWriteEmpty() {
@@ -107,7 +118,7 @@ public class CheckstyleFileWriterTest {
     Check check = new Check();
     check.setLine(2);
     check.setColumn(10);
-    check.setFileName(FILE_1);
+    check.setPage(TU.PAGE_1);
     check.setMessage(MESSAGE_1);
     check.setSeverity(Severity.warning);
     return check;
@@ -117,7 +128,7 @@ public class CheckstyleFileWriterTest {
     Check check = new Check();
     check.setLine(20);
     check.setColumn(5);
-    check.setFileName(FILE_1);
+    check.setPage(TU.PAGE_1);
     check.setMessage(MESSAGE_2);
     check.setSeverity(Severity.warning);
     check.setSource(SOURCE);
@@ -128,7 +139,7 @@ public class CheckstyleFileWriterTest {
     Check check = new Check();
     check.setLine(20);
     check.setColumn(5);
-    check.setFileName(FILE_2);
+    check.setPage(TU.PAGE_2);
     check.setMessage(MESSAGE_2);
     check.setSeverity(Severity.warning);
     check.setSource(SOURCE);
