@@ -57,7 +57,7 @@ public class ScoutDocConverter {
     firstItem.inputPage = Pages.normalize(t.getInputPages().get(0));
     firstItem.outputFileName = "index.html";
     firstItem.outputTitle = t.getOutputTitle();
-    firstItem.includeToc = t.getInputPages().size() > 1;
+    firstItem.includeToc = t.getInputPages().size() == 1;
     firstItem.firstLevel = true;
     items.add(firstItem);
 
