@@ -243,8 +243,19 @@ public class TemplateProcessorExt {
       pageName = null;
       linkName = parameters.get(1).value;
     }
+    else if (parameters.size() == 2) {
+      categoryName = parameters.get(0).value;
+      pageName = parameters.get(1).value;
+      linkName = null;
+    }
     else {
-      throw new UnsupportedOperationException("unexpected ScoutLinkError");
+      StringBuilder b = new StringBuilder();
+      int i = 0;
+      for (Parameter p : parameters) {
+        b.append("{{{" + i + ":" + p.name + "}}} " + p.value + ";");
+        i++;
+      }
+      throw new UnsupportedOperationException("unexpected ScoutLinkError: [" + b.toString() + "]");
 //			return "*****ScoutLinkError*****";
     }
     StringBuilder sb = new StringBuilder();
